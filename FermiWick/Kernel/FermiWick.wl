@@ -697,6 +697,24 @@ Format[\[Chi][i_, j_, a_String], StandardForm] := Interpretation[Subsuperscript[
 Format[\[CapitalDelta][i_, j_], StandardForm] := Interpretation[Subscript["\[CapitalDelta]", Row[{i, j}]], \[CapitalDelta][i, j]];
 Format[\[CapitalDelta][i_, j_, a_String], StandardForm] := Interpretation[Subsuperscript["\[CapitalDelta]", Row[{i, j}], a], \[CapitalDelta][i, j, a]];
 
+(*Complex conjugates and squared moduli on screen, as ToTeX writes them: Conjugate[x] as x^*, and x^* x as |x|^2, for the
+  amplitudes ($complexHeads) and for symbols. Only the display changes: the boxes interpret as the expression.*)
+conjugateShownQ[x_] := MatchQ[Unevaluated[x], _Symbol | (h_[__] /; MemberQ[$complexHeads, h])];
+MakeBoxes[Conjugate[x_?conjugateShownQ], StandardForm] :=
+  With[{b = MakeBoxes[x, StandardForm]}, InterpretationBox[SuperscriptBox[b, "*"], Conjugate[x]]];
+MakeBoxes[modulusSquared[x_, k_], StandardForm] :=
+  With[{b = MakeBoxes[x, StandardForm], e = ToString[2 k]}, InterpretationBox[SuperscriptBox[RowBox[{"\[LeftBracketingBar]", b, "\[RightBracketingBar]"}], e], (Conjugate[x] x)^k]];
+(*the factors of a product with their exponents; a pair x^m Conjugate[x]^n (m, n positive integers) gives |x|^(2 min(m, n))*)
+factorExponents[t_Times] := Merge[Replace[List @@ t, {Power[b_, e_] :> (b -> e), b_ :> (b -> 1)}, {1}], Total];
+pairedQ[t_Times] := With[{f = factorExponents[t]},
+   AnyTrue[Keys[f], conjugateShownQ[#] && IntegerQ[f[#]] && f[#] > 0 && IntegerQ[Lookup[f, Key[Conjugate[#]], 0]] &&
+      Lookup[f, Key[Conjugate[#]], 0] > 0 &]];
+pairUp[t_Times] := Module[{f = factorExponents[t], mods = {}, k},
+   Do[If[conjugateShownQ[x] && IntegerQ[f[x]] && f[x] > 0 && IntegerQ[Lookup[f, Key[Conjugate[x]], 0]] && Lookup[f, Key[Conjugate[x]], 0] > 0,
+      k = Min[f[x], f[Conjugate[x]]]; f[x] -= k; f[Conjugate[x]] -= k; AppendTo[mods, modulusSquared[x, k]]], {x, Keys[f]}];
+   Times @@ Join[KeyValueMap[#1^#2 &, f], mods]];
+MakeBoxes[t_Times?pairedQ, StandardForm] := MakeBoxes[#, StandardForm] &[pairUp[t]];
+
 (* ========================================================================================== *)
 (*  5. Wick's theorem and mean field                                                          *)
 (* ========================================================================================== *)

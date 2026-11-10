@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- In a notebook, the conjugate of an amplitude or of a symbol is shown as $x^\ast$ and the product $x^\ast x$ as
+  $|x|^2$, as `ToTeX` writes them; only the display changes (copied, the output is the same expression).
 - Documents: the bar of the website has a button, All packages, with the mark of the hub
   (https://n4sd4q.github.io/), beside GitHub.
 - Documents: the README links the showcase and the manual on GitHub Pages, so that they open as PDFs in the browser,
