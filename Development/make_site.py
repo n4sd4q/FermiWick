@@ -277,9 +277,22 @@ def render_flow(items, fx, ids, install=False):
             src = need(r'src="([^"]+)"', s, "a picture").group(1)
             alt = re.sub(r"\s+", " ", need(r'alt="([^"]+)"', s, "the alternative text of a picture").group(1))
             width = need(r'width="(\d+)"', s, "the width of a picture").group(1)
-            out.append('<figure class="picture"><img class="paper" src="%s" width="%s" style="width: %spx" alt="%s"></figure>'
-                       % (html.escape(src), width, width, html.escape(alt)))
+            out.append('<figure class="picture">%s</figure>' % inline_svg(src, width, alt))
     return "\n".join(out)
+
+
+def inline_svg(src, width, alt):
+    """a picture of the README (ink in currentColor, drawn by make_readme_picture.py) inlined in the page, so that its ink
+    takes the colour of the text in both themes: without its own style, its ids prefixed so as not to meet those of the
+    formulas"""
+    svg = open(os.path.join(ROOT, src), encoding="utf-8").read()
+    prefix = re.sub(r"\W", "-", os.path.splitext(os.path.basename(src))[0]) + "-"
+    svg = re.sub(r"<\?xml[^>]*>\s*", "", svg)
+    svg = re.sub(r"<style>.*?</style>\s*", "", svg, flags=re.S)
+    svg = svg.replace('id="', 'id="' + prefix).replace('href="#', 'href="#' + prefix).replace("url(#", "url(#" + prefix)
+    svg = re.sub(r'<svg([^>]*?) width="[^"]*" height="[^"]*"', r'<svg\1', svg, count=1)
+    return svg.replace("<svg", '<svg role="img" aria-label="%s" style="display: block; width: %spx; max-width: 100%%; height: auto; '
+                       'margin: 0 auto"' % (html.escape(alt), width), 1)
 
 
 def pages(pdf):
