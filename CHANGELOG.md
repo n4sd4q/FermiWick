@@ -14,6 +14,9 @@
   exact ground state of free fermions. A wiki (`wiki/`, published by `.github/workflows/wiki.yml`): installation, writing
   operators, declaring a state, mean field with a self-consistent loop, exact diagonalisation, Gutzwiller projectors,
   LaTeX, scripts, conventions and a FAQ, every block checked by `Development/check_wiki.wl` (run by `check_docs.sh`).
+- Documents: the picture of Wick's theorem follows the theme of the page (transparent, the ink in the colour of the
+  text: `Development/make_readme_picture.py`); the wiki's page on Gutzwiller projectors shows projectors of your own and
+  why the sandwiches are cheap.
 
 ## 0.3.0 (2026-11-10)
 
