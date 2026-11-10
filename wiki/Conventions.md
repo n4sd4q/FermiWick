@@ -30,7 +30,7 @@ $\chi_{ji}$ is written $\chi_{ij}^{\ast}$.
 `WickVEV` brings the operator to normal order and applies Wick's theorem to each product, with the sign of the
 pairing. `MeanField` replaces each normal-ordered product $O_1\cdots O_{2n}$ by
 
-$$\sum_{p<q}(-1)^{p+q+1}\thinspace O_pO_q\thinspace \langle O_1\cdots\widehat{O_p}\cdots\widehat{O_q}\cdots O_{2n}\rangle-(n-1)\thinspace \langle O_1\cdots O_{2n}\rangle,$$
+$$\sum_{p\lt q}(-1)^{p+q+1}\thinspace O_pO_q\thinspace \langle O_1\cdots\widehat{O_p}\cdots\widehat{O_q}\cdots O_{2n}\rangle-(n-1)\thinspace \langle O_1\cdots O_{2n}\rangle,$$
 
 the hats marking the operators left out: the result has the expectation value and the first variation of the operator.
 

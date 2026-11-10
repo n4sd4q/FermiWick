@@ -30,7 +30,8 @@ which is not versioned.
   `Development/check_wiki.wl wiki/Page.md` runs the blocks of a page in a fresh kernel; each must give the `$$formula$$`
   (`ToTeX`, GitHub's escapes), the ```` ```math ```` block (formulas on several lines) or the ```` ```text ```` block
   (`ToString`) after it; `<!-- not run -->` before a block skips it; `--fill` writes the outputs where the page has `?`.
-  Wiki math: no `\,` (`\thinspace`), no `)_`, `]_`, `}_` or `+_` (GitHub reads them as emphasis: subscript first).
+  Wiki math: no `\,` (`\thinspace`), no `<` or `>` (`\lt`, `\gt`: GitHub reads `<q` as a tag), no `)_`, `]_`, `}_`
+  or `+_` (GitHub reads them as emphasis: subscript first).
 - `index.html` — the website (GitHub Pages serves main: https://n4sd4q.github.io/FermiWick/), **generated** by
   `python3 Development/make_site.py` from the README, `PacletInfo.wl`, `CITATION.cff` and the PDFs (formulas typeset by
   pdflatex, inlined as SVG); never edit it, run the script after changing its sources (`check_docs.sh` checks it). `.nojekyll`
