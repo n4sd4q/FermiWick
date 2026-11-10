@@ -213,6 +213,8 @@ ICONS = {
     "GITHUB": '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>',
     "MOON": '<svg class="moon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5a8.5 8.5 0 1 0 10.7 10.7z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>',
     "SUN": '<svg class="sun" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></g></svg>',
+    # the mark of the hub (a plaquette of four sites), for the link to all the packages
+    "HUB": '<svg viewBox="22 22 84 84" aria-hidden="true" focusable="false"><g fill="none" stroke="currentColor" stroke-linecap="round"><path d="M36 36H92V92H36Z" stroke-width="7"/><path d="M47 81 L50 82 L52 82 L53 80 L52 77 L51 74 L51 71 L52 70 L55 71 L58 72 L61 72 L63 72 L63 69 L61 66 L60 63 L61 61 L63 60 L66 61 L69 63 L72 63 L72 61 L72 58 L71 55 L70 52 L71 51 L74 51 L77 52 L80 53 L82 52 L82 50 L81 47" stroke-width="6" stroke-linejoin="round" opacity="0.8"/></g><g fill="currentColor"><circle cx="36" cy="36" r="10"/><circle cx="92" cy="36" r="10"/><circle cx="92" cy="92" r="10"/><circle cx="36" cy="92" r="10"/></g></svg>',
     "COPY": '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="8.5" y="8.5" width="12" height="12" rx="2.2"/><path d="M15.5 8.5V5.7a2.2 2.2 0 0 0-2.2-2.2H5.7a2.2 2.2 0 0 0-2.2 2.2v7.6a2.2 2.2 0 0 0 2.2 2.2h2.8"/></g></svg>',
 }
 
@@ -322,6 +324,7 @@ def build():
 <a class="brand" href="#top"><img src="Logo/FermiWick_logo_white.svg" width="30" height="30" alt="">{NAME}</a>
 <nav aria-label="Sections"><ul class="navlinks"><li><a href="#what">What it does</a></li><li><a href="#example">Example</a></li>
 <li><a href="#install">Install</a></li><li><a href="#docs">Documentation</a></li><li><a href="#cite">Cite</a></li></ul></nav>
+<a class="iconbtn" href="{HUB}" aria-label="All the packages of the author">{ICONS["HUB"]}<span class="label">All packages</span></a>
 <a class="iconbtn" href="{REPO}" aria-label="The repository on GitHub">{ICONS["GITHUB"]}<span class="label">GitHub</span></a>
 <button class="iconbtn theme" id="theme" type="button" aria-label="Switch between the light and the dark theme">{ICONS["MOON"]}{ICONS["SUN"]}</button>
 </div></div>

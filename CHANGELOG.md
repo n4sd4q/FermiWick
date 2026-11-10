@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Documents: the bar of the website has a button, All packages, with the mark of the hub
+  (https://n4sd4q.github.io/), beside GitHub.
+
 ## 0.3.0 (2026-11-10)
 
 - The banner and the update check, as in FunctionalDiagrams: loaded in a notebook, the package prints a banner (version,
