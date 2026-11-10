@@ -1,17 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
 <title>FermiWick logo: Wick contractions of c c-dagger c c-dagger, brackets with arrows from the creator (open circle) to the annihilator (filled circle)</title>
-<g transform="translate(64 64.5) scale(1.05) translate(-60 -37.8)">
-<g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="6">
-<path d="M22 50 V16 Q22 11 27 11 H93 Q98 11 98 16 V50" stroke="#ffffff"/>
-<path d="M46 50 V35 Q46 30 51 30 H69 Q74 30 74 35 V50" stroke="#F7B5DA"/>
-</g>
-<path d="M66 4 L52.5 11 L66 18 Z" fill="#ffffff" stroke="#ffffff" stroke-width="1.6" stroke-linejoin="round"/>
-<path d="M55 24 L68 30 L55 36 Z" fill="#F7B5DA" stroke="#F7B5DA" stroke-width="1.6" stroke-linejoin="round"/>
-<g stroke-width="3.6">
-<circle cx="22" cy="62" r="7.5" fill="#ffffff" stroke="#ffffff"/>
-<circle cx="46" cy="62" r="7.5" fill="#642A8C" fill-opacity="0" stroke="#F7B5DA"/>
-<circle cx="74" cy="62" r="7.5" fill="#F7B5DA" stroke="#F7B5DA"/>
-<circle cx="98" cy="62" r="7.5" fill="#642A8C" fill-opacity="0" stroke="#ffffff"/>
-</g>
-</g>
+<g fill="none" stroke-linecap="butt" stroke-linejoin="round"><path d="M24 88.0 V44 Q24 29 39 29 H89 Q104 29 104 44 V86.9" stroke="#ffffff" stroke-width="7.5"/><path d="M50 86.9 V65 Q50 54 61 54 H67 Q78 54 78 65 V88.0" stroke="#F7B5DA" stroke-width="7.5"/></g>
+<path d="M 57.5 29.0 L 69.5 21.5 L 69.5 36.5 Z" fill="#ffffff" stroke="#ffffff" stroke-width="3" stroke-linejoin="round"/><path d="M 70.5 54.0 L 59.3 47.0 L 59.3 61.0 Z" fill="#F7B5DA" stroke="#F7B5DA" stroke-width="3" stroke-linejoin="round"/>
+<circle cx="24" cy="95" r="8.5" fill="#ffffff"/><circle cx="50" cy="95" r="7" fill="none" stroke="#F7B5DA" stroke-width="4.2"/><circle cx="78" cy="95" r="8.5" fill="#F7B5DA"/><circle cx="104" cy="95" r="7" fill="none" stroke="#ffffff" stroke-width="4.2"/>
 </svg>

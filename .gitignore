@@ -10,3 +10,5 @@ examples.log
 CLAUDE.local.md
 *.log
 build/
+*.listing
+Documentation/readme/wick.pdf
