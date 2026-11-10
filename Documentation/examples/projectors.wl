@@ -1,0 +1,1 @@
+ToSpinChargeBasis[EmptyProjector[1] + SingleOccupationProjector[1] + DOp[1]]

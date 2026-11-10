@@ -1,0 +1,1 @@
+MeanField[U DOp[1], neel]

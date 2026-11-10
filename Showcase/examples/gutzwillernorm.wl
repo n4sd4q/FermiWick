@@ -1,0 +1,1 @@
+GutzwillerVEV[GutzwillerProjector[1] · GutzwillerProjector[1]]

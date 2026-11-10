@@ -1,0 +1,1 @@
+PlusHC[g c[1, SpinUp] ** c[2, SpinDown], "Complex" -> {g}]

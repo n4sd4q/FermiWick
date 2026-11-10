@@ -1,0 +1,286 @@
+\documentclass[11pt,a4paper]{article}
+\input{../Development/style.tex}
+\hypersetup{pdftitle={FermiWick: reference manual},pdfauthor={Nazzareno Africani}}
+\fancyhead[L]{\sffamily\small\color{accent}FermiWick \textperiodcentered{} reference manual}
+\newcommand{\fnentry}[2]{\par\needspace{4\baselineskip}\noindent\fn{#1}\par\nobreak
+  \noindent\begin{minipage}[t]{\linewidth}\leftskip=1.2em #2\end{minipage}\par}
+
+\begin{document}
+\titleblock{Reference manual}{Every function, option and convention, with an example computed by the package}
+
+{\small\tableofcontents}
+
+\section{Installation and loading}
+FermiWick is a paclet. Install it once from its folder (the one with \texttt{PacletInfo.wl}), then load it in every
+session, with the Gutzwiller and Fock modules when needed:
+\begin{code}
+PacletInstall[CreatePacletArchive["/path/to/FermiWick/FermiWick", $TemporaryDirectory]]
+Needs["FermiWick`"]; Needs["FermiWick`Gutzwiller`"]; Needs["FermiWick`Fock`"];
+\end{code}
+To use it without installing, \texttt{PacletDirectoryLoad["/path/to/FermiWick/FermiWick"]} before \texttt{Needs}. The
+guided tour, \texttt{Examples.nb} in the repository, runs the examples of the showcase cell by cell.
+FermiWick has no dependencies. It is tested with Mathematica 15.0. The test suite runs with
+\texttt{math -script Tests/RunTests.wls}.
+
+\section{Conventions}
+\begin{itemize}
+\item \textbf{Operators.} \fn{c[l1, l2, \dots]} and \fn{cDag[l1, l2, \dots]} annihilate and create a fermion in the mode
+  with labels \texttt{l1, l2, \dots}; \fn{DeclareModeLabels} sets the meaning of each label. By default \fn{c[i]} is a
+  spinless fermion on site \texttt{i} and \fn{c[i, s]} a fermion on site \texttt{i} with spin \texttt{s}. A site is any
+  expression, and two different symbolic sites are different sites: \texttt{KroneckerDelta[i, j]} is $0$. A spin is
+  \texttt{SpinUp}, \texttt{SpinDown} or a symbol, split into $\uparrow$ and $\downarrow$ when needed. Generic labels (orbitals,
+  momenta, \dots) are compared with \texttt{KroneckerDelta}, which is kept and substituted in what it multiplies.
+\item \textbf{Products.} \texttt{a ** b} is the product in the given order; \texttt{a \textperiodcentered{} b} (\texttt{\textbackslash[CenterDot]})
+  is the product brought to normal order. Scalars (anything free of operators) factor out.
+\item \textbf{Normal order.} All $c^\dagger$ to the left of all $c$; results are expanded sums of monomials.
+\item \textbf{Contractions.} On a pair of sites, in spin channels:
+  $\langle c^\dagger_{i\sigma}c_{j\sigma'}\rangle=\chi_{ij}\delta_{\sigma\sigma'}+\sum_a\chi^a_{ij}\sigma^a_{\sigma'\sigma}$ and
+  $\langle c_{i\sigma}c_{j\sigma'}\rangle=[(\Delta_{ij}+\sum_a\Delta^a_{ij}\sigma^a)\epsilon]_{\sigma\sigma'}$, with $\epsilon_{\uparrow\downarrow}=1$,
+  $a=x,y,z$ (written \texttt{"x"}, \texttt{"y"}, \texttt{"z"}): \fn{\textbackslash[Chi][i, j]}, \fn{\textbackslash[Chi][i, j, a]},
+  \fn{\textbackslash[CapitalDelta][i, j]}, \fn{\textbackslash[CapitalDelta][i, j, a]}. $\Delta$ is symmetric and $\Delta^a$
+  antisymmetric in the sites; Hermiticity gives $\chi_{ji}=\chi^*_{ij}$, $\chi^a_{ji}=\chi^{a*}_{ij}$, and the amplitudes are
+  written with the sites in canonical order (\texttt{Conjugate[\textbackslash[Chi][1, 2]]} for $\chi_{21}$). On one site $\chi_{ii}$
+  is the density per spin and $\chi^a_{ii}=\langle S^a_i\rangle$. In the general state by spin components,
+  $\rho_{i\sigma j\sigma'}=\langle c^\dagger_{i\sigma}c_{j\sigma'}\rangle$ and $\kappa_{i\sigma j\sigma'}=\langle c_{i\sigma}c_{j\sigma'}\rangle$.
+\item \textbf{Complex conjugation.} The amplitudes are complex; every other symbol is taken as real by \fn{Dagger}, unless
+  declared complex.
+\end{itemize}
+Symbolic spins and sites:
+\example{symbolicspin}
+\example{samesite}
+
+\section{Operators}
+\fnentry{c, cDag}{The ladder operators. Their square vanishes:}
+\example{pauli}
+\fnentry{DeclareModeLabels, \$ModeLabels}{\fn{DeclareModeLabels[\{type1, type2, \dots\}]} declares the labels of the
+operators with that number of labels: \texttt{"Site"} (locality: products are reduced site by site), \texttt{"Spin"} (a spin
+$\frac12$; the spin operators below need modes \fn{c[i, s]}), or any other name, a generic label. Defaults:
+\texttt{\{"Site"\}}, \texttt{\{"Site", "Spin"\}}, and \texttt{\{"Site", "Label", \dots\}} for more labels. \fn{\$ModeLabels} holds
+the declarations. Modes with no site are normal-ordered without the site-by-site reduction.}
+\example{labels}
+\fnentry{SpinUp, SpinDown, \$Spins}{\fn{SpinUp} and \fn{SpinDown} are the spins $\uparrow$ and $\downarrow$, \fn{\$Spins} their
+list, for spin sums:}
+\example{spins}
+\fnentry{nOp, nTotOp, SzOp, SpOp, SmOp, DOp, B, Bdag}{The local operators of a site with spin; they stay compact, and
+\fn{ToLadderBasis} writes them with $c$, $c^\dagger$. All the composite operators and their definitions:}
+\input{../Development/operators_table.tex}
+\example{composite}
+\fnentry{SpinOperator, SdotS, SdotScrossS}{\fn{SpinOperator[i, a]} is $S^a_i$, $a=1,2,3$; \fn{SdotS[i, j]} is
+$\mathbf S_i\cdot\mathbf S_j$ and \fn{SdotScrossS[i, j, k]} the scalar chirality $\mathbf S_i\cdot(\mathbf S_j\times\mathbf S_k)$.}
+\example{spincomponents}
+\fnentry{EmptyProjector, SingleOccupationProjector}{$P^0_i=1-n_i+D_i$ and $P^1_i=n_i-2D_i$, so that $P^0+P^1+D=1$; with
+several sites they are products.}
+\example{projectors}
+\fnentry{DefineOperator}{\fn{DefineOperator[head, n, definition, display]} defines an operator on $n$ sites: \texttt{definition}
+is a function of the sites written with known operators, \texttt{display} a function of the sites that gives its form on
+screen. The operator stays compact; \fn{NormalOrder}, \fn{WickVEV} and \fn{MeanField} expand it, and \fn{ToSpinChargeBasis}
+recognizes it again. Options: \texttt{"Recognize"} (default \texttt{True} for $n\ge2$) and \texttt{"Required" -> All}
+(recognize it only when it is present whole; by default its diagonal part may leave a remainder, as in
+$J\,\mathbf S\cdot\mathbf S+(J_z-J)S^zS^z$). A one-site operator on several sites is the product. \fn{\$DefinedOperators} is the
+registry.}
+\example{define}
+
+\section{Products and bases}
+\fnentry{NormalOrder}{Brings an expression to normal order. Products are separated site by site: each factor acts on one
+site and is even or odd, so the sites are reordered with the fermion sign only and each site is reduced once.}
+\fnentry{CenterDot}{\texttt{a \textperiodcentered{} b \textperiodcentered{} \dots} is the normal-ordered product.}
+\example{centerdot}
+\fnentry{OperatorCommutator, OperatorAnticommutator}{$ab-ba$ and $ab+ba$, in normal order.}
+\example{anticommutator}
+\fnentry{ToSpinChargeBasis}{Writes an expression with $n$, $S^z$, $S^\pm$, $D$, $B$, $B^\dagger$ and recognizes the defined
+operators; \texttt{"Recognize" -> False} leaves them expanded.}
+\example{tospincharge}
+\example{norecognize}
+\fnentry{ToLadderBasis}{Writes the composite and the defined operators with $c$ and $c^\dagger$.}
+\fnentry{GroupLocalOperators}{Normal-orders and groups the ladder operators site by site, with the fermion sign.}
+\example{group}
+\fnentry{OperatorCoefficients}{The association monomial $\to$ coefficient of an expression in normal order; the constant
+has the key \texttt{1}. \fn{OperatorCoefficients[expr, m]} is the coefficient of one monomial, written in any order. It reads
+the fields of a mean-field Hamiltonian.}
+\example{coefficients}
+\example{coefficient}
+\fnentry{Dagger}{The Hermitian conjugate: products reversed, $c\leftrightarrow c^\dagger$, $S^+\leftrightarrow S^-$,
+$B\leftrightarrow B^\dagger$, coefficients conjugated. The amplitudes $\chi$, $\Delta$, $\rho$, $\kappa$ are complex, the other
+symbols real; option \texttt{"Complex" -> \{\dots\}} declares more complex symbols. Operators defined with
+\fn{DefineOperator} are recognized as Hermitian when they are; otherwise they are expanded.}
+\example{dagger}
+\fnentry{PlusHC, HermitianOperatorQ}{\fn{PlusHC[expr]} is $\texttt{expr}+\texttt{expr}^\dagger$; \fn{HermitianOperatorQ[expr]}
+checks $\texttt{expr}=\texttt{expr}^\dagger$. Options as \fn{Dagger}.}
+\example{plushc}
+\fnentry{CleanDeltas, ResetNormalOrder, \$SpinSymbols}{\fn{CleanDeltas} simplifies the \texttt{KroneckerDelta} of sites and
+spins and does the sums over the spin; \fn{ResetNormalOrder[]} clears the caches; \fn{\$SpinSymbols} lists the symbols
+used as spins.}
+
+\section{Gaussian states}
+A Gaussian state is an object that gives the contraction $\langle O_1O_2\rangle$ of two ladder operators. It is declared by
+its symmetries, or by rules for the contractions. \fn{state["Symmetries"]}, \fn{state["Description"]} and
+\fn{state["Contraction"]} give its parts.
+\fnentry{GaussianState}{Gaussian states, in which every expectation value follows from the contractions of two operators,
+are also called quasi-free states (pure, as Slater or BCS states, or mixed, as Gibbs states of quadratic Hamiltonians).
+\fn{GaussianState[symmetries, options]}: the state with the given symmetries, written in spin
+channels (Section~2). \fn{GaussianState[]} is the general state. Each symmetry sets channels to zero or makes them real:
+\begin{tabular}{ll}\toprule symmetry & what it leaves \\ \midrule
+\texttt{"SpinRotation"} & $\chi$, $\Delta$ \\
+\texttt{"SpinRotationZ"} & $\chi$, $\chi^z$, $\Delta$, $\Delta^z$ \\
+\texttt{"Charge"} & $\chi$, $\chi^a$ (no pairing) \\
+\texttt{"TimeReversal"} & $\chi$, $\Delta$ real; $\chi^a$, $\Delta^a$ imaginary; no magnetization \\ \bottomrule\end{tabular}
+
+Options:
+\begin{tabular}{lll}\toprule option & default & \\ \midrule
+\texttt{"Hopping"}, \texttt{"Pairing"} & $\chi$, $\Delta$ & names of the amplitudes \\
+\texttt{"Filling"} & \texttt{Automatic} & $\chi_{ii}$; \texttt{Automatic}: the symbol $\chi_{ii}$ \\
+\texttt{"Magnetization"} & \texttt{Automatic} & $\langle S^z_i\rangle$, a vector, or a function of the site \\
+\texttt{"OnSitePairing"} & \texttt{Automatic} & $\Delta_{ii}$ \\
+\texttt{"Hermitian"} & \texttt{True} & $\chi_{ji}=\chi^*_{ij}$; \texttt{False}: $\chi_{ji}$ is a symbol of its own \\
+\texttt{"Rules"} & \texttt{\{\}} & replacements applied to the results \\ \bottomrule\end{tabular}
+
+\fn{GaussianState[\{\{op1, op2\} :> value, \dots\}]} declares the contractions by rules instead, with patterns in the
+operators. Pairs with no rule contract to zero, and $\langle c\,c^\dagger\rangle$ follows from $\langle c^\dagger c\rangle$ by the
+anticommutator when it has no rule of its own. Two sites with hopping $g$:}
+\example{rulesstate}
+\fnentry{ContractionTable}{\fn{ContractionTable[state, \{i, j, \dots\}]} shows all the contractions between the modes of the
+sites, $\langle c^\dagger_a c_b\rangle$ and $\langle c_ac_b\rangle$; with a third argument \texttt{"Normal"} or \texttt{"Anomalous"}
+it gives the matrix, with the modes in the order of \texttt{Tuples[\{sites, \$Spins\}]}. The general state on one site, and
+the symmetric one:}
+\example{channels}
+\example{symmetries}
+\fnentry{Contraction}{\fn{Contraction[state, op1, op2]}; \fn{Contraction[op1, op2]} uses \fn{\$State}.}
+\example{contraction}
+\fnentry{SpinSingletState}{The usual shortcut: \texttt{GaussianState[\{"SpinRotation", "Charge"\}, "Filling" -> 1/2]}, or,
+with \texttt{"Pairing" -> \textbackslash[CapitalDelta]}, the SU(2) state with singlet pairing and on-site pairing
+\texttt{"OnSitePairing"} (default 0). Options \texttt{"Hopping"}, \texttt{"Filling"}, \texttt{"Pairing"},
+\texttt{"OnSitePairing"}, \texttt{"Hermitian"}.}
+\example{singletoptions}
+\fnentry{GeneralState}{The general state written by spin components instead of channels: $\rho$ (option \texttt{"Normal"},
+Hermitian) and, with \texttt{"Anomalous" -> \textbackslash[Kappa]}, $\kappa$, antisymmetric and written in canonical order.}
+\example{generalstate}
+\example{generalanomalous}
+\fnentry{StateSelect, LocalPairQ, AnomalousPairQ}{\fn{StateSelect[state, crit]} keeps the contractions of the pairs with
+\texttt{crit[op1, op2]} true. It is a filter, not a symmetry: it gives a physical state when the criterion is a symmetry or
+a decoupling of the sites (\fn{LocalPairQ}: uncorrelated sites), and otherwise a way to isolate a class of terms.
+\fn{AnomalousPairQ} is true for two $c$ or two $c^\dagger$.}
+\example{stateselect}
+\fnentry{\$State}{The state used when none is given, \texttt{SpinSingletState[]} by default.}
+
+\section{Wick's theorem and mean field}
+\fnentry{WickVEV}{\fn{WickVEV[expr, state]} is the expectation value by Wick's theorem: the expression is normal-ordered,
+and each monomial is the sum over its pairings with the sign of the permutation. Options: \texttt{"MaxOrder" -> m}, at most
+$m$ contractions between different sites; \texttt{"NormalOrder" -> False}, Wick on the expression as it is.}
+\example{maxorder}
+\fnentry{VerifyNormalOrder}{$0$ when \fn{WickVEV} with and without normal ordering agree.}
+\example{verify}
+\fnentry{MeanField}{\fn{MeanField[expr, state]} is the Hartree--Fock--Bogoliubov Hamiltonian of \texttt{expr}: every
+normal-ordered product $O_1\cdots O_{2n}$ becomes
+\[
+\sum_{p<q}(-1)^{p+q+1}\,O_pO_q\,\Big\langle\prod_{r\ne p,q}O_r\Big\rangle-(n-1)\,\langle O_1\cdots O_{2n}\rangle ,
+\]
+two operators kept out in every way and the rest replaced by its expectation value. The result is quadratic, has the same
+expectation value as \texttt{expr} and the same first variation with respect to the state: it is the Hamiltonian whose
+Gibbs state makes $\langle H\rangle-TS$ stationary among Gaussian states. Quadratic terms are unchanged; odd terms give
+zero. The density--density interaction (Hartree and Fock):}
+\example{meanfield}
+\example{meanfieldquadratic}
+
+\section{\LaTeX}
+\fnentry{ToTeX}{The \LaTeX{} of an expression: ladder and local operators, spin operators, amplitudes and spins.}
+\example{totex}
+\fnentry{WickPairings}{\fn{WickPairings[product, state]} lists the pairings of a product of ladder operators that do not vanish
+in the state, in Wick's theorem applied to the product as written: \texttt{"Sign"}, \texttt{"Pairs"} (positions in the
+product) and \texttt{"Value"} (the product of the contractions).}
+\example{wickpairings}
+\fnentry{WickTeX}{\fn{WickTeX[product, state]} writes Wick's theorem for a product in \LaTeX: the expectation value, the sum of
+the pairings drawn as contractions, their values and the result. Options \texttt{"Values"} and \texttt{"Result"} (default
+\texttt{True}) leave out the last two. The contractions use \pkg{simpler-wick}: \texttt{\textbackslash usepackage\{simpler-wick\}} in the
+preamble, and two \LaTeX{} runs. Overlapping contractions are drawn at different heights.}
+\example{wicktex}
+\extypeset{wicktex}
+
+\section{Gutzwiller projectors}
+Loaded by \texttt{Needs["FermiWick`Gutzwiller`"]}.
+\fnentry{GutzwillerProjector, \textbackslash[Theta]}{$P^G_i=\sqrt2\,[\cos\theta\,P^1_i+\sin\theta\,(P^0_i+D_i)]$, the half-filling
+Gutzwiller operator with the variational angle $\theta$; $\theta=0$ projects on single occupation.}
+\example{gutzwillerprojector}
+\fnentry{LocalSandwich}{\fn{LocalSandwich[P, \{i, j, \dots\}, X]} is $P_iP_j\cdots X\cdots P_jP_i$, normal-ordered;
+\fn{LocalSandwich[PL, sites, X, PR]} uses different operators on the two sides.}
+\example{localsandwich}
+\fnentry{GutzwillerVEV, GutzwillerSimplify}{\fn{GutzwillerVEV[expr, state]} is \fn{WickVEV} to first order in the contractions
+between different sites (the hopping amplitudes of the state), simplified by \fn{GutzwillerSimplify}.}
+\example{gutzwillervev}
+
+\section{Lattices}
+\fnentry{DefinePeierlsHopping, DefineFlux}{\fn{DefinePeierlsHopping[t, \textbackslash[CurlyPhi]]} makes
+$t_{ab}=t\,e^{i\varphi_{ab}}$ with $\varphi_{ba}=-\varphi_{ab}$; \fn{DefineFlux[\textbackslash[CurlyPhi], \{i, j, k, \dots\}, \textbackslash[CapitalPhi]]}
+fixes the sum of the phases around the oriented loop to $\Phi$, eliminating one free phase.}
+\example{peierls}
+
+\section{Matrices and exact diagonalisation}
+Loaded by \texttt{Needs["FermiWick`Fock`"]}, in a cell of its own (the names must be known before the code that uses them
+is read):
+\example{fockload}
+\textbf{Conventions.} The modes of a space are ladder operators of FermiWick, numbered site by site, then orbital by
+orbital, the spin fastest: $\alpha=(\text{site}-1)\,n_o n_s+(\text{orbital}-1)\,n_s+\text{spin}$, the order of
+\texttt{Tuples[\{sites, orbitals, spins\}]} and of \fn{ContractionTable}. A basis state is the string of the occupations
+$(n_1,\dots,n_M)$, with index $k=\sum_\alpha n_\alpha 2^{M-\alpha}$ (the first mode is the most significant bit): the order of
+\texttt{Tuples[\{0, 1\}, M]}. The Jordan--Wigner sign is $c_\alpha|n\rangle=(-1)^{\sum_{\beta<\alpha}n_\beta}|n-e_\alpha\rangle$. The
+matrices are \texttt{SparseArray} objects; inside a sector the basis states are in increasing order of $k$.
+
+\fnentry{FockSpace, FockSpaceQ}{\fn{FockSpace[sites]} is the space of spin-$\frac12$ fermions on the sites, with the modes
+\fn{c[i, s]}; \fn{FockSpace[sites, "Orbitals" -> \{o1, \dots\}]} has the modes \fn{c[i, o, s]}, and \texttt{"Spins" -> None}
+gives spinless modes \fn{c[i]} (or \fn{c[i, o]}); \texttt{"Spins" -> \{s1, s2\}} names the two spins, the first one up.
+\texttt{space["Modes"]}, \texttt{space["Count"]} and \texttt{space["Dimension"]} ($2^M$) are its properties.}
+\example{fockspace}
+\fnentry{ModeIndex}{\fn{ModeIndex[space, c[l1, l2, \dots]]} (or \fn{cDag}) is the index of a mode;
+\fn{ModeIndex[space, l1, l2, \dots]} the same from the labels. A mode outside the space gives a message and
+\texttt{\$Failed}.}
+\example{modeindex}
+\fnentry{FockSector, FockSectorQ}{\fn{FockSector[space, "N" -> n, "Sz" -> sz, "Counts" -> \{\{modes, n\}, \dots\}]} keeps
+the basis states with $n$ particles, the given $S^z$ (two spins) and $n$ particles in each set of modes (ladder operators
+or indices). Every operator is built directly in a sector, without the whole space: sectors with fixed $N$ are enumerated
+bit by bit and indexed through the combinatorial number system, so that time and memory scale with their dimension;
+sectors without fixed $N$ need the whole space and are allowed up to \texttt{\$FockFullLimit} modes (24).
+\fn{ClearFockCache[]} forgets the sectors built so far.}
+\example{focksector}
+\fnentry{FockMatrix}{\fn{FockMatrix[expr, target]} is the matrix of an expression of FermiWick: ladder operators, local and
+composite operators, operators defined with \fn{DefineOperator} (also \fn{GutzwillerProjector}), products with
+\texttt{**} in the order written (no normal order is needed), coefficients numbers or symbols. \texttt{target} is a space,
+a sector (the image sector is found from the change of $N$, $S^z$ and of every count) or a pair
+\texttt{\{fromSector, toSector\}}. The labels of every operator must be those of modes of the space; a symbolic spin
+must be summed first (\texttt{Sum[\dots, \{s, \$Spins\}]}).}
+\example{fockmatrix}
+\example{fockmatrixsymbolic}
+\fnentry{FockExpectation}{\fn{FockExpectation[expr, v, sector]} is $\langle v|\,\texttt{expr}\,|v\rangle$ for a normalized
+vector \texttt{v} of the sector (or space); an operator that leaves the sector gives $0$. Here the singlet of two sites:}
+\example{fockexpectation}
+\fnentry{StateToKet}{\fn{StateToKet[target, v]} writes a vector as kets of the local occupations ($0$, $\uparrow$,
+$\downarrow$, $\uparrow\downarrow$ for spin $\frac12$; the occupations of the modes otherwise), site by site.}
+\example{statetoket}
+\fnentry{OccupationBasis, BasisState}{\fn{OccupationBasis[target]} lists the occupation vectors of the basis states, in
+order; \fn{BasisState[target, occupations]} is the basis vector with the given occupations.}
+\example{basisstate}
+\fnentry{SpinSquared}{\fn{SpinSquared[target]} is $\mathbf S^2$ of the whole space or of a sector (two spins), built from
+$S^+$ and $S^z$: faster than the matrix of $\sum_{ij}\mathbf S_i\cdot\mathbf S_j$.}
+\example{spinsquared}
+\fnentry{LowestStates}{\fn{LowestStates[H, k]} gives \texttt{\{energies, vectors\}} of the $k$ lowest eigenstates of a
+Hermitian matrix: dense up to dimension \texttt{\$FockDenseLimit} (3000), Arnoldi above, from several starting vectors
+when $k>1$, so that degenerate multiplets are complete.}
+\example{lowest}
+\fnentry{LehmannGreen, GreenMatrix}{\fn{LehmannGreen[H, space, modes]} is the single-particle Green's function at zero
+temperature, $G_{ab}(z)=\langle c_a(z-H+E_0)^{-1}c^\dagger_b\rangle+\langle c^\dagger_b(z+H-E_0)^{-1}c_a\rangle$, of a Hamiltonian that
+conserves $N$ (a matrix on the whole space, or a function sector $\to$ matrix), for the modes given (ladder operators or
+indices), averaged over the degenerate ground multiplet: an association with \texttt{"GroundEnergy"},
+\texttt{"GroundSectors"}, \texttt{"Degeneracy"}, \texttt{"Poles"} and \texttt{"Residues"}. Options: \texttt{"N"} (the
+particle numbers where the ground state is sought, \texttt{All}), \texttt{"UseSz"} (sectors of $S^z$ when $H$ conserves it,
+\texttt{Automatic}), \texttt{"Tolerance"} ($10^{-9}$, the width of the ground multiplet), \texttt{"ResidueCutoff"}
+($10^{-12}$). The residues add up to the identity (the last entry below). \fn{GreenMatrix[g, z]} evaluates it at a
+complex frequency.}
+\example{lehmann}
+\example{greenmatrix}
+\fnentry{ParticleHoleOperator, TimeReversal}{\fn{ParticleHoleOperator[space, first, last]} is the unitary $P$ with
+$Pc_\alpha P^{-1}=c^\dagger_\alpha$ for the modes \texttt{first..last} (all by default): $\sigma^x$ on each of them times
+$e^{-i\pi\sum_\alpha(\alpha-1)n_\alpha}$. \fn{TimeReversal[space]} gives \texttt{<|"U" -> U, "Apply" -> f, "Inverse" -> finv|>}
+for the antiunitary $T=UK$ of spin-$\frac12$ fermions, with \texttt{f[v] = U.Conjugate[v]}.}
+\example{particlehole}
+\fnentry{SectorBlock}{\fn{SectorBlock[H, sector]} is the block of a matrix on the whole space that acts in the sector.}
+\example{sectorblock}
+
+\end{document}

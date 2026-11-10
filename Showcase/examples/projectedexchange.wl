@@ -1,0 +1,1 @@
+Simplify[WickVEV[LocalSandwich[GutzwillerProjector, {1, 2}, SdotS[1, 2]]]]

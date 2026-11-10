@@ -1,0 +1,1 @@
+NormalOrder[cDag[1, "↑"] ** cDag[1, "↑"]]

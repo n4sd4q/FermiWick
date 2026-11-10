@@ -1,0 +1,1 @@
+{OccupationBasis[sec], Normal[BasisState[sec, {1, 0, 0, 1}]]}

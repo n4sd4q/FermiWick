@@ -1,0 +1,1 @@
+ToTeX[SdotS[1, 2] - 2 DOp[1] + χ[1, 2] cDag[1, SpinUp] ** c[2, SpinUp]]

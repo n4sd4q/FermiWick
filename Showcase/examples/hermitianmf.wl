@@ -1,0 +1,1 @@
+HermitianOperatorQ[MeanField[-Jc SdotScrossS[1, 2, 3], state]]

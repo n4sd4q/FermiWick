@@ -1,0 +1,1 @@
+FockSpace[{1, 2}, "Orbitals" -> {"s", "p"}]["Modes"]

@@ -1,0 +1,1 @@
+OperatorCoefficients[2 x cDag[1, SpinUp] ** c[2, SpinUp], c[2, SpinUp] ** cDag[1, SpinUp]]

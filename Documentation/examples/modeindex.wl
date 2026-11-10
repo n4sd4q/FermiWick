@@ -1,0 +1,1 @@
+{ModeIndex[FockSpace[{1, 2}], c[2, "↑"]], FockSpace[Range[3], "Spins" -> None]["Modes"]}

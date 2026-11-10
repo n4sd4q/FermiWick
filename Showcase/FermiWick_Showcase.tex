@@ -1,0 +1,313 @@
+\documentclass[11pt,a4paper]{article}
+\input{../Development/style.tex}
+\hypersetup{pdftitle={FermiWick: showcase},pdfauthor={Nazzareno Africani}}
+\fancyhead[L]{\sffamily\small\color{accent}FermiWick \textperiodcentered{} showcase}
+
+\begin{document}
+\titleblock{Operators, contractions, mean field, Gutzwiller projectors and matrices}{Everything the package does, step by
+step: every output is computed by the code printed above it}
+
+\begin{tcolorbox}[colback=accentpale, colframe=accentpale, arc=2pt, left=8pt, right=8pt]
+\small FermiWick is a Wolfram Language package for the algebra of fermion ladder operators. This document goes through
+all it does, in the order of a calculation: the algebra of the operators (normal order, local operators, the
+spin--charge basis and the recognition of spin operators); the contractions of a Gaussian state, declared by rules or
+taken from ready-made states, and Wick's theorem; the mean-field Hamiltonian of an operator of any order; Gutzwiller
+projectors; and the same operators as matrices, for exact diagonalisation. The code of each section uses only what the
+previous ones introduced.
+\end{tcolorbox}
+
+{\small\tableofcontents}
+
+% =====================================================================================================================
+\section{The algebra of the operators}
+
+\subsection{Ladder operators and normal order}
+Fermions are $c_{i\sigma}$ and $c^\dagger_{i\sigma}$, written \fn{c[i, s]} and \fn{cDag[i, s]}. The site $i$ is any expression;
+the spin $\sigma$ is $\uparrow$, $\downarrow$ or a symbol. Products are written with \texttt{**}, in the order given, and
+\fn{NormalOrder} moves every $c^\dagger$ to the left with $\{c_{i\sigma},c^\dagger_{j\sigma'}\}=\delta_{ij}\delta_{\sigma\sigma'}$:
+\example{car}
+Two different symbolic sites are different sites, so their operators anticommute; a symbolic spin is split into $\uparrow$
+and $\downarrow$:
+\example{distinctsites}
+\example{samesite}
+Two equal fermions annihilate the product, wherever they are:
+\example{pauli}
+The product $a\cdot b$ (\texttt{\textbackslash[CenterDot]}) is the normal-ordered product. \fn{OperatorCommutator} and
+\fn{OperatorAnticommutator} are normal-ordered too:
+\example{commutator1}
+\example{anticommutator}
+
+\subsection{Local operators, kept compact}
+The local operators of a site are $n_{i\sigma}$, $n_i$, $S^z_i$, $S^\pm_i$, the double occupancy
+$D_i=n_{i\uparrow}n_{i\downarrow}$, the doublon operators $B^\dagger_i=c^\dagger_{i\uparrow}c^\dagger_{i\downarrow}$ and $B_i$, and the
+projectors $P^0_i$ (empty) and $P^1_i$ (singly occupied); their definitions:
+\input{../Development/operators_table.tex}
+They are written compactly and expanded only when needed; \fn{ToLadderBasis} expands them:
+\example{ladder}
+\fn{ToSpinChargeBasis} goes the other way: it writes a product with the local operators of each site. A product is
+separated site by site, the sites being reordered with the fermion sign only, and each site is reduced once:
+\example{compact}
+On one site the algebra of the local operators follows from that of the fermions: $S^+S^-=n_\uparrow-D$,
+$(S^z)^2=\frac14n-\frac12D$, and $\mathbf S^2=\frac34(n-2D)$, a spin $\frac12$ only on singly occupied sites:
+\example{spinflip}
+\example{szsz}
+\example{spinlength}
+The projectors are complete, and $P^1$ commutes with the spin:
+\example{projectors}
+\example{projectorproduct}
+\fn{GroupLocalOperators} keeps the ladder operators but groups them site by site, with the fermion sign:
+\example{group}
+
+\subsection{The spin--charge basis and the recognition of spin operators}
+A product of ladder operators on several sites is decomposed into local operators; spin flips become $S^+_1S^-_2$:
+\example{decompose}
+\fn{ToSpinChargeBasis} then recognizes the operators that act on several sites. The sum of the products of the spin
+components is the exchange $\mathbf S_1\cdot\mathbf S_2$, and \texttt{"Recognize" -> False} shows its expansion:
+\example{recognizess}
+\example{norecognize}
+The recognition allows a remainder in the diagonal part, so that an XXZ coupling is read as a Heisenberg term plus an
+Ising correction:
+\example{xxz}
+The commutator of two exchange terms that share a site is the scalar chirality,
+$[\mathbf S_1\cdot\mathbf S_2,\mathbf S_2\cdot\mathbf S_3]=-i\,\mathbf S_1\cdot(\mathbf S_2\times\mathbf S_3)$; the chirality is
+antisymmetric in its sites and is written with them in order; and the Heisenberg triangle commutes with the total spin:
+\example{commutator}
+\example{chiralityorder}
+\example{invariance}
+These are identities of the whole Fock space, not only of the singly occupied sector.
+
+\subsection{Operators of your own}
+\fn{DefineOperator} defines an operator on several sites by its expression in known operators; it stays compact, is
+expanded when needed and recognized in the results. A spin-conserving hopping on a bond, and its commutator with the
+density at its end:
+\example{define}
+The recognition keeps the fermion signs, also with the sites out of order: the Hermitian conjugate of the hopping from
+1 to 2 is the hopping from 2 to 1.
+\example{definedagger}
+
+\subsection{The Hermitian conjugate}
+\fn{Dagger} reverses the products, exchanges $c$ and $c^\dagger$ (and $S^+$, $S^-$; $B$, $B^\dagger$) and conjugates the
+coefficients. The amplitudes $\chi$, $\Delta$, $\rho$, $\kappa$ are complex; the other symbols, couplings, angles and phases,
+are real unless declared complex with \texttt{"Complex" -> \{\dots\}}:
+\example{dagger}
+\fn{PlusHC} adds the Hermitian conjugate, the ``$+$ h.c.'' of a Hamiltonian, and \fn{HermitianOperatorQ} checks it:
+\example{plushc}
+\example{hermitianq}
+
+\subsection{Modes with any labels}
+A mode can carry any labels: \fn{c[l1, l2, \dots]}. \fn{DeclareModeLabels} says what each label is: \texttt{"Site"} (used for
+locality; different symbolic sites are different sites), \texttt{"Spin"} (a spin $\frac12$, which enables the spin operators),
+or any other name, a generic label compared with Kronecker deltas. By default \fn{c[i]} is a spinless fermion on site $i$,
+\fn{c[i, s]} has a site and a spin, and more labels are a site and generic labels. Spinless fermions:
+\example{spinless}
+Orbitals: the anticommutator gives a delta of the orbitals, kept symbolic:
+\example{orbitals}
+Momenta, labels with no site: the deltas stay, and multiply what they act on:
+\example{momenta}
+
+\subsection{Coefficients and lattice phases}
+\fn{OperatorCoefficients} gives the coefficient of each monomial in normal order:
+\example{coefficients}
+\fn{ToTeX} writes any expression in \LaTeX:
+\example{totex}
+\fn{DefinePeierlsHopping} and \fn{DefineFlux} attach phases to the hoppings and fix the flux through a loop:
+\example{peierls}
+
+% =====================================================================================================================
+\section{Contractions and Wick's theorem}
+A Gaussian state is fixed by its contractions $\langle O_1O_2\rangle$, and Wick's theorem reduces every expectation value
+to them: \fn{WickVEV} normal-orders the expression and sums over the pairings of each monomial, with the sign of the
+permutation. Such states, Gaussian in the fermions, are also called quasi-free. In FermiWick the state is an object, declared in one of two ways: by its symmetries, which say which
+contractions vanish, or by rules for the contractions.
+
+\subsection{The general state and its symmetries}
+On a pair of sites the normal contractions form a $2\times2$ matrix in spin, and so do the anomalous ones. Written in
+spin channels,
+\[
+\langle c^\dagger_{i\sigma}c_{j\sigma'}\rangle=\chi_{ij}\,\delta_{\sigma\sigma'}+\textstyle\sum_a\chi^a_{ij}\,\sigma^a_{\sigma'\sigma},\qquad
+\langle c_{i\sigma}c_{j\sigma'}\rangle=\big[(\Delta_{ij}+\textstyle\sum_a\Delta^a_{ij}\,\sigma^a)\,\epsilon\big]_{\sigma\sigma'},\qquad
+\epsilon_{\uparrow\downarrow}=1,
+\]
+with the charge channels $\chi$ (hopping per spin) and $\Delta$ (singlet pairing, symmetric in the sites) and the spin
+channels $\chi^a$ and $\Delta^a$ (the triplet $d$ vector, antisymmetric in the sites), $a=x,y,z$. Hermiticity,
+$\chi_{ji}=\chi_{ij}^*$ and $\chi^a_{ji}=\chi^{a*}_{ij}$, always holds. On one site $\chi_{ii}$ is the density per spin,
+$\chi^a_{ii}=\langle S^a_i\rangle$ the magnetization and $\Delta_{ii}=\langle c_{i\uparrow}c_{i\downarrow}\rangle$. \fn{GaussianState[]}
+is this general state; \fn{ContractionTable} shows its contractions:
+\example{generallocal}
+\example{generalpairing}
+A symmetry sets channels to zero or makes them real, and the state is declared by its symmetries:
+\begin{center}\small
+\begin{tabular}{ll}\toprule
+symmetry & what it leaves \\ \midrule
+\texttt{"SpinRotation"} (SU(2)) & the charge channels $\chi$, $\Delta$ \\
+\texttt{"SpinRotationZ"} (rotations about $z$) & $\chi$, $\chi^z$, $\Delta$, $\Delta^z$ \\
+\texttt{"Charge"} (U(1) of the particle number) & no pairing \\
+\texttt{"TimeReversal"} & $\chi$, $\Delta$ real; $\chi^a$, $\Delta^a$ imaginary; no magnetization \\ \bottomrule
+\end{tabular}
+\end{center}
+With $S^z$ conserved the pairing is a singlet plus the $m=0$ triplet; with SU(2) and time reversal the hopping is real
+and symmetric:
+\example{symz}
+\example{symsu2tr}
+The exchange in a state that conserves $S^z$ and the particle number has the classical term of the magnetizations, the
+hopping and the $z$ spin channel:
+\example{szexchange}
+
+\subsection{States declared by rules}
+\fn{GaussianState} takes rules for the contractions, with patterns in the operators. Pairs without a rule contract to
+zero, and $\langle c\,c^\dagger\rangle$ follows from $\langle c^\dagger c\rangle$ by the anticommutator. Two sites with
+hopping $g$ and half filling:
+\example{rulesstate}
+\example{contraction}
+The rules can have any spin structure: here a hopping $h$ that flips the spin, besides the hopping $g$ that keeps it;
+it enters the correlation of $S^z$ with the opposite sign:
+\example{flipstate}
+
+\subsection{States invariant under spin rotations}
+\fn{SpinSingletState} is the most common state, written short: invariant under spin rotations, with hopping
+$\chi_{ij}=\langle c^\dagger_{i\sigma}c_{j\sigma}\rangle$, filling $\frac12$ per spin and, on request, singlet pairing
+$\Delta_{ij}=\langle c_{i\uparrow}c_{j\downarrow}\rangle$. Without pairing it is \texttt{GaussianState[\{"SpinRotation", "Charge"\}, "Filling" -> 1/2]}:
+\example{singletequal}
+\example{singletstate}
+In the exchange, hopping and pairing enter with the same weight, as the SU(2) gauge structure of spins written with
+fermions requires~\cite{AZHA88}:
+\example{exchange}
+The chirality is a closed loop of three contractions, three hoppings or one hopping and two pairings; its imaginary part is
+the flux of the amplitudes through the triangle:
+\example{chirality}
+Filling and on-site pairing are options:
+\example{doubleocc}
+
+\subsection{Magnetic and general states}
+A state need not be invariant. Local magnetizations $m_i$, $\langle n_{i\sigma}\rangle=\frac12\pm m_i$, with no
+contractions between sites, give the classical exchange:
+\example{magnetic}
+\example{magneticexchange}
+The same state follows from the symmetry: rotations about $z$, the magnetization $m_i$ on each site, and only the local
+contractions:
+\example{magneticsym}
+\fn{GeneralState} has normal contractions $\rho_{i\sigma j\sigma'}$ of any spin structure, here a transverse magnetization,
+and anomalous ones $\kappa$ on request:
+\example{general}
+\example{generalanomalous}
+
+\subsection{Selecting and truncating contractions}
+Symmetries describe states; filters select terms. \fn{StateSelect} keeps the contractions that satisfy a criterion: the
+result is a physical state when the criterion is a symmetry or a decoupling of the sites, and otherwise a way to isolate a
+class of terms. Without the anomalous ones the pairing state is a
+pure-hopping state; with only the local ones the sites are uncorrelated; with only the non-local ones the Hartree term is
+gone:
+\example{select}
+\example{localonly}
+\example{nonlocalonly}
+\texttt{"MaxOrder" -> m} keeps the terms with at most $m$ contractions between different sites, and
+\fn{VerifyNormalOrder} checks Wick's theorem with and without normal ordering:
+\example{maxorder}
+\example{verify}
+
+\subsection{Wick's theorem written out}
+\fn{WickPairings} lists the pairings of a product that do not vanish, with their signs and values; \fn{WickTeX} writes the
+whole expansion in \LaTeX, with the contractions drawn by the package \pkg{simpler-wick} (two \LaTeX{} runs). The pairings
+of a hopping back and forth, at half filling:
+\example{pairings}
+Hopping and pairing in a product of four operators: the string, and the string typeset:
+\example{wicktex}
+\extypeset{wicktex}
+Only the non-local contractions of a loop around a triangle; overlapping contractions are drawn at different heights:
+\example{wicktexloop}
+\extypeset{wicktexloop}
+
+% =====================================================================================================================
+\section{Mean field}
+\subsection{The mean-field Hamiltonian of any operator}
+The Hartree--Fock--Bogoliubov Hamiltonian is the quadratic operator whose expectation value has the same first variation
+as $\mathcal E=\langle H\rangle$ among Gaussian states. For a product of $2n$ fermions it is obtained by taking two
+operators out in every possible way, in their order and with the sign of the permutation that brings them to the front,
+and replacing the rest by its expectation value; the constant $-(n-1)\langle O_1\cdots O_{2n}\rangle$ gives
+$\langle H_{\rm MF}\rangle=\mathcal E$. \fn{MeanField} does this for any order and any state. The Hubbard interaction gives
+Hartree and BCS terms in the singlet state, and a spin-dependent Hartree field in the magnetic one:
+\example{hubbard}
+\example{magnetichubbard}
+A density--density interaction has Hartree and Fock terms; a quadratic operator is its own mean field:
+\example{density}
+\example{quadratic}
+
+\subsection{The fields of a Hamiltonian}
+\fn{OperatorCoefficients} reads the fields. For the exchange $J\,\mathbf S_1\cdot\mathbf S_2$: the hopping field
+$t_{12}=-\frac34J\chi^*_{12}$, the pairing field $D_{12}=\frac34J\Delta_{12}$ and the constant:
+\example{exchangefields}
+The chirality has six fermions, so its fields are quadratic in the amplitudes: each bond of the triangle receives a
+hopping from the path through the third site, and a pairing from one hopping and one pairing on the other two sides:
+\example{chiralfields}
+
+\subsection{Hermiticity and the variational property}
+The mean-field Hamiltonian of a Hermitian operator is Hermitian, and has the expectation value of the operator,
+identically:
+\example{hermitianmf}
+\example{variational}
+
+% =====================================================================================================================
+\section{Gutzwiller projectors}\label{sec:gutzwiller}
+\pkg{FermiWick`Gutzwiller`} adds the half-filling Gutzwiller operator
+$P^G_i=\sqrt2\,[\cos\theta\,P^1_i+\sin\theta\,(P^0_i+D_i)]$, with $\theta=0$ the projection on single occupation, and
+\fn{GutzwillerVEV}, the expectation value to first order in the contractions between different sites. In the
+spin--charge basis:
+\example{gutzwillerprojector}
+At half filling $P^G$ is normalized for every $\theta$, and the double occupancy is $d=\frac12\sin^2\theta$:
+\example{gutzwillernorm}
+\example{gutzwillerd}
+In a state with real hopping (time reversal), the hopping between two projected sites is reduced by
+\example{hopping}
+which is the factor $q=8d(1-2d)$ of Brinkman and Rice~\cite{BR70}:
+\example{brq}
+Minimizing $8d(1-2d)\,\varepsilon_0+Ud$, with $\varepsilon_0<0$ the kinetic energy of the free electrons per bond, gives
+\example{brd}
+so that $d$ vanishes at $U_c=8|\varepsilon_0|$, the Brinkman--Rice transition. The exchange, instead, is enhanced: for
+$\theta=0$ it is four times its value in the free state, the factor $g_s=4$ of Zhang, Gros, Rice and Shiba at half
+filling~\cite{ZGRS88}:
+\example{projectedexchange}
+
+% =====================================================================================================================
+\section{Matrices and exact diagonalisation}
+\pkg{FermiWick`Fock`} writes the operators of the previous sections as sparse matrices on the Fock space of a few sites,
+so that a cluster can be solved exactly and a symbolic result checked. It is loaded, in a cell of its own, by
+\example{fockload}
+A space is given by its sites (and orbitals, or no
+spin); its modes are the ladder operators, numbered site by site with the spin fastest, and a basis state is the string of
+their occupations, the first mode being the most significant bit:
+\example{fockspace}
+A sector keeps the states with a given particle number and $S^z$, and every operator is built directly in it, without
+the whole space:
+\example{focksector}
+\fn{FockMatrix} reads any expression of the package: ladder, local and defined operators, products in the order written,
+symbolic coefficients. The Hubbard dimer, $-t$ times the hopping \pkg{hop} of section~\ref{sec:gutzwiller} plus
+$U(D_1+D_2)$, has in this sector the spectrum
+\example{dimerspectrum}
+Ground states come from \fn{LowestStates} (dense, or Arnoldi on large sectors) and expectation values from
+\fn{FockExpectation}. On a ring of eight sites at half filling with $U=4t$ (a sector of dimension 4900), the energy per
+site, the double occupancy and the correlation of neighbouring spins are
+\example{ring8}
+\fn{LehmannGreen} gives the Green's function at zero temperature in the Lehmann representation; the poles of the dimer at
+$U=4t$, with the ground state at half filling, are at the energies of adding or removing a particle:
+\example{lehmann}
+Wick's theorem is exact in a Gaussian state, and here it can be checked: the contractions of the free ground state of the
+ring with six electrons (a closed shell, so that the ground state is a single Slater determinant), computed from the
+matrices, define a \fn{GaussianState}, and \fn{WickVEV} of an interacting operator in that state is its exact
+expectation value:
+\example{wickexact}
+
+% =====================================================================================================================
+\section{Checks}
+The test suite (\texttt{Tests/RunTests.wls}) checks the algebra, the mean-field formulas of the exchange, of the chirality
+and of the Hubbard interaction, the states, and the identities of this showcase. It checks the symbolic engine against the
+matrices: the matrix of an expression equals that of its normal order and of its spin--charge form, and \fn{WickVEV} and
+\fn{MeanField} give the exact values in a random Gibbs state of a quadratic Hamiltonian with pairing, on three sites with
+spin and on two sites with two orbitals. It checks the matrices themselves against the Jordan--Wigner construction, and
+exact diagonalisation on the Hubbard dimer, a magnetic plaquette and Hubbard rings: the residuals are below $10^{-10}$.
+
+\begin{thebibliography}{9}\small
+\bibitem{AZHA88} I.~Affleck, Z.~Zou, T.~Hsu, and P.~W.~Anderson, Phys.\ Rev.\ B {\bf 38}, 745 (1988).
+\bibitem{BR70} W.~F.~Brinkman and T.~M.~Rice, Phys.\ Rev.\ B {\bf 2}, 4302 (1970).
+\bibitem{ZGRS88} F.~C.~Zhang, C.~Gros, T.~M.~Rice, and H.~Shiba, Supercond.\ Sci.\ Technol.\ {\bf 1}, 36 (1988).
+\end{thebibliography}
+\end{document}

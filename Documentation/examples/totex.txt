@@ -1,0 +1,1 @@
+\chi_{12} c^\dagger_{1\uparrow}c_{2\uparrow}+\mathbf S_{1}\cdot\mathbf S_{2}-2 D_{1}

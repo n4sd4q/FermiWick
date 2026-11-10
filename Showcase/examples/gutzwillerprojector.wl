@@ -1,0 +1,1 @@
+ToSpinChargeBasis[GutzwillerProjector[1]]

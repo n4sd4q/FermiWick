@@ -1,0 +1,1 @@
+ToSpinChargeBasis[SpOp[1] · SmOp[1]]

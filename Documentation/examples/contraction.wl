@@ -1,0 +1,1 @@
+{Contraction[dimer, cDag[1, "↑"], c[2, "↑"]], Contraction[dimer, c[1, "↑"], cDag[2, "↑"]]}

@@ -1,0 +1,1 @@
+ToSpinChargeBasis[OperatorCommutator[SdotS[1, 2] + SdotS[2, 3] + SdotS[3, 1], SpOp[1] + SpOp[2] + SpOp[3]]]

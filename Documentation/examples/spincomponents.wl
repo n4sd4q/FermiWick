@@ -1,0 +1,1 @@
+NormalOrder[Sum[SpinOperator[1, a] · SpinOperator[2, a], {a, 3}] - SdotS[1, 2]]

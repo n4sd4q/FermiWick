@@ -1,0 +1,1 @@
+ToSpinChargeBasis[cDag[1, "↑"] ** c[1, "↓"] ** cDag[2, "↓"] ** c[2, "↑"]]

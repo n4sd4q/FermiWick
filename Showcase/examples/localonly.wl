@@ -1,0 +1,1 @@
+WickVEV[nTotOp[1] ** nTotOp[2], StateSelect[SpinSingletState[], LocalPairQ]]

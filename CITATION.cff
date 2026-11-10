@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use FermiWick in published work, please cite it as below."
+title: "FermiWick: Wick's theorem, mean field, Gutzwiller projectors and exact diagonalisation for fermions in the Wolfram Language"
+authors:
+  - family-names: Africani
+    given-names: Nazzareno
+    affiliation: "International School for Advanced Studies (SISSA), Trieste"
+version: 0.2.0
+date-released: 2026-11-10
+license: GPL-3.0-or-later
+repository-code: "https://github.com/n4sd4q/FermiWick"
+keywords:
+  - fermions
+  - second quantization
+  - Wick theorem
+  - mean field
+  - Gutzwiller
+  - exact diagonalization

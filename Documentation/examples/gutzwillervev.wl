@@ -1,0 +1,1 @@
+GutzwillerVEV[LocalSandwich[GutzwillerProjector, {1}, nTotOp[1]]]

@@ -1,0 +1,1 @@
+WickVEV[DOp[1], SpinSingletState["Filling" -> ν, "Pairing" -> Δ, "OnSitePairing" -> η]]

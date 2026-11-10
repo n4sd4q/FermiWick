@@ -1,0 +1,1 @@
+NormalOrder[c[i, σ] ** cDag[j, σ]]

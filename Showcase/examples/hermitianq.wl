@@ -1,0 +1,1 @@
+{HermitianOperatorQ[SdotScrossS[1, 2, 3]], HermitianOperatorQ[I SdotScrossS[1, 2, 3]]}

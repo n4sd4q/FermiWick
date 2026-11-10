@@ -1,0 +1,1 @@
+OperatorAnticommutator[c[1, "↑"], cDag[1, "↑"] + cDag[2, "↑"]]

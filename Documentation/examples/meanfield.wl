@@ -1,0 +1,1 @@
+MeanField[nTotOp[1] ** nTotOp[2]]

@@ -1,0 +1,1 @@
+WickVEV[SdotS[1, 2], StateSelect[GaussianState["SpinRotationZ", "Magnetization" -> (m[#] &)], LocalPairQ]]

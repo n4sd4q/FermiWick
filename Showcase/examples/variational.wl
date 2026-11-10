@@ -1,0 +1,1 @@
+Simplify[WickVEV[MeanField[SdotScrossS[1, 2, 3], state], state] - WickVEV[SdotScrossS[1, 2, 3], state]]

@@ -1,0 +1,1 @@
+NormalOrder[c[1] ** cDag[2] ** c[2] ** cDag[1]]

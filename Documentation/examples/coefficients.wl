@@ -1,0 +1,1 @@
+OperatorCoefficients[2 x cDag[1, "↑"] ** c[2, "↑"] + y + c[2, "↑"] ** cDag[1, "↑"]]

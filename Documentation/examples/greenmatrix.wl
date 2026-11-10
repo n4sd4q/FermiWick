@@ -1,0 +1,1 @@
+N[Round[10^4 GreenMatrix[g, 0.5 I]]/10^4]

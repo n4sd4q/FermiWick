@@ -1,0 +1,1 @@
+ToSpinChargeBasis[Dagger[Hop[1, 2]]]

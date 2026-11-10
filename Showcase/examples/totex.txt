@@ -1,0 +1,1 @@
+-i \mathbf S_{1}\cdot(\mathbf S_{2}\times\mathbf S_{3})

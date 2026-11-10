@@ -1,0 +1,1 @@
+Eigenvalues[Normal[FockMatrix[-t hop + U (DOp[1] + DOp[2]), sector]]]

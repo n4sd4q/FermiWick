@@ -1,0 +1,1 @@
+VerifyNormalOrder[SdotS[1, 2] ** SdotS[2, 3], state]

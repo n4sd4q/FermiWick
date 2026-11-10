@@ -1,0 +1,1 @@
+MeanField[cDag[1, "↑"] ** c[2, "↑"]]

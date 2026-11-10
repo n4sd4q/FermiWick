@@ -1,0 +1,1 @@
+ToSpinChargeBasis[LocalSandwich[GutzwillerProjector, {1}, DOp[1]]]

@@ -1,0 +1,1 @@
+SectorBlock[FockMatrix[DOp[1] + DOp[2], space], sec] == FockMatrix[DOp[1] + DOp[2], sec]

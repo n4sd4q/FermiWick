@@ -1,0 +1,1 @@
+ToSpinChargeBasis[SdotS[1, 1]]

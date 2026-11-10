@@ -1,0 +1,1 @@
+WickPairings[cDag[1, SpinUp] ** c[2, SpinUp] ** cDag[2, SpinUp] ** c[1, SpinUp]]

@@ -1,0 +1,1 @@
+WickVEV[SpOp[1] + SzOp[1], GeneralState[]]

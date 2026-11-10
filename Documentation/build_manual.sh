@@ -1,0 +1,7 @@
+#!/bin/sh
+# Computes the examples and typesets the manual.
+cd "$(dirname "$0")"
+SRC=examples.wl OUT=examples math -script ../Development/run_examples.wl > examples.log 2>&1 || exit 1
+pdflatex -interaction=nonstopmode -halt-on-error FermiWick_Manual.tex > /dev/null && pdflatex -interaction=nonstopmode FermiWick_Manual.tex > /dev/null
+grep -E "Warning|Overfull|Error|missing example" FermiWick_Manual.log | grep -v "Font Warning" | head
+rm -f FermiWick_Manual.aux FermiWick_Manual.out FermiWick_Manual.toc

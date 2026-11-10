@@ -1,0 +1,1 @@
+PlusHC[t E^(I \[Alpha]) cDag[1, SpinUp] ** c[2, SpinUp]]

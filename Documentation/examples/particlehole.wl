@@ -1,0 +1,1 @@
+With[{ph = ParticleHoleOperator[space]}, Max[Abs[ph . FockMatrix[c[1, "↑"], space] . Transpose[ph] - FockMatrix[cDag[1, "↑"], space]]]]

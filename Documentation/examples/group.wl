@@ -1,0 +1,1 @@
+GroupLocalOperators[cDag[1, "↑"] ** cDag[2, "↑"] ** c[2, "↑"] ** c[1, "↑"]]

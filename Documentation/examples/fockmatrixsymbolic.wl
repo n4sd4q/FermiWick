@@ -1,0 +1,1 @@
+Normal[FockMatrix[J SdotS[1, 2], FockSector[FockSpace[{1, 2}], "N" -> 2, "Sz" -> 0]]]

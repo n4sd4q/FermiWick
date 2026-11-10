@@ -1,0 +1,1 @@
+ToSpinChargeBasis[SingleOccupationProjector[1] · SpOp[1] · SingleOccupationProjector[1] - SpOp[1]]

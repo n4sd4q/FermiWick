@@ -1,0 +1,1 @@
+MeanField[U DOp[1], SpinSingletState["Filling" -> ν, "Pairing" -> Δ, "OnSitePairing" -> η]]

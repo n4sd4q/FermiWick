@@ -1,0 +1,1 @@
+MatrixForm[ContractionTable[GaussianState["SpinRotationZ"], {1, 2}, "Anomalous"]]

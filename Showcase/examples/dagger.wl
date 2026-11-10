@@ -1,0 +1,1 @@
+Dagger[2 I J cDag[1, SpinUp] ** c[2, SpinDown] + χ[1, 2] SpOp[1] ** Bdag[2]]

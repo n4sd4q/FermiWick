@@ -1,0 +1,1 @@
+Normal[FockMatrix[cDag[1, "↑"] ** c[2, "↑"], FockSector[FockSpace[{1, 2}], "N" -> 1]]]

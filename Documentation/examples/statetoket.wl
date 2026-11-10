@@ -1,0 +1,1 @@
+StateToKet[sec, singlet]

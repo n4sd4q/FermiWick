@@ -1,0 +1,1 @@
+ToTeX[ToSpinChargeBasis[OperatorCommutator[SdotS[1, 2], SdotS[2, 3]]]]

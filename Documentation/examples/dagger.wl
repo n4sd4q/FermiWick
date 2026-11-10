@@ -1,0 +1,1 @@
+Dagger[t E^(I \[Alpha]) cDag[1, SpinUp] ** c[2, SpinUp] + χ[1, 2] SpOp[1]]

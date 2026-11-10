@@ -1,0 +1,1 @@
+OperatorCommutator[SzOp[1], cDag[1, "↑"]]

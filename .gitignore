@@ -1,0 +1,10 @@
+*.mx
+*.nb~
+.DS_Store
+*.swp
+*.aux
+*.out
+*.toc
+*.synctex.gz
+examples.log
+CLAUDE.local.md

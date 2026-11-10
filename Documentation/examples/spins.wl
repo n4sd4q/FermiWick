@@ -1,0 +1,1 @@
+NormalOrder[Sum[cDag[1, s] ** c[2, s], {s, $Spins}] ** c[3, SpinUp]]

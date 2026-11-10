@@ -1,0 +1,1 @@
+d /. First[Solve[D[eps0 8 d (1 - 2 d) + U d, d] == 0, d]]
