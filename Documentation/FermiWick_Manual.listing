@@ -1,2 +1,1 @@
-PacletInstall[CreatePacletArchive["/path/to/FermiWick/FermiWick", $TemporaryDirectory]]
-Needs["FermiWick`"]; Needs["FermiWick`Gutzwiller`"]; Needs["FermiWick`Fock`"];
+PacletDirectoryLoad["/path/to/FermiWick/FermiWick"]

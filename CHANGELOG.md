@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Installation in one line, from the GitHub release:
+  `PacletInstall["https://github.com/n4sd4q/FermiWick/releases/download/v0.2.0/FermiWick-0.2.0.paclet"]`.
 - Documents: a website, https://n4sd4q.github.io/FermiWick/ (`index.html`, written by `Development/make_site.py` from the
   README); the showcase and the manual in the common style of the author's packages (`Development/n4sd4q.sty`: the title
   band in the gradient of the package); a new logo in the common language (the same contractions on a badge, in the

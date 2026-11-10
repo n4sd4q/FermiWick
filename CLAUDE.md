@@ -38,3 +38,12 @@ which is not versioned.
 - README math: GitHub's Markdown runs before MathJax, so no literal `*` (write `^{\ast}`), no `\,` (write
   `\thinspace`), braces as `\\{ \\}`. Check with `gh api markdown -f mode=gfm -f text="$(cat README.md)"`: every
   `<math-renderer>` must contain the formula as written. Pictures need a background that reads on light and dark pages.
+
+## Releases
+- Semantic versioning (as FunctionalDiagrams). The version is the same in `FermiWick/PacletInfo.wl`, `$FermiWickVersion`,
+  `CITATION.cff` (with `date-released`), the install line of the README and of the manual (the URL of the paclet), the
+  title lines of the showcase and the manual (`\familytitle`), and `CHANGELOG.md`.
+- The paclet: `CreatePacletArchive["FermiWick", "build"]` from a clean checkout (build/ is not versioned); test it unzipped,
+  with `PacletDirectoryLoad`, never with `PacletInstall` on the author's machine. Then the tag vX.Y.Z and the GitHub release
+  with the paclet and the two PDFs; `python3 Development/make_site.py` after every change of the README or the version.
+

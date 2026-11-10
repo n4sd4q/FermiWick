@@ -9,3 +9,4 @@
 examples.log
 CLAUDE.local.md
 *.log
+build/

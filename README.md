@@ -10,8 +10,8 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.2.0-8A2880" alt="version 0.2.0">
-  <img src="https://img.shields.io/badge/Mathematica-15.0-8A2880" alt="tested with Mathematica 15.0">
+  <a href="https://github.com/n4sd4q/FermiWick/releases/latest"><img src="https://img.shields.io/github/v/release/n4sd4q/FermiWick?label=release&color=8A2880" alt="latest release"></a>
+  <img src="https://img.shields.io/badge/Mathematica-13.0%2B-8A2880" alt="Mathematica 13.0 or later">
   <a href="Tests"><img src="https://img.shields.io/badge/tests-85%20passed-2E7D32" alt="85 tests passed"></a>
   <img src="https://img.shields.io/badge/license-GPL--3.0--or--later-8A2880" alt="GNU GPL v3 or later">
 </p>
@@ -47,10 +47,10 @@ the same expressions become matrices.
 
 ## Installation
 
-Download or clone the repository, then install the paclet once:
+Install the paclet of the latest [release](https://github.com/n4sd4q/FermiWick/releases) once:
 
 ```mathematica
-PacletInstall[CreatePacletArchive["/path/to/FermiWick/FermiWick", $TemporaryDirectory]]
+PacletInstall["https://github.com/n4sd4q/FermiWick/releases/download/v0.2.0/FermiWick-0.2.0.paclet"]
 ```
 
 and load it in every session:
@@ -61,15 +61,16 @@ Needs["FermiWick`Gutzwiller`"]   (* Gutzwiller projectors, when needed *)
 Needs["FermiWick`Fock`"]         (* matrices and exact diagonalisation, when needed *)
 ```
 
-There are no dependencies; the package is tested with Mathematica 15.0. The quickest start is the guided tour, a notebook
-to run cell by cell, which comes with the paclet:
+There are no dependencies; the package needs Mathematica 13.0 or later and is tested with 15.0. The quickest start is the
+guided tour, a notebook to run cell by cell, which comes with the paclet:
 
 ```mathematica
 NotebookOpen[PacletObject["FermiWick"]["AssetLocation", "Examples"]]
 ```
 
 (its source is [`Examples.wl`](Examples.wl), which also runs as a script). ``?FermiWick`*`` lists the functions and
-`?Name` explains each one.
+`?Name` explains each one. To use a clone of the repository instead, without installing,
+`PacletDirectoryLoad["/path/to/FermiWick/FermiWick"]` before `Needs`.
 
 **Writing operators.** `c[i, s]` and `cDag[i, s]`, with `s` = `SpinUp`, `SpinDown` (or `"↑"`, `"↓"`, or a symbol) —
 or any labels, `c[i]`, `c[i, orbital, s]`, `c[k]`, with `DeclareModeLabels` saying what they are;

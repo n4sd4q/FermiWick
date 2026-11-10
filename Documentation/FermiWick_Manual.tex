@@ -10,15 +10,19 @@
 {\small\tableofcontents}
 
 \section{Installation and loading}
-FermiWick is a paclet. Install it once from its folder (the one with \texttt{PacletInfo.wl}), then load it in every
-session, with the Gutzwiller and Fock modules when needed:
-\begin{code}
-PacletInstall[CreatePacletArchive["/path/to/FermiWick/FermiWick", $TemporaryDirectory]]
+FermiWick is a paclet. Install the paclet of the latest \href{https://github.com/n4sd4q/FermiWick/releases}{release} once,
+then load it in every session, with the Gutzwiller and Fock modules when needed; the guided tour comes with the paclet:
+\begin{tcblisting}{listing only, colback=codebg, colframe=codeframe, boxrule=0.5pt, arc=2pt, left=6pt, right=6pt, top=3pt, bottom=3pt,
+  listing options={language=WL, basicstyle=\ttfamily\fontsize{7.5pt}{9.6pt}\selectfont}}
+PacletInstall["https://github.com/n4sd4q/FermiWick/releases/download/v0.2.0/FermiWick-0.2.0.paclet"]
 Needs["FermiWick`"]; Needs["FermiWick`Gutzwiller`"]; Needs["FermiWick`Fock`"];
+NotebookOpen[PacletObject["FermiWick"]["AssetLocation", "Examples"]]
+\end{tcblisting}
+To use a clone of the repository without installing, load its folder before \texttt{Needs}:
+\begin{code}
+PacletDirectoryLoad["/path/to/FermiWick/FermiWick"]
 \end{code}
-To use it without installing, \texttt{PacletDirectoryLoad["/path/to/FermiWick/FermiWick"]} before \texttt{Needs}. The
-guided tour, \texttt{Examples.nb} in the repository, runs the examples of the showcase cell by cell.
-FermiWick has no dependencies. It is tested with Mathematica 15.0. The test suite runs with
+FermiWick has no dependencies. It needs Mathematica 13.0 or later and is tested with 15.0. The test suite runs with
 \texttt{math -script Tests/RunTests.wls}.
 
 \section{Conventions}
