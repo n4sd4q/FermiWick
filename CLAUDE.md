@@ -41,6 +41,8 @@ which is not versioned.
 - README math: GitHub's Markdown runs before MathJax, so no literal `*` (write `^{\ast}`), no `\,` (write
   `\thinspace`), braces as `\\{ \\}`. Check with `gh api markdown -f mode=gfm -f text="$(cat README.md)"`: every
   `<math-renderer>` must contain the formula as written. Pictures need a background that reads on light and dark pages.
+- The README links the PDFs on GitHub Pages (`https://n4sd4q.github.io/FermiWick/Showcase/...pdf`), so that they open in
+  the browser, not on GitHub's page of the file (as FunctionalDiagrams); `make_site.py` makes those links relative.
 
 ## Releases
 - Semantic versioning (as FunctionalDiagrams). The version is the same in `FermiWick/PacletInfo.wl`, `$FermiWickVersion`,

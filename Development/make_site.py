@@ -116,6 +116,8 @@ class Formulas:
 
 # ------------------------------------------------------------------------------------------------ Markdown, the little the README uses
 def link_target(url):
+    if url.startswith(SITE) and url != SITE:
+        return url[len(SITE):]                                # a file served by Pages next to the page
     if re.match(r"https?://|#", url):
         return url
     if url.endswith(".pdf") or url.endswith(".svg"):
@@ -312,6 +314,7 @@ def build():
     for name_, url, what_ in doc_rows:
         if url == SITE:
             continue                                          # the row of the website itself
+        url = link_target(url) if url.startswith(SITE) else url  # the PDFs: the README links them on Pages
         kind = ("PDF, %d pages" % pages(url)) if url.endswith(".pdf") else ("notebook" if url.endswith(".wl") else "Markdown")
         docs.append('<a class="doc" href="%s"><strong>%s</strong><span>%s</span><small>%s</small></a>'
                     % (html.escape(link_target(url)), html.escape(name_), inline(what_, fx), kind))

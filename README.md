@@ -18,8 +18,8 @@
 
 <p align="center">
   <a href="https://n4sd4q.github.io/FermiWick/"><b>Website</b></a>&nbsp;·
-  <a href="Showcase/FermiWick_Showcase.pdf"><b>Showcase</b></a>&nbsp;·
-  <a href="Documentation/FermiWick_Manual.pdf"><b>Manual</b></a>&nbsp;·
+  <a href="https://n4sd4q.github.io/FermiWick/Showcase/FermiWick_Showcase.pdf"><b>Showcase</b></a>&nbsp;·
+  <a href="https://n4sd4q.github.io/FermiWick/Documentation/FermiWick_Manual.pdf"><b>Manual</b></a>&nbsp;·
   <a href="Examples.wl"><b>Guided&nbsp;tour</b></a>&nbsp;·
   <a href="#installation"><b>Installation</b></a>&nbsp;·
   <a href="CHANGELOG.md"><b>Changelog</b></a>
@@ -140,10 +140,10 @@ WickTeX[cDag[1, SpinUp] ** cDag[2, SpinDown] ** c[3, SpinDown] ** c[4, SpinUp], 
 <p align="center"><img src="Documentation/readme_wick.svg" width="640" alt="Wick's theorem for c-dagger 1 up, c-dagger 2 down,
 c 3 down, c 4 up in a pairing state: two pairings drawn as contractions, equal to Delta 34 Delta 12 star plus chi 14 chi 23"></p>
 
-The [showcase](Showcase/FermiWick_Showcase.pdf) goes on from here: local operators and the recognition of spin operators,
+The [showcase](https://n4sd4q.github.io/FermiWick/Showcase/FermiWick_Showcase.pdf) goes on from here: local operators and the recognition of spin operators,
 operators of your own, states declared by their symmetries or by rules, the mean field of spin models of any order,
 Gutzwiller projectors and the Brinkman–Rice transition, and Hubbard clusters solved exactly with Wick's theorem checked on
-them. The [manual](Documentation/FermiWick_Manual.pdf) describes every function.
+them. The [manual](https://n4sd4q.github.io/FermiWick/Documentation/FermiWick_Manual.pdf) describes every function.
 
 ## What it does
 
@@ -221,8 +221,8 @@ point group) that dedicated codes use to diagonalise larger clusters.
 | Document | Contents |
 |---|---|
 | [Website](https://n4sd4q.github.io/FermiWick/) | the package at a glance: what it does, the first example, installation, the documents |
-| [Showcase](Showcase/FermiWick_Showcase.pdf) (PDF) | the package step by step, from the anticommutation relations to the parton mean field of a chiral spin model, the Brinkman–Rice transition and Hubbard clusters solved exactly |
-| [Manual](Documentation/FermiWick_Manual.pdf) (PDF) | every function, option and convention, with examples |
+| [Showcase](https://n4sd4q.github.io/FermiWick/Showcase/FermiWick_Showcase.pdf) (PDF) | the package step by step, from the anticommutation relations to the parton mean field of a chiral spin model, the Brinkman–Rice transition and Hubbard clusters solved exactly |
+| [Manual](https://n4sd4q.github.io/FermiWick/Documentation/FermiWick_Manual.pdf) (PDF) | every function, option and convention, with examples |
 | [Guided tour](Examples.wl) | a notebook to run cell by cell, in the paclet (`FermiWick/Examples.nb`) |
 | [Changelog](CHANGELOG.md) | what changed in each version |
 
