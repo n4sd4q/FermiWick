@@ -8,3 +8,4 @@
 *.synctex.gz
 examples.log
 CLAUDE.local.md
+*.log
