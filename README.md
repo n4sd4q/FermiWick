@@ -12,7 +12,7 @@
 <p align="center">
   <a href="https://github.com/n4sd4q/FermiWick/releases/latest"><img src="https://img.shields.io/github/v/release/n4sd4q/FermiWick?label=release&color=8A2880" alt="latest release"></a>
   <img src="https://img.shields.io/badge/Mathematica-13.0%2B-8A2880" alt="Mathematica 13.0 or later">
-  <a href="Tests"><img src="https://img.shields.io/badge/tests-85%20passed-2E7D32" alt="85 tests passed"></a>
+  <a href="Tests"><img src="https://img.shields.io/badge/tests-91%20passed-2E7D32" alt="91 tests passed"></a>
   <img src="https://img.shields.io/badge/license-GPL--3.0--or--later-8A2880" alt="GNU GPL v3 or later">
 </p>
 
@@ -21,168 +21,41 @@
   <a href="https://n4sd4q.github.io/FermiWick/Showcase/FermiWick_Showcase.pdf"><b>Showcase</b></a>&nbsp;·
   <a href="https://n4sd4q.github.io/FermiWick/Documentation/FermiWick_Manual.pdf"><b>Manual</b></a>&nbsp;·
   <a href="Examples.wl"><b>Guided&nbsp;tour</b></a>&nbsp;·
-  <a href="#installation"><b>Installation</b></a>&nbsp;·
-  <a href="CHANGELOG.md"><b>Changelog</b></a>
+  <a href="https://github.com/n4sd4q/FermiWick/wiki"><b>Wiki</b></a>&nbsp;·
+  <a href="#installation"><b>Installation</b></a>
 </p>
 
-FermiWick does by computer the algebra one does on paper with fermion ladder operators, in the order of a calculation:
-
-1. **Operators.** It brings products to normal order site by site, keeping the local operators — densities, spins,
-   double occupancy, doublons, projectors — compact. It decomposes products of ladder operators into these local
-   operators and recognizes the operators that act on several sites: $\mathbf S_i\cdot\mathbf S_j$, the scalar
-   chirality $\mathbf S_i\cdot(\mathbf S_j\times\mathbf S_k)$ and operators of your own.
-2. **Contractions.** It evaluates expectation values by Wick's theorem in a Gaussian state that you declare by its
-   symmetries — spin rotations, rotations about z, charge, time reversal — or by rules for its contractions, with normal
-   and anomalous contractions; `ContractionTable` shows which contractions survive.
-3. **Mean field.** It gives the Hartree–Fock–Bogoliubov Hamiltonian of an operator of any order, with its constant.
-4. **Gutzwiller projectors.** It handles projected operators and their expectation values in the Gutzwiller
-   approximation.
-5. **Matrices.** It writes any operator as a sparse matrix on the Fock space of a few sites, or on a sector of fixed
-   particle number and spin, and finds ground states, expectation values and Green's functions: a small cluster is solved
-   exactly, and a symbolic result checked.
-6. **LaTeX.** It writes any result in LaTeX, and writes Wick's theorem out with the contractions drawn.
-
-Sites and spins are symbols, so the same calculation holds on any lattice and for any filling; with numbers for the sites,
-the same expressions become matrices.
-
-## Installation
-
-Install the paclet of the latest [release](https://github.com/n4sd4q/FermiWick/releases) once:
-
-```mathematica
-PacletInstall["https://github.com/n4sd4q/FermiWick/releases/download/v0.3.0/FermiWick-0.3.0.paclet"]
-```
-
-and load it in every session:
-
-```mathematica
-Needs["FermiWick`"]
-Needs["FermiWick`Gutzwiller`"]   (* Gutzwiller projectors, when needed *)
-Needs["FermiWick`Fock`"]         (* matrices and exact diagonalisation, when needed *)
-```
-
-There are no dependencies; the package needs Mathematica 13.0 or later and is tested with 15.0. The quickest start is the
-guided tour, a notebook to run cell by cell, which comes with the paclet:
-
-```mathematica
-NotebookOpen[PacletObject["FermiWick"]["AssetLocation", "Examples"]]
-```
-
-(its source is [`Examples.wl`](Examples.wl), which also runs as a script). ``?FermiWick`*`` lists the functions and
-`?Name` explains each one. To use a clone of the repository instead, without installing,
-`PacletDirectoryLoad["/path/to/FermiWick/FermiWick"]` before `Needs`.
-
-In a notebook the package prints a banner (version, license, how to cite, links) and looks for a newer release on GitHub
-once a day; `$FermiWickUpdateCheck = False` before `Needs` turns the check off, and `FermiWickUpdateCheck[]` checks by hand
-([`SECURITY.md`](SECURITY.md) says more).
-
-**Writing operators.** `c[i, s]` and `cDag[i, s]`, with `s` = `SpinUp`, `SpinDown` (or `"↑"`, `"↓"`, or a symbol) —
-or any labels, `c[i]`, `c[i, orbital, s]`, `c[k]`, with `DeclareModeLabels` saying what they are;
-`**` multiplies in the given order. The spin sum is `Sum[..., {s, $Spins}]`:
-
-```mathematica
-hopping = Sum[cDag[1, s] ** c[2, s] + cDag[2, s] ** c[1, s], {s, $Spins}];
-```
-
-## A first example
-
-One session, loaded once (the matrices are a module of their own):
-
-```mathematica
-Needs["FermiWick`"]; Needs["FermiWick`Fock`"]
-```
-
-**Operators.** The commutator of two exchange terms that share a site, written back in spin operators, is the scalar
-chirality:
-
-```mathematica
-ToSpinChargeBasis[OperatorCommutator[SdotS[1, 2], SdotS[2, 3]]]
-```
-
-$$-i \mathbf S_{1}\cdot(\mathbf S_{2}\times\mathbf S_{3})$$
-
-**Contractions.** In a state invariant under spin rotations, with hopping $\chi$ and singlet pairing $\Delta$ on every bond,
-the exchange of a bond takes both with the same weight:
-
-```mathematica
-state = SpinSingletState["Pairing" -> Δ];
-WickVEV[SdotS[1, 2], state]
-```
-
-$$-\frac{3}{2} \Delta_{12} \Delta_{12}^{\ast}-\frac{3}{2} \chi_{12} \chi_{12}^{\ast}$$
-
-**Mean field.** The Hubbard interaction of a site, in a state with filling $\nu$ per spin and on-site pairing $\eta$, splits into
-its Hartree field, its pairing fields and a constant (collected in $U$):
-
-```mathematica
-bcs = GaussianState["SpinRotation", "Filling" -> ν, "OnSitePairing" -> η];
-Collect[ToSpinChargeBasis[MeanField[U DOp[1], bcs]], U]
-```
-
-$$U \left(-B_{1} \eta ^{\ast}-B^\dagger_{1} \eta -\eta  \eta ^{\ast}-\nu ^2+\nu  n_{1}\right)$$
-
-**Matrices.** The same operators, exactly, on two sites with two electrons and $S^z=0$: the spectrum of the Hubbard dimer.
-
-```mathematica
-hop = Sum[cDag[1, s] ** c[2, s] + cDag[2, s] ** c[1, s], {s, $Spins}];
-sector = FockSector[FockSpace[{1, 2}], "N" -> 2, "Sz" -> 0];
-Eigenvalues[Normal[FockMatrix[-t hop + U (DOp[1] + DOp[2]), sector]]]
-```
-
-$$\left\\{0,U,\frac{1}{2} \left(U-\sqrt{16 t^2+U^2}\right),\frac{1}{2} \left(\sqrt{16 t^2+U^2}+U\right)\right\\}$$
-
-**LaTeX.** `WickTeX` writes Wick's theorem out, with the contractions drawn (LaTeX package `simpler-wick`):
-
-```mathematica
-WickTeX[cDag[1, SpinUp] ** cDag[2, SpinDown] ** c[3, SpinDown] ** c[4, SpinUp], state]
-```
-
-<p align="center"><img src="Documentation/readme_wick.svg" width="640" alt="Wick's theorem for c-dagger 1 up, c-dagger 2 down,
-c 3 down, c 4 up in a pairing state: two pairings drawn as contractions, equal to Delta 34 Delta 12 star plus chi 14 chi 23"></p>
-
-The [showcase](https://n4sd4q.github.io/FermiWick/Showcase/FermiWick_Showcase.pdf) goes on from here: local operators and the recognition of spin operators,
-operators of your own, states declared by their symmetries or by rules, the mean field of spin models of any order,
-Gutzwiller projectors and the Brinkman–Rice transition, and Hubbard clusters solved exactly with Wick's theorem checked on
-them. The [manual](https://n4sd4q.github.io/FermiWick/Documentation/FermiWick_Manual.pdf) describes every function.
+FermiWick lets you write fermion operators as on paper — ladder operators, a Hamiltonian, a product of any length, with
+sites and spins as symbols — and does the algebra for you: normal order, spin operators recognized in the result,
+expectation values by Wick's theorem in the state you assume, mean-field Hamiltonians, and the exact matrix of the same
+expression, to solve a small cluster.
 
 ## What it does
 
-- **Modes with any labels.** `c[l1, l2, ...]`: sites, spins, orbitals, momenta, or labels of your own, declared with
-  `DeclareModeLabels`; generic labels give Kronecker deltas that are kept and substituted.
-- **Normal order, site by site.** Ladder operators with symbolic sites and spins. A product is separated site by site —
-  every factor acts on one site and is even or odd, so the sites are reordered with the fermion sign only — and each site
-  is reduced once. Local operators ($n$, $S^z$, $S^\pm$, $D$, $B$, $B^\dagger$, projectors) stay compact.
-- **Local regrouping and the spin–charge basis.** Products of ladder operators are decomposed into the local operators of
-  each site ($c^\dagger_{1\uparrow}c_{1\downarrow}c^\dagger_{2\downarrow}c_{2\uparrow}\to S^+_1S^-_2$), and the operators on several
-  sites are recognized: $\mathbf S_i\cdot\mathbf S_j$ (also from its components, also with an XXZ remainder), the chirality
-  with its antisymmetry, and operators you define.
-- **The Hermitian conjugate.** `Dagger` reverses products, exchanges creators and annihilators and conjugates the
-  coefficients (amplitudes complex, couplings real); `PlusHC` adds the "+ h.c." and `HermitianOperatorQ` checks a
-  Hamiltonian.
-- **States declared by their symmetries.** The general Gaussian state is written in spin channels — hopping χ, pairing
-  Δ and their spin parts χ<sup>a</sup>, Δ<sup>a</sup> (magnetization, triplet pairing) — always Hermitian. Each symmetry
-  sets channels to zero or makes them real: `GaussianState[{"SpinRotation", "TimeReversal"}]` is the state with real,
-  spin-independent hopping. `ContractionTable` shows the contractions that survive. States can also be declared by rules,
-  and contractions selected by any criterion (only local, no anomalous, ...) or truncated by their number between sites.
-- **Mean field of any order.** The Hartree–Fock–Bogoliubov Hamiltonian, with its constant, of a product of 4, 6, ...
-  fermions, in any of these states: two operators out in every way, the rest contracted. It has the same expectation value
-  and the same first variation as the operator.
-- **Gutzwiller projectors.** The variational Gutzwiller operator, projected operators, and expectation values to first
-  order in the inter-site contractions (the Gutzwiller approximation).
-- **Matrices and exact diagonalisation** (``FermiWick`Fock` ``). Any expression of the package becomes a sparse matrix
-  on a Fock space, or on a sector of fixed particle number, $S^z$ or occupations, built directly in the sector; then
-  ground states (dense, or Arnoldi with complete degenerate multiplets), expectation values, the Green's function at zero
-  temperature in the Lehmann representation, $\mathbf S^2$, particle–hole and time reversal. A Hubbard ring of twelve
-  sites at half filling (a sector of 853 776 states) is written as a matrix in about four seconds.
-- **LaTeX export.** Any expression in LaTeX; Wick's theorem written out, pairing by pairing, with the contractions drawn
-  at different heights when they overlap, their values and the result.
+- **Ladder operators as on paper.** `c[i, s]` and `cDag[i, s]`, with sites and spins as symbols, or modes with any
+  labels: orbitals, momenta, labels of your own; products, sums, "+ h.c.".
+- **Normal order, spins recognized.** Products in normal order, the local operators (densities, spins, double
+  occupancy) kept compact, and the operators on several sites recognized: $\mathbf S_i\cdot\mathbf S_j$, the
+  chirality, operators of your own.
+- **Wick's theorem in the state you assume.** Expectation values of products of any length in a Gaussian state declared
+  by its symmetries — spin rotations, charge, time reversal — or by rules, with normal and anomalous contractions.
+- **Mean field of any order.** The Hartree–Fock–Bogoliubov Hamiltonian of an operator of four, six or more fermions,
+  with its constant; Gutzwiller projectors, and projected expectation values in the Gutzwiller approximation.
+- **Exact diagonalisation.** The same expressions as sparse matrices on a Fock space or a symmetry sector: spectra,
+  ground states, correlations, Green's functions. A Hubbard ring of twelve sites at half filling, 853 776 states, is
+  written as a matrix in about four seconds.
+- **LaTeX.** Any result, and Wick's theorem written out with its contractions drawn.
+
+Sites and spins are symbols, so a result holds on any lattice; with numbers for the sites, the same expression is a
+matrix, and every symbolic result can be checked exactly.
 
 <details>
 <summary>Everything it does, with the names of the functions</summary>
 
 **Operators**
 - `c[i, s]`, `cDag[i, s]`, `SpinUp`, `SpinDown`, `$Spins`; local operators `nOp`, `nTotOp`, `SzOp`, `SpOp`, `SmOp`, `DOp`, `B`, `Bdag`, `SpinOperator`;
-  `SdotS`, `SdotScrossS`, `EmptyProjector`, `SingleOccupationProjector`; operators of your own with `DefineOperator`
+  `SdotS`, `SdotScrossS`, `EmptyProjector`, `SingleOccupationProjector`; operators of your own with `DefineOperator`;
+  modes with any labels with `DeclareModeLabels`
 - products `**` and `·` (normal-ordered), `NormalOrder`, `OperatorCommutator`, `OperatorAnticommutator`,
   `ToSpinChargeBasis`, `ToLadderBasis`, `GroupLocalOperators`, `OperatorCoefficients`, `CleanDeltas`
 - `Dagger`, `PlusHC`, `HermitianOperatorQ`
@@ -212,68 +85,160 @@ them. The [manual](https://n4sd4q.github.io/FermiWick/Documentation/FermiWick_Ma
 
 </details>
 
-**Scope.** FermiWick computes exact symbolic expressions for spin-½ fermions, and their matrices on clusters of up to
-about a million states. Bosons and other flavours are outside its scope, and so are the lattice symmetries (momentum,
-point group) that dedicated codes use to diagonalise larger clusters.
+**Scope.** Spin-½ fermions, and modes with any labels; exact symbolic expressions, and matrices on clusters of up to
+about a million states. Bosons and lattice symmetries (momentum, point group) are outside its scope.
+
+## A first example
+
+One session, from the ladder operators to a solved model (the matrices are a module of their own):
+
+```mathematica
+Needs["FermiWick`"]; Needs["FermiWick`Fock`"]
+```
+
+**Ladder operators.** `c[i, s]` annihilates and `cDag[i, s]` creates a fermion on site `i` with spin `s`; `**`
+multiplies in the order written, and `NormalOrder` brings the creators to the left:
+
+```mathematica
+NormalOrder[c[1, SpinUp] ** cDag[1, SpinUp]]
+```
+
+$$1-c^\dagger_{1\uparrow}c_{1\uparrow}$$
+
+**Spins.** Products of ladder operators are read back as spins and densities, with the sites left as symbols:
+
+```mathematica
+ToSpinChargeBasis[1/2 Sum[cDag[i, s] ** c[i, r] ** cDag[j, r] ** c[j, s], {s, $Spins}, {r, $Spins}]]
+```
+
+$$\mathbf S_{i}\cdot\mathbf S_{j}+\frac{1}{4} n_{i}n_{j}$$
+
+**A model, solved exactly.** The Hubbard dimer, written as on paper, is a matrix on the sector of two electrons with
+$S^z=0$; its spectrum:
+
+```mathematica
+H = -t Sum[PlusHC[cDag[1, s] ** c[2, s]], {s, $Spins}] + U Sum[nOp[i, SpinUp] ** nOp[i, SpinDown], {i, 2}];
+Eigenvalues[Normal[FockMatrix[H, FockSector[FockSpace[{1, 2}], "N" -> 2, "Sz" -> 0]]]]
+```
+
+$$\left\\{0,U,\frac{1}{2} \left(U-\sqrt{16 t^2+U^2}\right),\frac{1}{2} \left(\sqrt{16 t^2+U^2}+U\right)\right\\}$$
+
+**Expectation values.** By Wick's theorem, in a Gaussian state: `SpinSingletState[]` is invariant under spin rotations,
+with hopping amplitudes $\chi_{ij}$. The energy of the dimer in it:
+
+```mathematica
+WickVEV[H, SpinSingletState[]]
+```
+
+$$-2 t \chi_{12}^{\ast}-2 t \chi_{12}+\frac{U}{2}$$
+
+**The state you assume.** A state is declared by its symmetries, and they decide what survives: the scalar chirality
+$\mathbf S_1\cdot(\mathbf S_2\times\mathbf S_3)$, a product of six fermions, needs a state that breaks time reversal.
+
+```mathematica
+{WickVEV[SdotScrossS[1, 2, 3], GaussianState[{"SpinRotation", "Charge"}]],
+ WickVEV[SdotScrossS[1, 2, 3], GaussianState[{"SpinRotation", "Charge", "TimeReversal"}]]}
+```
+
+$$\left\\{\frac{3}{2} i \chi_{13} \chi_{12}^{\ast} \chi_{23}^{\ast}-\frac{3}{2} i \chi_{12} \chi_{23} \chi_{13}^{\ast},0\right\\}$$
+
+**Mean field.** The Hartree–Fock–Bogoliubov Hamiltonian of any operator: the Hubbard interaction of a site, in a state
+with magnetization $m$ along $z$.
+
+```mathematica
+magnetic = GaussianState[{"SpinRotationZ", "Charge"}, "Filling" -> 1/2, "Magnetization" -> m];
+ToSpinChargeBasis[MeanField[U nOp[1, SpinUp] ** nOp[1, SpinDown], magnetic]]
+```
+
+$$m^2 U-2 m S^z_{1} U+\frac{1}{2} n_{1} U-\frac{U}{4}$$
+
+**LaTeX.** Any result in LaTeX; `WickTeX` writes Wick's theorem out, with the contractions drawn:
+
+```mathematica
+WickTeX[cDag[1, SpinUp] ** cDag[2, SpinDown] ** c[3, SpinDown] ** c[4, SpinUp], SpinSingletState["Pairing" -> Δ]]
+```
+
+<p align="center"><img src="Documentation/readme_wick.svg" width="640" alt="Wick's theorem for c-dagger 1 up, c-dagger 2 down,
+c 3 down, c 4 up in a pairing state: two pairings drawn as contractions, equal to Delta 34 Delta 12 star plus chi 14 chi 23"></p>
+
+**Next.** The [guided tour](Examples.wl) builds all this up step by step; the
+[wiki](https://github.com/n4sd4q/FermiWick/wiki) has the recipes (writing operators, declaring a state, mean field,
+exact diagonalisation, LaTeX); the [showcase](https://n4sd4q.github.io/FermiWick/Showcase/FermiWick_Showcase.pdf) goes
+through the physics, and the [manual](https://n4sd4q.github.io/FermiWick/Documentation/FermiWick_Manual.pdf) describes
+every function. ``?FermiWick`*`` lists the functions and `?Name` explains each one.
+
+## Installation
+
+Install the paclet of the latest [release](https://github.com/n4sd4q/FermiWick/releases) once:
+
+```mathematica
+PacletInstall["https://github.com/n4sd4q/FermiWick/releases/download/v0.3.0/FermiWick-0.3.0.paclet"]
+```
+
+and load it in every session:
+
+```mathematica
+Needs["FermiWick`"]
+Needs["FermiWick`Gutzwiller`"]   (* Gutzwiller projectors, when needed *)
+Needs["FermiWick`Fock`"]         (* matrices and exact diagonalisation, when needed *)
+```
+
+There are no dependencies; the package needs Mathematica 13.0 or later. The guided tour, a notebook to run cell by cell,
+comes with the paclet:
+
+```mathematica
+NotebookOpen[PacletObject["FermiWick"]["AssetLocation", "Examples"]]
+```
+
+In a notebook the package looks for a newer release on GitHub once a day; `$FermiWickUpdateCheck = False` before `Needs`
+turns this off ([`SECURITY.md`](SECURITY.md) says more). Other ways to install, and updating: the wiki's
+[Installation](https://github.com/n4sd4q/FermiWick/wiki/Installation) page.
 
 ## Documentation
 
 | Document | Contents |
 |---|---|
 | [Website](https://n4sd4q.github.io/FermiWick/) | the package at a glance: what it does, the first example, installation, the documents |
+| [Guided tour](Examples.wl) | a notebook to run cell by cell, from the ladder operators to a solved model (`FermiWick/Examples.nb` in the paclet) |
+| [Wiki](https://github.com/n4sd4q/FermiWick/wiki) | practical guides: writing operators, declaring a state, mean field, exact diagonalisation, LaTeX; a FAQ |
 | [Showcase](https://n4sd4q.github.io/FermiWick/Showcase/FermiWick_Showcase.pdf) (PDF) | the package step by step, from the anticommutation relations to the parton mean field of a chiral spin model, the Brinkman–Rice transition and Hubbard clusters solved exactly |
 | [Manual](https://n4sd4q.github.io/FermiWick/Documentation/FermiWick_Manual.pdf) (PDF) | every function, option and convention, with examples |
-| [Guided tour](Examples.wl) | a notebook to run cell by cell, in the paclet (`FermiWick/Examples.nb`) |
 | [Changelog](CHANGELOG.md) | what changed in each version |
 
-Every output printed in the showcase and in the manual is computed by the code shown before it
-(`Development/run_examples.wl`).
+Every output printed in the documents is computed by the code shown before it.
 
 <details>
 <summary>Conventions in brief</summary>
 
-* `c[i, s]` annihilates a fermion on site `i` with spin `s` (`"↑"`, `"↓"` or a symbol). Different symbolic sites are
-  different sites.
+* `c[i, s]` annihilates a fermion on site `i` with spin `s` (`SpinUp`, `SpinDown` or a symbol). Different symbolic sites
+  are different sites.
 * `a ** b` is the product in the given order; `a · b` (`\[CenterDot]`) is the product in normal order, with every
   `cDag` to the left of every `c`.
 * Contractions in spin channels: $\langle c^\dagger_{i\sigma}c_{j\sigma'}\rangle=\chi_{ij}\delta_{\sigma\sigma'}+\sum_a\chi^a_{ij}\sigma^a_{\sigma'\sigma}$,
-  $\langle c_{i\sigma}c_{j\sigma'}\rangle=[(\Delta_{ij}+\sum_a\Delta^a_{ij}\sigma^a)\epsilon]_{\sigma\sigma'}$, $\epsilon_{\uparrow\downarrow}=1$;
+  $\langle c_{i\sigma}c_{j\sigma'}\rangle=\sum_\tau(\Delta_{ij}\delta_{\sigma\tau}+\sum_a\Delta^a_{ij}\sigma^a_{\sigma\tau})\epsilon_{\tau\sigma'}$, $\epsilon_{\uparrow\downarrow}=1$;
   $\chi_{ji}=\chi_{ij}^{\ast}$, $\chi^a_{ii}=\langle S^a_i\rangle$, $\Delta_{ji}=\Delta_{ij}$, $\Delta^a_{ji}=-\Delta^a_{ij}$.
 
 </details>
 
 ## Checks
 
-The test suite (`math -script Tests/RunTests.wls`, 85 tests) checks the algebra, the mean-field formulas of the two-
-and three-spin terms and of the Hubbard interaction, and the states. It checks the symbolic engine against the matrices:
-the matrix of an expression equals that of its normal order and of its spin–charge form; `WickVEV` and `MeanField` give
-the exact values in random Gibbs states of quadratic Hamiltonians with pairing, on three sites and with two orbitals per
-site, and in the free ground state of a ring; the symmetries of the states hold on exact Gibbs states of symmetric
-Hamiltonians. The matrices themselves are checked against the Jordan–Wigner construction, and exact diagonalisation on the
-Hubbard dimer, a magnetic plaquette and Hubbard rings.
-`sh Development/check_docs.sh` checks the documents: every example of the showcase and of the manual is run again in a
-fresh kernel and must give the output printed, the guided tour must run without messages, and the code of the README must
-give the formulas shown after it.
+The tests (`math -script Tests/RunTests.wls`, 91 tests) check the algebra and the states, and the symbolic engine
+against the matrices: `WickVEV` and `MeanField` give the exact values in random Gibbs states of quadratic Hamiltonians
+with pairing, and the matrices agree with the Jordan–Wigner construction and with exact solutions of Hubbard clusters.
+`sh Development/check_docs.sh` runs the code of the showcase, the manual, the guided tour, the README and the wiki again,
+in fresh kernels, and compares it with what they print.
 
 ## Related software
 
-[SNEG](https://github.com/rokzitko/sneg) (Žitko, Comput. Phys. Commun. **182**, 2259 (2011)) is the closest relative: a
-Mathematica package for second quantization, with normal ordering, vacuum expectation values in the empty state or the
-Fermi sea, composite spin and charge operators, and much more: bosons, Majorana fermions, arbitrary spin and exact
-diagonalization. Its Wick contractions pair a creator with an annihilator.
-[QuantumAlgebra.jl](https://github.com/jfeist/QuantumAlgebra.jl) (Julia) handles bosons and fermions, equations of motion
-and cumulant expansions. [wick&d](https://github.com/fevangelista/wickd), [SeQuant](https://github.com/ValeevGroup/SeQuant),
-[pdaggerq](https://github.com/edeprince3/pdaggerq), [drudge](https://github.com/tschijnmo/drudge) and SymPy's
-[secondquant](https://docs.sympy.org/latest/modules/physics/secondquant.html) are built for quantum chemistry: index
-and tensor algebra and the generation of coupled-cluster equations.
-
-FermiWick adds four things to these:
-- Wick's theorem in a Gaussian state that you declare, with normal and anomalous contractions and a selection of them;
-- the symbolic mean-field Hamiltonian of an operator of any order;
-- Gutzwiller-projected expectation values;
-- the same operators as matrices on symmetry sectors, so that every symbolic result can be checked exactly on a cluster.
-
-It keeps local operators compact and recognizes multi-site ones in the results.
+[SNEG](https://github.com/rokzitko/sneg) (Žitko, Comput. Phys. Commun. **182**, 2259 (2011)) is the closest relative:
+second quantization in Mathematica, with bosons, Majorana fermions, arbitrary spin and exact diagonalization; its Wick
+contractions are taken in the vacuum or in the Fermi sea. [QuantumAlgebra.jl](https://github.com/jfeist/QuantumAlgebra.jl)
+(Julia) handles equations of motion and cumulant expansions; [wick&d](https://github.com/fevangelista/wickd),
+[SeQuant](https://github.com/ValeevGroup/SeQuant), [pdaggerq](https://github.com/edeprince3/pdaggerq),
+[drudge](https://github.com/tschijnmo/drudge) and SymPy's
+[secondquant](https://docs.sympy.org/latest/modules/physics/secondquant.html) are built for the coupled-cluster equations
+of quantum chemistry. FermiWick adds Wick's theorem in a Gaussian state that you declare, with anomalous contractions,
+the mean field of any order, Gutzwiller projectors, and the same operators as exact matrices.
 
 ## Citing
 

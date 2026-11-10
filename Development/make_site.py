@@ -300,9 +300,10 @@ def build():
     tests = need(r"tests-(\d+)%20passed", readme, "the number of tests").group(1)
     tagline, subline = need(r"<b>(.*?)</b><br>\s*(.*?)\n</p>", readme, "the tagline").groups()
     tagline_short = "Fermion operators, as symbols and as matrices"
-    lead = need(r"\n\n(FermiWick does by computer.*?:)\n\n1\.", readme, "the opening sentence").group(1)
-    items = re.findall(r"^\d\. \*\*(.+?)\*\* (.*?)(?=^\d\. |\n\n)", readme, re.S | re.M)
-    after = need(r"\n6\. .*?\n\n(Sites and spins.*?)\n\n", readme, "the sentence after the list").group(1)
+    lead = need(r"</p>\n\n(FermiWick lets you.*?)\n\n## What it does", readme, "the opening paragraph").group(1)
+    what_md = section(readme, "What it does")
+    items = re.findall(r"^- \*\*(.+?)\*\* (.*?)(?=^- |\n\n)", what_md, re.S | re.M)
+    after = need(r"\n\n(Sites and spins.*?)\n\n", what_md, "the sentence after the list").group(1)
     what = "".join("<li><strong>%s</strong><span>%s</span></li>" % (inline(a.rstrip("."), fx), inline(" ".join(b.split()), fx)) for a, b in items)
     example = render_flow(blocks(section(readme, "A first example")), fx, ids)
     install = render_flow(blocks(section(readme, "Installation")), fx, ids, install=True)
@@ -315,7 +316,8 @@ def build():
         if url == SITE:
             continue                                          # the row of the website itself
         url = link_target(url) if url.startswith(SITE) else url  # the PDFs: the README links them on Pages
-        kind = ("PDF, %d pages" % pages(url)) if url.endswith(".pdf") else ("notebook" if url.endswith(".wl") else "Markdown")
+        kind = ("PDF, %d pages" % pages(url)) if url.endswith(".pdf") else ("notebook" if url.endswith(".wl") else
+                ("GitHub wiki" if url.endswith("/wiki") else "Markdown"))
         docs.append('<a class="doc" href="%s"><strong>%s</strong><span>%s</span><small>%s</small></a>'
                     % (html.escape(link_target(url)), html.escape(name_), inline(what_, fx), kind))
     year = date[:4]
@@ -343,7 +345,7 @@ def build():
 </div></header>
 <main id="main">
 <section id="what" aria-labelledby="what-title"><div class="wrap"><h2 id="what-title">What it does</h2>
-<p class="lead">{inline(lead.rstrip(":"), fx)}.</p><ul class="list">{what}</ul>
+<p class="lead">{inline(" ".join(lead.split()), fx)}</p><ul class="list">{what}</ul>
 <p class="note">{inline(after, fx)}</p><p class="note">{inline(scope, fx)}</p></div></section>
 <section id="example" class="band" aria-labelledby="example-title"><div class="wrap"><h2 id="example-title">A first example</h2>
 <div class="flow">{example}</div></div></section>
