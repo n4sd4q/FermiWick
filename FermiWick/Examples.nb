@@ -21,7 +21,7 @@ Scan[If[FileExistsQ[FileNameJoin[{#, \"PacletInfo.wl\"}]], \
 PacletDirectoryLoad[#]] &, {FileNameJoin[{folder, \"FermiWick\"}], \
 folder}]]];\nNeeds[\"FermiWick`\"]; Needs[\"FermiWick`Gutzwiller`\"]; \
 Needs[\"FermiWick`Fock`\"];", "Input"], 
-  Cell["$FermiWickVersion\n(* the version of the package, e.g. \"0.2.0\" *)", 
+  Cell["$FermiWickVersion\n(* the version of the package, e.g. \"0.3.0\" *)", 
    "Input"], Cell["1. Writing operators", "Section"], 
   Cell["c[i, s] annihilates a fermion on site i with spin s, cDag[i, s] \
 creates it; the spin is SpinUp, SpinDown or a symbol, and sites can be \
