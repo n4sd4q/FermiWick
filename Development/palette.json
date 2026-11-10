@@ -95,6 +95,16 @@
  ],
  "Hub": [
   {
+   "label": "Graphite and amber",
+   "start": "#1F2630",
+   "end": "#3B4656",
+   "accent": "#2D3643",
+   "tint": "#F6B73C",
+   "idea": "neutral graphite, the colour in the tint: the packages bring the colour",
+   "white_contrast": 9.56,
+   "tint_on_dark": 10.39
+  },
+  {
    "label": "Graphite",
    "start": "#1F2630",
    "end": "#3A4757",
@@ -126,8 +136,8 @@
   }
  ],
  "chosen": {
-  "FunctionalDiagrams": "Navy (today)",
+  "FunctionalDiagrams": "Ocean",
   "FermiWick": "Orchid",
-  "Hub": "Family, navy"
+  "Hub": "Graphite and amber"
  }
 }

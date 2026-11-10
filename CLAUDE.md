@@ -23,6 +23,12 @@ which is not versioned.
   `math -script Development/make_notebook.wl` (saved with Visible -> True). Edit the `.wl`, never the `.nb`.
 - `Development/check_docs.sh` — runs every documented command again in fresh kernels (showcase, manual, tour, README) and
   compares with what the documents show; it must pass before a commit that touches the kernel or the documents.
+- `Media/` — the demo video `demo.mp4` (1920×1080, 60 fps, H.264, about 40 s), its looping preview `demo_preview.webp`
+  (960×540, 60 fps, at the top of the README, linking the video) and its poster `demo_poster.png` (the title card: the
+  website shows it until the video plays), made by `python3 Development/make_demo_video.py` (about three and a half
+  minutes; `--frames` writes frames to `build/video/frames` to look at, `--poster` only the poster) from the first
+  example of the README, code and outputs: run it again when the example changes, and look at the frames. The website
+  shows the video under its hero when `Media/demo.mp4` exists.
 - `Development/operators_table.tex` — the table of the composite operators, included by the showcase and the manual.
 - `wiki/` — the GitHub wiki (practical guides and a FAQ, as FunctionalDiagrams): `Home.md`, `_Sidebar.md` (every page),
   `_Footer.md`, `Page-Name.md` (no `#` title but on Home), links `[text](Page-Name)`. `.github/workflows/wiki.yml` mirrors

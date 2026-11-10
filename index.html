@@ -91,6 +91,13 @@ p { margin: 0 0 1em; }
         background: radial-gradient(900px 420px at 50% 0%, var(--glow), transparent 70%),
                     linear-gradient(135deg, var(--hero-1) 0%, var(--hero-2) 100%); }
 .hero-logo { width: 92px; height: 92px; display: block; margin: 0 auto; }
+/* a demo video under the hero, overlapping its foot (a package page with a video: <header class="hero with-demo">) */
+.hero.with-demo { padding-bottom: 180px; }
+.demo { position: relative; margin-top: -140px; padding: 0 0 24px; }
+.demo figure { margin: 0; }
+.screen { max-width: 1000px; margin: 0 auto; padding: 10px; background: var(--tray); border: 1px solid var(--line);
+          border-radius: 20px; box-shadow: var(--shadow-lg); }
+.screen video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; border-radius: 11px; background: #ffffff; }
 .hero h1 { font-family: var(--serif); font-weight: 600; font-size: clamp(2.3rem, 6vw, 3.7rem); line-height: 1.08;
            letter-spacing: -0.01em; margin: 16px 0 12px; }
 .tagline { font-family: var(--serif); font-size: clamp(1.3rem, 2.7vw, 1.75rem); line-height: 1.3; margin: 0 auto; max-width: 46ch; text-wrap: balance; }
@@ -219,6 +226,8 @@ footer { padding: 44px 0 56px; color: var(--text-2); font-size: 0.93rem; border-
   .topbar .wrap { height: 58px; }
   .iconbtn .label { display: none; }
   .hero { padding: 40px 0 52px; }
+  .hero.with-demo { padding-bottom: 120px; }
+  .demo { margin-top: -96px; }
   .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .btn { padding: 0 12px; }
   section { padding: 56px 0; }
@@ -243,7 +252,7 @@ footer { padding: 44px 0 56px; color: var(--text-2); font-size: 0.93rem; border-
 <a class="iconbtn" href="https://github.com/n4sd4q/FermiWick" aria-label="The repository on GitHub"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg><span class="label">GitHub</span></a>
 <button class="iconbtn theme" id="theme" type="button" aria-label="Switch between the light and the dark theme"><svg class="moon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5a8.5 8.5 0 1 0 10.7 10.7z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><svg class="sun" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></g></svg></button>
 </div></div>
-<header class="hero"><div class="wrap">
+<header class="hero with-demo"><div class="wrap">
 <img class="hero-logo" src="Logo/FermiWick_logo_white.svg" width="92" height="92" alt="The logo of FermiWick: Wick contractions drawn as brackets with arrows from the creator to the annihilator">
 <h1>FermiWick</h1>
 <p class="tagline">Fermion operators, as symbols and as matrices</p>
@@ -253,6 +262,7 @@ footer { padding: 44px 0 56px; color: var(--text-2); font-size: 0.93rem; border-
 <a class="btn btn-ghost" href="Documentation/FermiWick_Manual.pdf">Manual <small>PDF</small></a><a class="btn btn-ghost" href="https://github.com/n4sd4q/FermiWick"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>GitHub</a></div>
 <ul class="facts"><li>Version 0.3.0 (2026-11-10)</li><li>Mathematica 13.0 or later</li><li><a href="https://github.com/n4sd4q/FermiWick/tree/main/Tests">91 tests pass</a></li><li>GPL-3.0-or-later</li></ul>
 </div></header>
+<div class="demo"><div class="wrap"><figure><div class="screen"><video id="demo" muted loop playsinline controls preload="metadata" width="1920" height="1080" poster="Media/demo_poster.png" aria-label="The demo video: ladder operators, spins, the Hubbard dimer solved exactly, expectation values in the state you assume, the mean field and Wick's theorem written out"><source src="Media/demo.mp4" type="video/mp4"><a href="Media/demo.mp4">The demo video (MP4)</a></video></div></figure></div></div>
 <main id="main">
 <section id="what" aria-labelledby="what-title"><div class="wrap"><h2 id="what-title">What it does</h2>
 <p class="lead">FermiWick lets you write fermion operators as on paper — ladder operators, a Hamiltonian, a product of any length, with sites and spins as symbols — and does the algebra for you: normal order, spin operators recognized in the result, expectation values by Wick's theorem in the state you assume, mean-field Hamiltonians, and the exact matrix of the same expression, to solve a small cluster.</p><ul class="list"><li><strong>Ladder operators as on paper</strong><span><code>c[i, s]</code> and <code>cDag[i, s]</code>, with sites and spins as symbols, or modes with any labels: orbitals, momenta, labels of your own; products, sums, "+ h.c.".</span></li><li><strong>Normal order, spins recognized</strong><span>Products in normal order, the local operators (densities, spins, double occupancy) kept compact, and the operators on several sites recognized: <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="2.821em" height="1.360em" role="img" aria-label="\mathbf S_i\cdot\mathbf S_j" style="vertical-align: -0.527em" viewBox="0 0 27.019 13.025">
@@ -1309,6 +1319,11 @@ by whom and when. Author: Nazzareno Africani (SISSA).</p></div></footer>
     try { localStorage.setItem(key, next); } catch (e) {} label(); });
   if (system && system.addEventListener) system.addEventListener('change', label);
   label();
+  var demo = document.getElementById('demo');   // the video plays by itself, muted, unless the reader asks for reduced motion
+  if (demo && !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) {
+    var playing = demo.play();
+    if (playing && playing.catch) playing.catch(function () {});
+  }
   var status = document.getElementById('copy-status');
   document.querySelectorAll('.copy').forEach(function (btn) {
     btn.addEventListener('click', function () {

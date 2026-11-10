@@ -30,6 +30,12 @@ sites and spins as symbols — and does the algebra for you: normal order, spin 
 expectation values by Wick's theorem in the state you assume, mean-field Hamiltonians, and the exact matrix of the same
 expression, to solve a small cluster.
 
+<p align="center">
+  <a href="https://n4sd4q.github.io/FermiWick/Media/demo.mp4"><img src="Media/demo_preview.webp" width="720" alt="Preview of the demo video:
+  ladder operators, spins, the Hubbard dimer solved exactly, expectation values in the state you assume, the mean field and
+  Wick's theorem written out"></a>
+</p>
+
 ## What it does
 
 - **Ladder operators as on paper.** `c[i, s]` and `cDag[i, s]`, with sites and spins as symbols, or modes with any

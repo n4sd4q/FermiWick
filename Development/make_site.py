@@ -313,7 +313,16 @@ def build():
     tests = need(r"tests-(\d+)%20passed", readme, "the number of tests").group(1)
     tagline, subline = need(r"<b>(.*?)</b><br>\s*(.*?)\n</p>", readme, "the tagline").groups()
     tagline_short = "Fermion operators, as symbols and as matrices"
-    lead = need(r"</p>\n\n(FermiWick lets you.*?)\n\n## What it does", readme, "the opening paragraph").group(1)
+    lead = need(r"</p>\n\n(FermiWick lets you.*?)\n\n(?:<p align=\"center\">.*?</p>\n\n)?## What it does", readme,
+                "the opening paragraph").group(1)
+    # the demo video (Development/make_demo_video.py), under the hero, when it is there
+    has_demo = os.path.exists(os.path.join(ROOT, "Media", "demo.mp4"))
+    demo = ('<div class="demo"><div class="wrap"><figure><div class="screen">'
+            '<video id="demo" muted loop playsinline controls preload="metadata" width="1920" height="1080" '
+            'poster="Media/demo_poster.png" aria-label="The demo video: ladder operators, spins, the Hubbard dimer solved '
+            'exactly, expectation values in the state you assume, the mean field and Wick\'s theorem written out">'
+            '<source src="Media/demo.mp4" type="video/mp4"><a href="Media/demo.mp4">The demo video (MP4)</a></video>'
+            '</div></figure></div></div>\n') if has_demo else ""
     what_md = section(readme, "What it does")
     items = re.findall(r"^- \*\*(.+?)\*\* (.*?)(?=^- |\n\n)", what_md, re.S | re.M)
     after = need(r"\n\n(Sites and spins.*?)\n\n", what_md, "the sentence after the list").group(1)
@@ -346,7 +355,7 @@ def build():
 <a class="iconbtn" href="{REPO}" aria-label="The repository on GitHub">{ICONS["GITHUB"]}<span class="label">GitHub</span></a>
 <button class="iconbtn theme" id="theme" type="button" aria-label="Switch between the light and the dark theme">{ICONS["MOON"]}{ICONS["SUN"]}</button>
 </div></div>
-<header class="hero"><div class="wrap">
+<header class="hero{" with-demo" if has_demo else ""}"><div class="wrap">
 <img class="hero-logo" src="Logo/FermiWick_logo_white.svg" width="92" height="92" alt="The logo of FermiWick: Wick contractions drawn as brackets with arrows from the creator to the annihilator">
 <h1>{NAME}</h1>
 <p class="tagline">{html.escape(tagline_short)}</p>
@@ -356,7 +365,7 @@ def build():
 <a class="btn btn-ghost" href="{manual}">Manual <small>PDF</small></a><a class="btn btn-ghost" href="{REPO}">{ICONS["GITHUB"]}GitHub</a></div>
 <ul class="facts"><li>Version {version} ({date})</li><li>Mathematica {requirement} or later</li><li><a href="{REPO}/tree/main/Tests">{tests} tests pass</a></li><li>{license_}</li></ul>
 </div></header>
-<main id="main">
+{demo}<main id="main">
 <section id="what" aria-labelledby="what-title"><div class="wrap"><h2 id="what-title">What it does</h2>
 <p class="lead">{inline(" ".join(lead.split()), fx)}</p><ul class="list">{what}</ul>
 <p class="note">{inline(after, fx)}</p><p class="note">{inline(scope, fx)}</p></div></section>
@@ -415,6 +424,11 @@ def build():
     try {{ localStorage.setItem(key, next); }} catch (e) {{}} label(); }});
   if (system && system.addEventListener) system.addEventListener('change', label);
   label();
+  var demo = document.getElementById('demo');   // the video plays by itself, muted, unless the reader asks for reduced motion
+  if (demo && !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) {{
+    var playing = demo.play();
+    if (playing && playing.catch) playing.catch(function () {{}});
+  }}
   var status = document.getElementById('copy-status');
   document.querySelectorAll('.copy').forEach(function (btn) {{
     btn.addEventListener('click', function () {{
