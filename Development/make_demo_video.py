@@ -153,8 +153,8 @@ PREAMBLE = r"""\documentclass[12pt,multi=elem,border=%gpt]{standalone}
 \begin{document}
 """ % ((BORDER,) + ACCENT + MUTED)
 
-# the outputs; the picture of Wick's theorem, much wider, a little smaller, so that it fits in the cell
-OUTPUT_SIZE, PICTURE_SIZE = r"\fontsize{16}{19}\selectfont", r"\fontsize{14}{17}\selectfont"
+# the outputs and the picture of Wick's theorem, a little larger than the code, as a notebook shows them
+OUTPUT_SIZE = PICTURE_SIZE = r"\fontsize{8.5}{10.5}\selectfont"
 
 
 def elements(steps):
@@ -1008,11 +1008,12 @@ def timeline(el, base, steps, preview=False):
         cells = ([(steps[0][0], None)] if k == 1 else []) + [(steps[k][0], "out%d" % k)]
         card = Card(el, base, k, cells, session, HOLDS[k - 1] - (0.7 if preview else 0))
         cards.append(Scene(card.duration, draw=card.draw, full=card.full))
-    end = title_scene(el, 2.8 if preview else 3.4, ["name", "url"], DrawIn(0.2), fade_out=0.22 if preview else 0)
+    # the closing card is the title card, so that the last frame of the video is its first and the loop has no seam
+    end = title_scene(el, 2.8 if preview else 3.4, ["name", "tagline", "url"], DrawIn(0.2), fade_out=0.22 if preview else 0)
     if preview:
         return cards + [end]
     # the title card in full view from the first frame, which a player shows before the video plays
-    title = title_scene(el, 2.6, ["name", "tagline"], Flow(0.35), shown=True)
+    title = title_scene(el, 2.6, ["name", "tagline", "url"], Flow(0.35), shown=True)
     return [title] + cards + [end]
 
 
