@@ -6,6 +6,8 @@
   (https://n4sd4q.github.io/), beside GitHub.
 - Documents: the README links the showcase and the manual on GitHub Pages, so that they open as PDFs in the browser,
   not on GitHub's page of the file (as the website did already, and now the hub too).
+- Logo: the small badge (16 to 32 px: the icon of the website and of the hub) draws both contractions, as the full one,
+  with heavier lines.
 
 ## 0.3.0 (2026-11-10)
 
