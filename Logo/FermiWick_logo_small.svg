@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128"><title>FermiWick logo: Wick contractions of c c-dagger c c-dagger, brackets with arrows from the creator (open circle) to the annihilator (filled circle)</title>
+<defs><linearGradient id="g" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="128" y2="128"><stop offset="0" stop-color="#642A8C"/><stop offset="1" stop-color="#B02573"/></linearGradient></defs>
+<rect width="128" height="128" rx="28" fill="url(#g)"/>
+<rect x="1" y="1" width="126" height="126" rx="27" fill="none" stroke="#ffffff" stroke-opacity="0.16" stroke-width="2"/>
+<g transform="translate(64 66) scale(1.25) translate(-60 -37)">
+<path d="M22 54 V16 Q22 9 29 9 H91 Q98 9 98 16 V54" fill="none" stroke="#ffffff" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M68 -2 L50 9 L68 20 Z" fill="#ffffff" stroke="#ffffff" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="22" cy="64" r="9" fill="#ffffff" stroke="#ffffff" stroke-width="3"/>
+<circle cx="98" cy="64" r="8" fill="#642A8C" stroke="#ffffff" stroke-width="5"/>
+</g>
+</svg>

@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Documents: a website, https://n4sd4q.github.io/FermiWick/ (`index.html`, written by `Development/make_site.py` from the
+  README); the showcase and the manual in the common style of the author's packages (`Development/n4sd4q.sty`: the title
+  band in the gradient of the package); a new logo in the common language (the same contractions on a badge, in the
+  colours of the package), with a white and a small version.
+
 ## 0.2.0 (2026-11-10)
 
 - ``FermiWick`Fock` ``: the operators of FermiWick as matrices, and exact diagonalisation.

@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="Logo/FermiWick_logo.svg" width="130" alt="FermiWick logo: two Wick contractions of c c-dagger c c-dagger, drawn as brackets with arrows from the creator (open circle) to the annihilator (filled circle)">
+  <img src="Logo/FermiWick_logo.svg" width="120" alt="FermiWick logo: two Wick contractions of c c-dagger c c-dagger, drawn as brackets with arrows from the creator (open circle) to the annihilator (filled circle)">
 </p>
 
 <h1 align="center">FermiWick</h1>
@@ -10,13 +10,14 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.2.0-8E2A7B" alt="version 0.2.0">
-  <img src="https://img.shields.io/badge/Mathematica-15.0-8E2A7B" alt="tested with Mathematica 15.0">
+  <img src="https://img.shields.io/badge/version-0.2.0-8A2880" alt="version 0.2.0">
+  <img src="https://img.shields.io/badge/Mathematica-15.0-8A2880" alt="tested with Mathematica 15.0">
   <a href="Tests"><img src="https://img.shields.io/badge/tests-85%20passed-2E7D32" alt="85 tests passed"></a>
-  <img src="https://img.shields.io/badge/license-GPL--3.0--or--later-8E2A7B" alt="GNU GPL v3 or later">
+  <img src="https://img.shields.io/badge/license-GPL--3.0--or--later-8A2880" alt="GNU GPL v3 or later">
 </p>
 
 <p align="center">
+  <a href="https://n4sd4q.github.io/FermiWick/"><b>Website</b></a>&nbsp;·
   <a href="Showcase/FermiWick_Showcase.pdf"><b>Showcase</b></a>&nbsp;·
   <a href="Documentation/FermiWick_Manual.pdf"><b>Manual</b></a>&nbsp;·
   <a href="Examples.wl"><b>Guided&nbsp;tour</b></a>&nbsp;·
@@ -232,6 +233,7 @@ point group) that dedicated codes use to diagonalise larger clusters.
 
 | Document | Contents |
 |---|---|
+| [Website](https://n4sd4q.github.io/FermiWick/) | the package at a glance: what it does, the first example, installation, the documents |
 | [Showcase](Showcase/FermiWick_Showcase.pdf) (PDF) | the package step by step, from the anticommutation relations to the parton mean field of a chiral spin model, the Brinkman–Rice transition and Hubbard clusters solved exactly |
 | [Manual](Documentation/FermiWick_Manual.pdf) (PDF) | every function, option and convention, with examples |
 | [Guided tour](Examples.wl) | a notebook to run cell by cell, in the paclet (`FermiWick/Examples.nb`) |

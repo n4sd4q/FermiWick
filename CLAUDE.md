@@ -15,12 +15,19 @@ which is not versioned.
 - `Showcase/` and `Documentation/` — LaTeX sources; the examples (`examples.wl`, blocks `(* ::Example:: name *)`) are run
   by `Development/run_examples.wl`, which writes `examples/NAME.wl` (code) and `NAME.tex`/`NAME.txt` (output).
   `Showcase/build_pdf.sh`, `Documentation/build_manual.sh` compute the examples and typeset. Common style:
-  `Development/style.tex` (accent #8E2A7B). Logo: `Logo/` (SVG; the PDF is made with rsvg-convert).
+  `Development/style.tex` (on `n4sd4q.sty`, the Orchid colours of the palette). Logo: `Logo/` (SVG; the PDFs are made with rsvg-convert).
 - `Examples.wl` — the guided tour (cells marked as in a package); `FermiWick/Examples.nb` is generated from it by
   `math -script Development/make_notebook.wl` (saved with Visible -> True). Edit the `.wl`, never the `.nb`.
 - `Development/check_docs.sh` — runs every documented command again in fresh kernels (showcase, manual, tour, README) and
   compares with what the documents show; it must pass before a commit that touches the kernel or the documents.
 - `Development/operators_table.tex` — the table of the composite operators, included by the showcase and the manual.
+- `index.html` — the website (GitHub Pages serves main: https://n4sd4q.github.io/FermiWick/), **generated** by
+  `python3 Development/make_site.py` from the README, `PacletInfo.wl`, `CITATION.cff` and the PDFs (formulas typeset by
+  pdflatex, inlined as SVG); never edit it, run the script after changing its sources (`check_docs.sh` checks it). `.nojekyll`
+  (empty) lets Pages serve the files as they are.
+- The common look of the packages: `Development/n4sd4q.sty` with `n4sd4q-palette.tex` (the style of the PDFs, read through
+  `TEXINPUTS` by the build scripts), `Development/family.css` and `Development/palette.json` (the website) and the logos in
+  `Logo/` are copies of the files of the hub (github.com/n4sd4q/n4sd4q.github.io, `design/`): change them there, then copy.
 - License: GPL-3.0-or-later with the additional terms of `NOTICE` (as FunctionalDiagrams).
 
 ## Rules

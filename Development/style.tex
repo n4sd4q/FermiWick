@@ -1,82 +1,23 @@
 % ---------------------------------------------------------------------------
-%  FermiWick -- common style of the showcase and of the manual.
-%  The examples are computed by Development/run_examples.wl: examples/NAME.wl is the code, NAME.tex the output as a
-%  formula, NAME.txt the output as text.
+%  FermiWick -- the style of the showcase and of the manual: the common style of the packages, n4sd4q.sty (a copy of
+%  the one of the hub, with the palette n4sd4q-palette.tex: found through TEXINPUTS, set by build_pdf.sh and
+%  build_manual.sh), and what is particular to FermiWick. The examples are computed by Development/run_examples.wl:
+%  examples/NAME.wl is the code, NAME.tex the output as a formula, NAME.txt the output as text.
 % ---------------------------------------------------------------------------
 \usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
-\usepackage[sc]{mathpazo}
-\usepackage[scaled=0.88]{helvet}
-\renewcommand{\ttdefault}{txtt}
-\usepackage{amsmath,amssymb,bm}
-\allowdisplaybreaks[2]
-\usepackage[a4paper,margin=2.2cm,top=2.4cm,bottom=2.4cm,headheight=22pt]{geometry}
-\usepackage{microtype}
-\usepackage[dvipsnames]{xcolor}
-\usepackage{graphicx}
-\usepackage{listings}
+\usepackage{n4sd4q}
+\familysetup{package=FermiWick, logo=../Logo/FermiWick_logo_white.pdf}
 \usepackage{simpler-wick}
-\usepackage[most]{tcolorbox}
-\usepackage{booktabs,array,tabularx}
-\usepackage{titlesec}
-\usepackage{enumitem}
-\usepackage{fancyhdr}
-\usepackage{needspace}
-\usepackage{etoolbox}
-\usepackage[colorlinks=true,linkcolor=accent,urlcolor=accent,citecolor=accent]{hyperref}
 
-\definecolor{accent}{HTML}{8E2A7B}
-\definecolor{accentlight}{HTML}{F1DCEC}
-\definecolor{accentpale}{HTML}{FAF0F7}
-\definecolor{codebg}{HTML}{FBF6FA}
-\definecolor{codeframe}{HTML}{E1CCDC}
-\definecolor{keyword}{HTML}{8E2A7B}
-\definecolor{comment}{HTML}{7D6A78}
-\definecolor{checkgreen}{HTML}{2E7D32}
-
-\titleformat{\section}{\sffamily\Large\bfseries\color{accent}}{\thesection}{0.8em}{}
-\titleformat{\subsection}{\sffamily\large\bfseries\color{accent}}{\thesubsection}{0.7em}{}
-\titleformat{\paragraph}[runin]{\sffamily\bfseries\color{accent}}{}{0pt}{}[.]
-\titlespacing*{\section}{0pt}{2.6ex plus 1ex minus 0.4ex}{1.2ex}
-\titlespacing*{\subsection}{0pt}{2.2ex plus 0.6ex minus 0.3ex}{0.8ex}
-\titlespacing*{\paragraph}{0pt}{1.2ex plus 0.4ex}{0.6em}
-\makeatletter
-\pretocmd{\section}{\needspace{8\baselineskip}}{}{}
-\pretocmd{\subsection}{\if@nobreak\else\needspace{6\baselineskip}\fi}{}{}
-\makeatother
-\setcounter{tocdepth}{2}
-\setlist{itemsep=1pt, topsep=3pt}
-\setlength{\emergencystretch}{1.5em}
-\setlength{\parindent}{0pt}
-\setlength{\parskip}{4pt plus 1.5pt minus 1pt}
-
-\pagestyle{fancy}
-\fancyhf{}
-\fancyhead[R]{\sffamily\small\color{comment}\nouppercase{\rightmark}}
-\fancyfoot[C]{\sffamily\small\thepage}
-\renewcommand{\sectionmark}[1]{\markboth{\thesection\enspace #1}{\thesection\enspace #1}}
-\renewcommand{\headrulewidth}{0.4pt}
-\renewcommand{\headrule}{\hbox to\headwidth{\color{codeframe}\leaders\hrule height \headrulewidth\hfill}}
-
-\lstdefinelanguage{WL}{
-  morekeywords={NormalOrder,OperatorCommutator,OperatorAnticommutator,ToSpinChargeBasis,ToLadderBasis,GroupLocalOperators,
+\familykeywords{NormalOrder,OperatorCommutator,OperatorAnticommutator,ToSpinChargeBasis,ToLadderBasis,GroupLocalOperators,
     OperatorCoefficients,CleanDeltas,ResetNormalOrder,DefineOperator,QuasiFreeState,SpinSingletState,GeneralState,StateSelect,
     LocalPairQ,AnomalousPairQ,Contraction,WickVEV,VerifyNormalOrder,MeanField,DefinePeierlsHopping,DefineFlux,
     GutzwillerProjector,LocalSandwich,GutzwillerVEV,GutzwillerSimplify,SdotS,SdotScrossS,SpinOperator,EmptyProjector,
     SingleOccupationProjector,cDag,nOp,nTotOp,SzOp,SpOp,SmOp,DOp,Bdag,
     FockSpace,FockSpaceQ,FockSector,FockSectorQ,ModeIndex,OccupationBasis,BasisState,StateToKet,FockMatrix,FockExpectation,
-    SpinSquared,ParticleHoleOperator,TimeReversal,SectorBlock,LowestStates,LehmannGreen,GreenMatrix,ClearFockCache},
-  sensitive=true, morecomment=[n]{(*}{*)}, morestring=[b]",
-}
-\lstset{language=WL, basicstyle=\ttfamily\small, keywordstyle=\color{keyword}\bfseries, commentstyle=\color{comment}\itshape,
-  stringstyle=\color{BrickRed}, columns=fullflexible, keepspaces=true, breaklines=true, breakatwhitespace=true,
-  breakindent=2em, showstringspaces=false, upquote=true, extendedchars=true,
-  literate={·}{{$\cdot$}}1 {φ}{{$\varphi$}}1 {Φ}{{$\Phi$}}1 {σ}{{$\sigma$}}1 {ρ}{{$\rho$}}1 {κ}{{$\kappa$}}1 {↑}{{$\uparrow$}}1 {↓}{{$\downarrow$}}1 {χ}{{$\chi$}}1 {Δ}{{$\Delta$}}1 {θ}{{$\theta$}}1 {ν}{{$\nu$}}1 {η}{{$\eta$}}1}
-\lstdefinestyle{plainoutput}{language={}, basicstyle=\ttfamily\small, breaklines=true, columns=fullflexible, keepspaces=true}
+    SpinSquared,ParticleHoleOperator,TimeReversal,SectorBlock,LowestStates,LehmannGreen,GreenMatrix,ClearFockCache}
+\lstset{literate={·}{{$\cdot$}}1 {φ}{{$\varphi$}}1 {Φ}{{$\Phi$}}1 {σ}{{$\sigma$}}1 {ρ}{{$\rho$}}1 {κ}{{$\kappa$}}1 {↑}{{$\uparrow$}}1 {↓}{{$\downarrow$}}1 {χ}{{$\chi$}}1 {Δ}{{$\Delta$}}1 {θ}{{$\theta$}}1 {ν}{{$\nu$}}1 {η}{{$\eta$}}1}
 
-\newcommand{\pkg}[1]{\texttt{#1}}
-\newcommand{\fn}[1]{\texttt{\color{accent}#1}}
-\newcommand{\ok}{\textcolor{checkgreen}{\ensuremath{\checkmark}}}
 \newcommand{\exmissing}[1]{\textcolor{red}{[missing example: \detokenize{#1}]}}
 \makeatletter
 \newcommand{\excodeafter}{\tcb@parfillskip@check\par\ifvmode\nobreak\@nobreaktrue\nointerlineskip\addvspace{\glueexpr2pt-\parskip}\fi}
@@ -84,9 +25,6 @@
 \newcommand{\excode}[1]{\ifhmode{\widowpenalty=10000\par}\nobreak\fi\IfFileExists{examples/#1.wl}{\tcbinputlisting{listing only,
   colback=codebg, colframe=codeframe, boxrule=0.5pt, arc=2pt, left=6pt, right=6pt, top=3pt, bottom=3pt, before skip=4pt,
   after=\excodeafter, listing file={examples/#1.wl}, listing options={language=WL}}}{\exmissing{#1}}}
-\newtcolorbox{exoutput}{colback=white, colframe=codeframe, boxrule=0.5pt, arc=2pt, left=24pt, right=6pt, top=3pt, bottom=3pt,
-  before skip=2pt, after skip=8pt, breakable, overlay unbroken and first={\node[anchor=north west,
-  font=\scriptsize\sffamily\color{comment}] at ([xshift=4pt, yshift=-5pt]frame.north west) {out};}}
 \newcommand{\exformula}[1]{\begin{exoutput}\raggedright\IfFileExists{examples/#1.tex}{$\displaystyle\input{examples/#1.tex}$}{\exmissing{#1}}\end{exoutput}}
 \newcommand{\extext}[1]{\IfFileExists{examples/#1.txt}{\tcbinputlisting{listing only, colback=white, colframe=codeframe,
   boxrule=0.5pt, arc=2pt, left=24pt, right=6pt, top=2pt, bottom=2pt, before skip=2pt, after skip=8pt,
@@ -94,15 +32,4 @@
   font=\scriptsize\sffamily\color{comment}] at ([xshift=4pt, yshift=-5pt]frame.north west) {out};}}}{\exmissing{#1}}}
 \newcommand{\example}[1]{\excode{#1}\IfFileExists{examples/#1.tex}{\exformula{#1}}{\IfFileExists{examples/#1.txt}{\extext{#1}}{}}}
 
-\newcommand{\titleblock}[2]{%
-  \begin{center}
-  \includegraphics[width=2.2cm]{../Logo/FermiWick_logo.pdf}\\[6pt]
-  {\sffamily\Huge\bfseries\color{accent}FermiWick}\\[4pt]
-  {\sffamily\Large #1}\\[8pt]
-  {\small #2}\\[2pt]
-  {\small Nazzareno Africani (SISSA) \textperiodcentered{} version 0.2.0 \textperiodcentered{}
-   \href{https://github.com/n4sd4q/FermiWick}{github.com/n4sd4q/FermiWick}}
-  \end{center}\vspace{6pt}}
-\newtcblisting{code}{listing only, colback=codebg, colframe=codeframe, boxrule=0.5pt, arc=2pt, left=6pt, right=6pt,
-  top=3pt, bottom=3pt, listing options={language=WL}}
 \newcommand{\extypeset}[1]{\begin{exoutput}\centering\small\IfFileExists{examples/#1_typeset.tex}{$\displaystyle\input{examples/#1_typeset.tex}$}{\exmissing{#1}}\end{exoutput}}

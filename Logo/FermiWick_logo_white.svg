@@ -1,20 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 80" width="240" height="160">
-  <title>FermiWick: Wick contractions of c c-dagger c c-dagger, drawn as brackets with arrows from the creator (open circle) to the annihilator (filled circle)</title>
-  <defs>
-    <linearGradient id="outer" gradientUnits="userSpaceOnUse" x1="18" y1="0" x2="102" y2="0">
-      <stop offset="0" stop-color="#E9D2F5"/><stop offset="1" stop-color="#FFD1E8"/>
-    </linearGradient>
-  </defs>
-  <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="5">
-    <path d="M22 50 V16 Q22 11 27 11 H93 Q98 11 98 16 V50" stroke="url(#outer)"/>
-    <path d="M46 50 V35 Q46 30 51 30 H69 Q74 30 74 35 V50" stroke="#FF9FCB"/>
-  </g>
-  <path d="M66 4.5 L53 11 L66 17.5 Z" fill="url(#outer)" stroke="url(#outer)" stroke-width="1.5" stroke-linejoin="round"/>
-  <path d="M55 24.5 L67 30 L55 35.5 Z" fill="#FF9FCB" stroke="#FF9FCB" stroke-width="1.5" stroke-linejoin="round"/>
-  <g stroke-width="3.2">
-    <circle cx="22" cy="62" r="7.5" fill="#E9D2F5" stroke="#E9D2F5"/>
-    <circle cx="46" cy="62" r="7.5" fill="none" stroke="#F3D4EE"/>
-    <circle cx="74" cy="62" r="7.5" fill="#F7CDE6" stroke="#F7CDE6"/>
-    <circle cx="98" cy="62" r="7.5" fill="none" stroke="#FFD1E8"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+<title>FermiWick logo: Wick contractions of c c-dagger c c-dagger, brackets with arrows from the creator (open circle) to the annihilator (filled circle)</title>
+<g transform="translate(64 64.5) scale(1.05) translate(-60 -37.8)">
+<g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="6">
+<path d="M22 50 V16 Q22 11 27 11 H93 Q98 11 98 16 V50" stroke="#ffffff"/>
+<path d="M46 50 V35 Q46 30 51 30 H69 Q74 30 74 35 V50" stroke="#F7B5DA"/>
+</g>
+<path d="M66 4 L52.5 11 L66 18 Z" fill="#ffffff" stroke="#ffffff" stroke-width="1.6" stroke-linejoin="round"/>
+<path d="M55 24 L68 30 L55 36 Z" fill="#F7B5DA" stroke="#F7B5DA" stroke-width="1.6" stroke-linejoin="round"/>
+<g stroke-width="3.6">
+<circle cx="22" cy="62" r="7.5" fill="#ffffff" stroke="#ffffff"/>
+<circle cx="46" cy="62" r="7.5" fill="#642A8C" fill-opacity="0" stroke="#F7B5DA"/>
+<circle cx="74" cy="62" r="7.5" fill="#F7B5DA" stroke="#F7B5DA"/>
+<circle cx="98" cy="62" r="7.5" fill="#642A8C" fill-opacity="0" stroke="#ffffff"/>
+</g>
+</g>
 </svg>

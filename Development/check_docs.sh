@@ -17,5 +17,7 @@ out=$(math -script Examples.wl 2>&1 | grep -v '^$')
 if [ -z "$out" ]; then echo "ok   Examples.wl: runs without messages"; else echo "FAIL Examples.wl:"; echo "$out" | head -20; status=1; fi
 math -script Development/check_readme.wl | grep -v '^$' | sed 's/^/     /' || status=1
 math -script Development/check_readme.wl > /dev/null 2>&1 || status=1
+python3 Development/make_site.py --check | sed 's/^/ok   /' || status=1
+python3 Development/make_site.py --check > /dev/null 2>&1 || status=1
 rm -rf $tmp
 exit $status
