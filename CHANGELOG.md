@@ -8,6 +8,12 @@
   not on GitHub's page of the file (as the website did already, and now the hub too).
 - Logo: the small badge (16 to 32 px: the icon of the website and of the hub) draws both contractions, as the full one,
   with heavier lines.
+- Documents: the README and the website say what the package does in six lines, from the simplest to the heaviest, and
+  build a first example up from the ladder operators to the Hubbard dimer solved exactly, the state you assume and the
+  mean field. The guided tour goes the same way, one piece at a time, and ends with Wick's theorem checked against the
+  exact ground state of free fermions. A wiki (`wiki/`, published by `.github/workflows/wiki.yml`): installation, writing
+  operators, declaring a state, mean field with a self-consistent loop, exact diagonalisation, Gutzwiller projectors,
+  LaTeX, scripts, conventions and a FAQ, every block checked by `Development/check_wiki.wl` (run by `check_docs.sh`).
 
 ## 0.3.0 (2026-11-10)
 

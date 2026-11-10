@@ -24,6 +24,13 @@ which is not versioned.
 - `Development/check_docs.sh` — runs every documented command again in fresh kernels (showcase, manual, tour, README) and
   compares with what the documents show; it must pass before a commit that touches the kernel or the documents.
 - `Development/operators_table.tex` — the table of the composite operators, included by the showcase and the manual.
+- `wiki/` — the GitHub wiki (practical guides and a FAQ, as FunctionalDiagrams): `Home.md`, `_Sidebar.md` (every page),
+  `_Footer.md`, `Page-Name.md` (no `#` title but on Home), links `[text](Page-Name)`. `.github/workflows/wiki.yml` mirrors
+  the folder into the wiki on every push to main that touches it: edit the pages here, never on GitHub.
+  `Development/check_wiki.wl wiki/Page.md` runs the blocks of a page in a fresh kernel; each must give the `$$formula$$`
+  (`ToTeX`, GitHub's escapes), the ```` ```math ```` block (formulas on several lines) or the ```` ```text ```` block
+  (`ToString`) after it; `<!-- not run -->` before a block skips it; `--fill` writes the outputs where the page has `?`.
+  Wiki math: no `\,` (`\thinspace`), no `)_`, `]_`, `}_` or `+_` (GitHub reads them as emphasis: subscript first).
 - `index.html` — the website (GitHub Pages serves main: https://n4sd4q.github.io/FermiWick/), **generated** by
   `python3 Development/make_site.py` from the README, `PacletInfo.wl`, `CITATION.cff` and the PDFs (formulas typeset by
   pdflatex, inlined as SVG); never edit it, run the script after changing its sources (`check_docs.sh` checks it). `.nojekyll`
@@ -47,7 +54,7 @@ which is not versioned.
 ## Releases
 - Semantic versioning (as FunctionalDiagrams). The version is the same in `FermiWick/PacletInfo.wl`, `$FermiWickVersion`,
   `CITATION.cff` (with `date-released`), the install line of the README and of the manual (the URL of the paclet), the
-  title lines of the showcase and the manual (`\familytitle`), and `CHANGELOG.md`.
+  title lines of the showcase and the manual (`\familytitle`), the wiki (`Installation.md`, `_Footer.md`) and `CHANGELOG.md`.
 - The paclet: `CreatePacletArchive["FermiWick", "build"]` from a clean checkout (build/ is not versioned); test it unzipped,
   with `PacletDirectoryLoad`, never with `PacletInstall` on the author's machine. Then the tag vX.Y.Z and the GitHub release
   with the paclet and the two PDFs; `python3 Development/make_site.py` after every change of the README or the version.
