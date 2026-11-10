@@ -4,25 +4,32 @@ before it plays, is the title card in full view), its looping preview for the RE
 Media/demo_preview.webp (960 x 540, 60 fps; its first frame, the one shown where animated images do not play, is a card
 in full view), and its poster, Media/demo_poster.png (that title card: the website shows it until the video plays).
 
-Nothing in it is written by hand: the code typed in the notebook is the section "A first example" of README.md, block by
-block, and each output is what the README prints after its block (the formulas, which Development/check_docs.sh keeps
-equal to what ToTeX writes, with GitHub's escapes undone; the picture of Wick's theorem is Documentation/readme/wick.tex,
-the output of WickTeX typeset with simpler-wick). One card for each step of the example, from the ladder operators to
-Wick's theorem in LaTeX: a short caption, the code typed as in a notebook (In[n]:= and Out[n]= numbered as one session
-numbers them, the cell brackets on the right, Mathematica's colours), then its output. The pictures go through pdflatex
-(twice: simpler-wick places its contractions on the second run) and pdftocairo (one PNG per element, transparent), the
-frames are put together with PIL (at 1920 x 1080; the preview is reduced from them) and encoded by ffmpeg. The logo of
+Nothing in it is written by hand: the session (CARDS) is made of the code blocks of "A first example" of README.md, each
+with what the README prints after it (the formulas, which Development/check_docs.sh keeps equal to what ToTeX writes,
+with GitHub's escapes undone; the picture of Wick's theorem is Documentation/readme/wick.tex, the output of WickTeX
+typeset with simpler-wick), and of examples computed for the showcase and the manual (Showcase/examples and
+Documentation/examples: the code NAME.wl, the output NAME.tex, NAME.txt or, for WickTeX, NAME_typeset.tex). One card for
+each thing the package does, from the ladder operators to LaTeX: a heading, a second line naming the examples, and a few
+cells typed one after the other as in a notebook (In[n]:= and Out[n]= numbered as one session numbers them, the cell
+brackets on the right, Mathematica's colours), each followed by its output. The cells of CARDS, in their order, are one
+session: run in one fresh kernel, each gives the output shown (the variables a cell uses are set by a cell before it;
+--check runs it). The pictures go through pdflatex (twice: simpler-wick places its contractions on the second run) and
+pdftocairo (one PNG per element, transparent), the frames are put together with PIL (at 1920 x 1080; the preview is
+reduced from them) and encoded by ffmpeg. The logo of
 the first and the last card is drawn again in every frame from the geometry of Logo/FermiWick_logo.svg (read from the
 file): on the title card its arrow heads travel once along their contractions, from the creator (the open circle) into
 the annihilator (the filled circle) and out of the creator again, with a soft start, a glide and a slight overshoot
-before they settle; on the closing card it draws itself: the four operators appear, then each contraction runs from its
-creator to its annihilator, its arrow head riding behind the pen and settling on its place. Needs pdflatex (TeX Live:
+before they settle; the closing card is the title card again (its last frame is the first frame of the video, so that
+the loop has no seam), its logo drawing itself: the four operators appear, then each contraction runs from its creator
+to its annihilator, its arrow head riding behind the pen and settling on its place. Needs pdflatex (TeX Live:
 mathpazo, Source Code Pro, simpler-wick), pdftocairo (poppler), python3 with PIL, ffmpeg with libx264. Run from any
 folder:
-    python3 Development/make_demo_video.py            (all three files, three or four minutes: most of it the WebP)
+    python3 Development/make_demo_video.py            (all three files, about eight minutes: most of it the WebP)
     python3 Development/make_demo_video.py --frames   (also a few frames as PNG in build/video/frames, to look at;
                                                       with --only-frames, nothing else)
     python3 Development/make_demo_video.py --poster   (only the poster, a few seconds)
+    python3 Development/make_demo_video.py --check    (only the check of the session, in Mathematica: wolfram -script,
+                                                      a minute or so)
 """
 import concurrent.futures
 import functools
@@ -30,6 +37,7 @@ import math
 import multiprocessing
 import os
 import re
+import shutil
 import subprocess
 import sys
 import xml.etree.ElementTree as ET
@@ -128,16 +136,121 @@ def readme_steps():
     return steps
 
 
-# the caption of each step (its heading and a second line), in the order of the README
-CAPTIONS = [
-    ("Ladder operators", "NormalOrder brings the creators to the left"),
-    ("Spins from ladder operators", "the exchange identity, the sites left as symbols"),
-    ("The Hubbard dimer, solved exactly", "written as on paper; its spectrum with two electrons and $S^z=0$"),
-    ("Expectation values by Wick's theorem", "the energy of the dimer in a spin singlet state"),
-    ("Chirality and time reversal", "the scalar chirality needs a state that breaks time reversal"),
-    ("Mean field", "the Hubbard interaction of a site, in a state with magnetization $m$"),
-    ("Wick's theorem in LaTeX", "every pairing written out, its contraction drawn"),
+EXAMPLES = {"showcase": os.path.join(ROOT, "Showcase", "examples"), "manual": os.path.join(ROOT, "Documentation", "examples")}
+
+
+def example(doc, name):
+    """An example computed for the showcase or the manual (Development/run_examples.wl): its code, NAME.wl, and its output,
+    ("tex", the LaTeX of NAME.tex, or of NAME_typeset.tex for a string of LaTeX that is a formula: WickTeX) or ("text",
+    NAME.txt), or None."""
+    path = os.path.join(EXAMPLES[doc], name)
+    if not os.path.exists(path + ".wl"):
+        sys.exit("missing %s.wl: run the examples of the %s first" % (path, doc))
+    code = open(path + ".wl", encoding="utf-8").read().strip("\n")
+    for ext, kind in (("_typeset.tex", "tex"), (".tex", "tex"), (".txt", "text")):
+        if os.path.exists(path + ext):
+            return code, (kind, open(path + ext, encoding="utf-8").read().strip())
+    return code, None
+
+
+# The session: one card for each thing the package does, its heading and a second line naming the examples, and its
+# cells, in the order of one session (the variables a cell uses are set by a cell before it). Nothing is typed here: a
+# cell is ("readme", k), the code block k of "A first example" with what the README prints after it (0 is the line that
+# loads the package), or ("showcase", NAME) or ("manual", NAME), an example computed for the showcase or the manual,
+# code and output (example). The last number is how long the card stays in full view (s).
+CARDS = [
+    ("Ladder operators and normal order", "anticommutation, the Pauli principle, sites and spins as symbols",
+     [("readme", 0), ("readme", 1), ("showcase", "pauli"), ("showcase", "samesite"), ("showcase", "spinless")], 2.0),
+    ("Spins from ladder operators", "the exchange identity, spin flips, the chirality from a commutator",
+     [("readme", 2), ("showcase", "decompose"), ("showcase", "spinlength"), ("showcase", "commutator")], 2.0),
+    ("Exact diagonalisation", "any model as on paper: the Hubbard dimer, a ring of eight sites",
+     [("readme", 3), ("showcase", "ring8")], 2.6),
+    ("Wick's theorem in the state you assume", "the energy; the chirality with and without time reversal",
+     [("readme", 4), ("readme", 5), ("manual", "symmetries")], 2.4),
+    ("Mean field of any order", "the Hubbard term in a magnetic state, the chirality with pairing",
+     [("readme", 6), ("showcase", "singletstate"), ("showcase", "chiralfields")], 2.4),
+    ("Gutzwiller projectors", "the projector, the double occupancy, the hopping renormalised",
+     [("manual", "load"), ("showcase", "gutzwillerprojector"), ("showcase", "gutzwillerd"), ("showcase", "hopping")], 2.2),
+    ("LaTeX", "any result as LaTeX; Wick's theorem written out and drawn",
+     [("showcase", "totex"), ("readme", 7), ("manual", "wicktex")], 2.8),
 ]
+
+
+SESSION_CHECK = r'''(* written by Development/make_demo_video.py --check: the cells of the video, in their order, in one fresh
+   kernel; each result is compared with the output the video shows, written as the examples write it (ToTeX with the
+   replacements of Development/run_examples.wl, the text in InputForm) *)
+PacletDirectoryLoad[FileNameJoin[{"%(root)s", "FermiWick"}]];
+docPost[t_String] := StringReplace[t, {
+    RegularExpression["\\\\text\\{Hop\\}\\(([^()]*)\\)"] :> "T_{" <> StringReplace[StringDelete["$1", " "], "," -> ""] <> "}",
+    RegularExpression["(?<![A-Za-z\\\\])m\\(([^()]*)\\)"] :> "m_{$1}",
+    RegularExpression["\\\\text\\{nk\\}\\(([^()]*)\\)"] :> "n_{$1}",
+    "\\text{eps0}" -> "\\varepsilon_0", "\\text{Jc}" -> "J_\\chi"}];
+toText[s_String] := s;
+toText[e_] := StringReplace[ToString[e /. FermiWick`GaussianState[a_Association] :> stateShown[Lookup[a, "Description", "..."]],
+    InputForm, PageWidth -> 110], "stateShown" -> "GaussianState"];
+read[name_] := Import[FileNameJoin[{"%(dir)s", name}], "Text", CharacterEncoding -> "UTF8"];
+bad = 0;
+Do[
+  {name, kind, source} = cell;
+  result = ToExpression[read[name <> ".wl"]];
+  If[kind =!= "none",
+   got = StringTrim[Switch[kind, "tex", docPost[FermiWick`ToTeX[result]], "string", docPost[result], "text", toText[result]]];
+   If[got === StringTrim[read[name <> ".out"]], Print["ok    ", source],
+    bad++; Print["DIFF  ", source, "\n  computed: ", got, "\n  shown:    ", read[name <> ".out"]]]],
+  {cell, %(cells)s}];
+Print[If[bad == 0, "every output as the video shows it", ToString[bad] <> " outputs differ"]];
+Exit[If[bad == 0, 0, 1]]
+'''
+
+
+def check_session():
+    """--check: the session of CARDS run in one fresh kernel (wolfram -script), each result compared with the output the
+    video shows (SESSION_CHECK, written to build/video/session with one file for each cell and its output)."""
+    folder = os.path.join(BUILD, "session")
+    os.makedirs(folder, exist_ok=True)
+    cells, readme = [], readme_steps()
+    for k, (_, _, refs, _) in enumerate(CARDS, 1):
+        for j, (doc, key) in enumerate(refs):
+            code, out = readme[key] if doc == "readme" else example(doc, key)
+            if doc == "readme" and out:
+                # the README's formulas are ToTeX of the result; its picture, the typeset WickTeX of the showcase
+                kind = "string" if out.startswith("$") else "tex"
+                out = example("showcase", "wicktex")[1][1] if kind == "string" else out
+            elif out:
+                kind = "string" if os.path.exists(os.path.join(EXAMPLES[doc], key + "_typeset.tex")) else out[0]
+                out = out[1]
+            else:
+                kind = "none"
+            name = "cell%02d_%d" % (k, j)
+            with open(os.path.join(folder, name + ".wl"), "w", encoding="utf-8") as fh:
+                fh.write(code)
+            if out:
+                with open(os.path.join(folder, name + ".out"), "w", encoding="utf-8") as fh:
+                    fh.write(out)
+            cells.append('{"%s", "%s", "%s %s"}' % (name, kind, doc, key))
+    path = os.path.join(folder, "session_check.wl")
+    with open(path, "w", encoding="utf-8") as fh:
+        fh.write(SESSION_CHECK % dict(root=ROOT, dir=folder, cells="{" + ", ".join(cells) + "}"))
+    print("the session in", os.path.relpath(path, ROOT), flush=True)
+    if not shutil.which("wolfram"):
+        sys.exit("wolfram not found: run  wolfram -script %s" % path)
+    sys.exit(subprocess.run(["wolfram", "-script", path]).returncode)
+
+
+def session_cells():
+    """The cards of CARDS with their cells read: [(heading, second line, [(code, output)], hold)]."""
+    readme = readme_steps()
+    out = []
+    for head, line, cells, hold in CARDS:
+        read = []
+        for doc, key in cells:
+            if doc == "readme":
+                code, tex = readme[key]
+                read.append((code, ("tex", tex) if tex else None))
+            else:
+                read.append(example(doc, key))
+        out.append((head, line, read, hold))
+    return out
 
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -153,31 +266,52 @@ PREAMBLE = r"""\documentclass[12pt,multi=elem,border=%gpt]{standalone}
 \begin{document}
 """ % ((BORDER,) + ACCENT + MUTED)
 
-# the outputs and the picture of Wick's theorem, a little larger than the code, as a notebook shows them
-OUTPUT_SIZE = PICTURE_SIZE = r"\fontsize{8.5}{10.5}\selectfont"
+# the outputs and the pictures of Wick's theorem, a little larger than the code (CODE_SIZE px), as a notebook shows them
+OUTPUT_SIZE = r"\fontsize{8.5}{10.5}\selectfont"
+CODE_SIZE = px(18)
 
 
-def elements(steps):
+def output_name(k, j):
+    return "o%d_%d" % (k, j)
+
+
+def elements(cards):
     """name -> LaTeX of every picture of the video."""
     e = {}
     # title and end card
     e["name"] = r"{\color{accent}\fontsize{30}{36}\selectfont\bfseries FermiWick}"
     e["tagline"] = r"{\fontsize{16}{20}\selectfont Fermion operators, as symbols and as matrices}"
     e["url"] = r"{\color{accent}\fontsize{15}{19}\selectfont\ttfamily n4sd4q.github.io/FermiWick}"
-    # the captions of the steps and their outputs, as the README prints them (in display style, as $$...$$)
-    for k, ((head, line), (_, out)) in enumerate(zip(CAPTIONS, steps[1:]), 1):
+    # the captions of the cards and the outputs in LaTeX, in display style (as $$...$$ in the README)
+    for k, (head, line, cells, _) in enumerate(cards, 1):
         e["h%d" % k] = r"{\color{accent}\fontsize{19}{23}\selectfont\bfseries %s}" % head
         e["s%d" % k] = r"{\color{muted}\fontsize{13}{16}\selectfont %s}" % line
-        picture = out.startswith("$")       # the body of wick.tex, a formula already
-        e["out%d" % k] = r"{%s%s}" % ((PICTURE_SIZE, out) if picture else (OUTPUT_SIZE, r"$\displaystyle %s$" % out))
+        for j, (_, out) in enumerate(cells):
+            if out and out[0] == "tex":
+                body = out[1] if out[1].startswith("$") else r"$\displaystyle %s$" % out[1]     # wick.tex: a formula already
+                e[output_name(k, j)] = r"{%s%s}" % (OUTPUT_SIZE, body)
     return e
 
 
-def render_elements(steps):
+def text_output(text, fnt):
+    """An output written as text (a string, a list of numbers, a state), as a notebook shows it: in the font of the code,
+    on a transparent image with the border of the LaTeX elements; and the height of its first baseline."""
+    lines, border = text.split("\n"), BORDER * PT
+    ascent, descent = fnt.getmetrics()
+    lh = px(26)
+    img = Image.new("RGBA", (int(max(fnt.getlength(l) for l in lines) + 2 * border + 1),
+                             int(2 * border + ascent + descent + lh * (len(lines) - 1) + 1)), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    for k, l in enumerate(lines):
+        d.text((border, border + ascent + k * lh), l, font=fnt, fill=(0, 0, 0, 255), anchor="ls")
+    return img, border + ascent
+
+
+def render_elements(cards):
     """Typeset every element and return (name -> RGBA image, transparent, 120 px to the cm; name -> the height of its
     baseline from the top of the image, px)."""
     os.makedirs(BUILD, exist_ok=True)
-    els = elements(steps)
+    els = elements(cards)
     names = list(els)
     with open(os.path.join(BUILD, "elements.tex"), "w", encoding="utf-8") as fh:
         fh.write(PREAMBLE)
@@ -210,6 +344,12 @@ def render_elements(steps):
         box = images[name].getchannel("A").getbbox()
         if box and (box[0] == 0 or box[1] == 0 or box[2] == images[name].width or box[3] == images[name].height):
             print("warning: element %s is cut at the edge of its page" % name)
+    # the outputs written as text, in the font of the code (regular, as a notebook writes its outputs)
+    textfont = font("SourceCodePro-Regular.otf", CODE_SIZE)
+    for k, (_, _, cells, _) in enumerate(cards, 1):
+        for j, (_, out) in enumerate(cells):
+            if out and out[0] == "text":
+                images[output_name(k, j)], baselines[output_name(k, j)] = text_output(out[1], textfont)
     return images, baselines
 
 
@@ -234,6 +374,12 @@ def package_names():
 
 
 NAME = r"[A-Za-z$\u0370-\u03ff][A-Za-z0-9$\u0370-\u03ff]*"
+# the names of the system, black in an input cell (those of the examples of the documents, and a few more; another one
+# would be coloured as undefined: add it here)
+SYSTEM_NAMES = set("""Abs Apply Block C Chop Conjugate Cos D Det E Eigensystem Eigenvalues Exp Expand Factor False First Flatten
+    FullSimplify Function I IdentityMatrix If Join K KroneckerDelta Last Length Map MatrixForm Max Min Mod Module N Needs None
+    Normal O Pi Print Range Round Row Select Simplify Sin Solve Sort Sqrt Subscript Sum Table Thread Total Transpose True
+    With""".split())
 TOKEN = re.compile(r"\(\*.*?\*\)|\"(?:[^\"\\]|\\.)*\"|" + NAME + r"|\d+|.", re.S)
 
 
@@ -252,12 +398,17 @@ def bracket_end(code, i):
 
 def colours(code, known):
     """The colour of each character of the code, and the names it gives a value to. `known`: the names with a value
-    (the package's once it is loaded, those set by the cells before); other names of one letter, or lower case, are
-    undefined; the variables of a Sum are local inside it."""
+    (the package's once it is loaded, those set by the cells before), with those of the system (SYSTEM_NAMES); the
+    others are undefined; the variables of a Sum are local inside it, and the names of patterns (i_) in the line that
+    has them."""
     local = []      # (start, end, names)
     for m in re.finditer(r"\bSum\[", code):
         end = bracket_end(code, m.end() - 1)
         local.append((m.start(), end, set(re.findall(r",\s*\{\s*(" + NAME + r")\s*,", code[m.end():end]))))
+    start = 0
+    for line in code.split("\n"):
+        local.append((start, start + len(line), set(re.findall("(" + NAME + ")_", line))))
+        start += len(line) + 1
     out = []
     for m in TOKEN.finditer(code):
         t = m.group(0)
@@ -268,7 +419,7 @@ def colours(code, known):
         elif re.match(NAME, t):
             if any(a <= m.start() < b and t in names for a, b, names in local):
                 kind = "local"
-            elif t in known or (re.match(r"\$?[A-Z][A-Za-z0-9]+$", t) and len(t.lstrip("$")) > 1):
+            elif t in known or t in SYSTEM_NAMES:
                 kind = "plain"
             else:
                 kind = "symbol"
@@ -330,7 +481,7 @@ class CodeCell:
         self.advance = fnt.getlength("M")
         self.rows = self.pos[-1][0] + 1
         self.height = self.rows * line_height
-        self.ascent = px(21)     # from the top of a row to the baseline
+        self.ascent = line_height * 0.74     # from the top of a row to the baseline
 
     def baseline(self, row):
         return self.y + row * self.lh + self.ascent
@@ -898,18 +1049,18 @@ def caption_lines(el, base):
 
 
 class Card:
-    """One step of the example: its caption (top left: the heading and its second line), then its cells typed one after
+    """One card of the session: its caption (top left: the heading and its second line), then its cells typed one after
     the other and evaluated, each followed by its output, as in a notebook: In[n]:= on the left of an input cell once it
     is evaluated, Out[n]= on the left of the output, and on the right a bracket for each cell and one around the group
     of an input with its output. The cells and their outputs are left-aligned with the caption, a little above the
     middle of the height left under it."""
-    X_CODE, LH, CELL_GAP, OUT_GAP = px(122), px(30), px(24), px(18)
+    X_CODE, LH, CELL_GAP, OUT_GAP = px(122), px(26), px(16), px(12)
     X_BRACKET, X_GROUP = W - ipx(36), W - ipx(27)     # the cell brackets, and those of the groups
 
     def __init__(self, el, base, k, cells, session, hold, start=0.45):
         """cells: [(code, name of the output element or None)]; session: the number of the next input line and the
         names with a value, carried from card to card."""
-        self.codefont = font("SourceCodePro-Medium.otf", px(18))
+        self.codefont = font("SourceCodePro-Medium.otf", CODE_SIZE)
         self.labelfont = font("SourceCodePro-Regular.otf", px(14))
         cols = int((self.X_BRACKET - px(16) - self.X_CODE) / self.codefont.getlength("M"))
         border = BORDER * PT
@@ -917,13 +1068,16 @@ class Card:
         h, s = "h%d" % k, "s%d" % k
         self.items = [Item(el[h], self.X_CODE - border, head - base[h], 0.0, fade=0.22),
                       Item(el[s], self.X_CODE - border, sub - base[s], 0.07, fade=0.22)]
+        for e in (h, s):
+            if self.X_CODE + el[e].width - 2 * border > self.X_BRACKET - px(16):
+                print("warning: the caption %s of card %d is too wide" % (e, k))
         # the cells, laid out from 0 and then moved down to their place
-        self.cells, t, y = [], start, 0.0
+        self.cells, t, y, self.full = [], start, 0.0, start
         for code, out in cells:
             cell = CodeCell(code, session["known"], self.codefont, self.X_CODE, y, self.LH, cols)
             n = expressions(code)
-            typing = min(1.15, max(0.55, len(code) / 150))
-            c = dict(cell=cell, n=session["line"], t0=t, cps=len(code) / typing, t_eval=t + typing + 0.15, top=y - px(8))
+            typing = min(0.95, max(0.35, len(code) / 220))
+            c = dict(cell=cell, n=session["line"], t0=t, cps=len(code) / typing, t_eval=t + typing + 0.12, top=y - px(5))
             session["line"] += n
             session["known"] |= cell.assigned
             if re.search(r"Needs\[\"FermiWick`\"\]", code):
@@ -931,7 +1085,7 @@ class Card:
                 session["known"] |= package_names()
             y += cell.height
             c["input_bottom"] = y + px(2)
-            t = c["t_eval"] + 0.25
+            t = c["t_eval"] + 0.18
             c["out"] = None
             if out:
                 y += self.OUT_GAP
@@ -940,12 +1094,15 @@ class Card:
                     print("warning: the output %s runs into the cell brackets" % out)
                 # Out[n]= with the number of the last expression, on the baseline of the output
                 c["out"] = (Item(img, self.X_CODE - border, y, t, fade=0.3), session["line"] - 1, base[out])
+                self.full = t + 0.3
                 y += img.height - 2 * border
-                t += 0.3
-            c["bottom"] = y + px(6)
+            t += 0.22
+            c["bottom"] = y + px(4)
             y += self.CELL_GAP
             self.cells.append(c)
         height = y - self.CELL_GAP
+        if height > H - px(40) - top:
+            print("warning: the cells of card %d are %.0f px too tall" % (k, (height - (H - px(40) - top)) / S))
         dy = top + max(0.0, (H - px(40) - top - height) * 0.32)
         for c in self.cells:
             c["cell"].y += dy
@@ -953,8 +1110,8 @@ class Card:
                 c[key] += dy
             if c["out"]:
                 c["out"][0].y += dy - border
-        self.full = t
-        self.duration = t + hold
+        self.height = height
+        self.duration = self.full + hold
 
     def draw(self, frame, t):
         d = ImageDraw.Draw(frame)
@@ -978,7 +1135,7 @@ class Card:
                 colour = tuple(int(255 - (255 - v) * a) for v in LABEL)
                 rise = (1 - ease_out((t - item.t0) / item.fade)) * item.rise
                 self.label(d, "Out[%d]=" % number, item.y + base + rise, colour)
-                self.bracket(d, self.X_BRACKET, item.y + BORDER * PT - px(6), c["bottom"],
+                self.bracket(d, self.X_BRACKET, item.y + BORDER * PT - px(5), c["bottom"],
                              colour=tuple(int(255 - (255 - v) * a) for v in BRACKET))
                 self.bracket(d, self.X_GROUP, c["top"], c["bottom"])
 
@@ -995,18 +1152,14 @@ class Card:
 
 # ---------------------------------------------------------------------------------------------------------------------
 
-# how long the output of each step stays in full view (s): longer for the dimer and the picture of Wick's theorem
-HOLDS = [2.3, 2.6, 3.4, 2.3, 3.0, 2.8, 3.6]
-
-
-def timeline(el, base, steps, preview=False):
-    """The scenes: the title card, a card for each step of the example (the first with the line that loads the package),
-    the closing card. The preview has no title card, shorter holds, and its closing card fades out (it loops)."""
+def timeline(el, base, session_cards, preview=False):
+    """The scenes: the title card, the cards of the session (CARDS), the closing card. The preview has no title card,
+    shorter holds, and its closing card fades out (it loops)."""
     session = {"line": 1, "known": set()}
     cards = []
-    for k in range(1, len(steps)):
-        cells = ([(steps[0][0], None)] if k == 1 else []) + [(steps[k][0], "out%d" % k)]
-        card = Card(el, base, k, cells, session, HOLDS[k - 1] - (0.7 if preview else 0))
+    for k, (_, _, cells, hold) in enumerate(session_cards, 1):
+        cells = [(code, output_name(k, j) if out else None) for j, (code, out) in enumerate(cells)]
+        card = Card(el, base, k, cells, session, hold - (0.6 if preview else 0))
         cards.append(Scene(card.duration, draw=card.draw, full=card.full))
     # the closing card is the title card, so that the last frame of the video is its first and the loop has no seam
     end = title_scene(el, 2.8 if preview else 3.4, ["name", "tagline", "url"], DrawIn(0.2), fade_out=0.22 if preview else 0)
@@ -1092,16 +1245,18 @@ def write_poster(video):
 
 def main():
     os.makedirs(BUILD, exist_ok=True)
+    if "--check" in sys.argv:
+        check_session()
     os.makedirs(MEDIA, exist_ok=True)
-    steps = readme_steps()
-    el, base = render_elements(steps)
-    video = timeline(el, base, steps)
+    cards = session_cells()
+    el, base = render_elements(cards)
+    video = timeline(el, base, cards)
     total = sum(s.duration for s in video)
     print("video: %.1f s in %d scenes" % (total, len(video)))
     if "--poster" in sys.argv:
         write_poster(video)
         return
-    preview = timeline(el, base, steps, preview=True)
+    preview = timeline(el, base, cards, preview=True)
     if "--frames" in sys.argv:
         out = os.path.join(BUILD, "frames")
         os.makedirs(out, exist_ok=True)
