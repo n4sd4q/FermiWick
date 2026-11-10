@@ -1,13 +1,20 @@
 # Changelog
 
-## Unreleased
+## 0.3.0 (2026-11-10)
 
+- The banner and the update check, as in FunctionalDiagrams: loaded in a notebook, the package prints a banner (version,
+  license, how to cite it, links) and, at most once a day, in the background, asks GitHub for the latest release; if it is
+  newer, the banner shows the line that installs it. `$FermiWickUpdateCheck = False` before `Needs` turns the check off,
+  `FermiWickUpdateCheck[]` checks by hand; scripts print nothing and never check (`SECURITY.md`). Tested without the
+  network on a saved answer of GitHub (`Tests/LatestRelease.json`).
 - Installation in one line, from the GitHub release:
-  `PacletInstall["https://github.com/n4sd4q/FermiWick/releases/download/v0.2.0/FermiWick-0.2.0.paclet"]`.
+  `PacletInstall["https://github.com/n4sd4q/FermiWick/releases/download/v0.3.0/FermiWick-0.3.0.paclet"]`.
 - Documents: a website, https://n4sd4q.github.io/FermiWick/ (`index.html`, written by `Development/make_site.py` from the
   README); the showcase and the manual in the common style of the author's packages (`Development/n4sd4q.sty`: the title
   band in the gradient of the package); a new logo in the common language (the same contractions on a badge, in the
   colours of the package), with a white and a small version.
+- The first example of the README (and of the website) is one session: operators, contractions, the mean field of the
+  Hubbard interaction, the exact spectrum of the Hubbard dimer, Wick's theorem written out.
 
 ## 0.2.0 (2026-11-10)
 

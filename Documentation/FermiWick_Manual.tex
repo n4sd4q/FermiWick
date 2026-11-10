@@ -5,7 +5,7 @@
   \noindent\begin{minipage}[t]{\linewidth}\leftskip=1.2em #2\end{minipage}\par}
 
 \begin{document}
-\familytitle{Reference manual}{Every function, option and convention, with an example computed by the package}{version 0.2.0 \textperiodcentered{} November 2026}
+\familytitle{Reference manual}{Every function, option and convention, with an example computed by the package}{version 0.3.0 \textperiodcentered{} November 2026}
 
 {\small\tableofcontents}
 
@@ -14,7 +14,7 @@ FermiWick is a paclet. Install the paclet of the latest \href{https://github.com
 then load it in every session, with the Gutzwiller and Fock modules when needed; the guided tour comes with the paclet:
 \begin{tcblisting}{listing only, colback=codebg, colframe=codeframe, boxrule=0.5pt, arc=2pt, left=6pt, right=6pt, top=3pt, bottom=3pt,
   listing options={language=WL, basicstyle=\ttfamily\fontsize{7.5pt}{9.6pt}\selectfont}}
-PacletInstall["https://github.com/n4sd4q/FermiWick/releases/download/v0.2.0/FermiWick-0.2.0.paclet"]
+PacletInstall["https://github.com/n4sd4q/FermiWick/releases/download/v0.3.0/FermiWick-0.3.0.paclet"]
 Needs["FermiWick`"]; Needs["FermiWick`Gutzwiller`"]; Needs["FermiWick`Fock`"];
 NotebookOpen[PacletObject["FermiWick"]["AssetLocation", "Examples"]]
 \end{tcblisting}
@@ -22,7 +22,16 @@ To use a clone of the repository without installing, load its folder before \tex
 \begin{code}
 PacletDirectoryLoad["/path/to/FermiWick/FermiWick"]
 \end{code}
-FermiWick has no dependencies. It needs Mathematica 13.0 or later and is tested with 15.0. The test suite runs with
+FermiWick has no dependencies. It needs Mathematica 13.0 or later and is tested with 15.0.
+
+Loaded in a notebook, the package prints a banner (the version, the license, how to cite it, links to the repository and the
+website) and looks for a newer release; a script prints nothing and never checks.
+\fnentry{FermiWickUpdateCheck, \$FermiWickUpdateCheck}{At most once a day, in the background, loading the package in a notebook
+asks GitHub (\texttt{api.github.com}) for the latest release and, if it is newer than \texttt{\$FermiWickVersion}, adds to the
+banner the \texttt{PacletInstall} line of that release; any failure is silent, and a session without access to the Internet
+never asks. \texttt{\$FermiWickUpdateCheck = False} before \texttt{Needs["FermiWick`"]} (in \texttt{init.m} for good) turns the
+check off. \fn{FermiWickUpdateCheck[]} asks by hand and gives the version loaded, the latest one and the line that installs
+it, or \texttt{\$Failed} with a message.} The test suite runs with
 \texttt{math -script Tests/RunTests.wls}.
 
 \section{Conventions}

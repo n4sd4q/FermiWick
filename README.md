@@ -50,7 +50,7 @@ the same expressions become matrices.
 Install the paclet of the latest [release](https://github.com/n4sd4q/FermiWick/releases) once:
 
 ```mathematica
-PacletInstall["https://github.com/n4sd4q/FermiWick/releases/download/v0.2.0/FermiWick-0.2.0.paclet"]
+PacletInstall["https://github.com/n4sd4q/FermiWick/releases/download/v0.3.0/FermiWick-0.3.0.paclet"]
 ```
 
 and load it in every session:
@@ -72,6 +72,10 @@ NotebookOpen[PacletObject["FermiWick"]["AssetLocation", "Examples"]]
 `?Name` explains each one. To use a clone of the repository instead, without installing,
 `PacletDirectoryLoad["/path/to/FermiWick/FermiWick"]` before `Needs`.
 
+In a notebook the package prints a banner (version, license, how to cite, links) and looks for a newer release on GitHub
+once a day; `$FermiWickUpdateCheck = False` before `Needs` turns the check off, and `FermiWickUpdateCheck[]` checks by hand
+([`SECURITY.md`](SECURITY.md) says more).
+
 **Writing operators.** `c[i, s]` and `cDag[i, s]`, with `s` = `SpinUp`, `SpinDown` (or `"↑"`, `"↓"`, or a symbol) —
 or any labels, `c[i]`, `c[i, orbital, s]`, `c[k]`, with `DeclareModeLabels` saying what they are;
 `**` multiplies in the given order. The spin sum is `Sum[..., {s, $Spins}]`:
@@ -82,25 +86,23 @@ hopping = Sum[cDag[1, s] ** c[2, s] + cDag[2, s] ** c[1, s], {s, $Spins}];
 
 ## A first example
 
-**Operators.** The commutator of two exchange terms that share a site, written back in spin operators, is the scalar
-chirality; and the spin of a site is $\frac12$ only when the site is singly occupied:
+One session, loaded once (the matrices are a module of their own):
 
 ```mathematica
-Needs["FermiWick`"]
+Needs["FermiWick`"]; Needs["FermiWick`Fock`"]
+```
 
+**Operators.** The commutator of two exchange terms that share a site, written back in spin operators, is the scalar
+chirality:
+
+```mathematica
 ToSpinChargeBasis[OperatorCommutator[SdotS[1, 2], SdotS[2, 3]]]
 ```
 
 $$-i \mathbf S_{1}\cdot(\mathbf S_{2}\times\mathbf S_{3})$$
 
-```mathematica
-ToSpinChargeBasis[SdotS[1, 1]]
-```
-
-$$\frac{3 n_{1}}{4}-\frac{3 D_{1}}{2}$$
-
-**Contractions.** A state invariant under spin rotations, with hopping $\chi$ and singlet pairing $\Delta$ on every
-bond; in the exchange, hopping and pairing enter with the same weight:
+**Contractions.** In a state invariant under spin rotations, with hopping $\chi$ and singlet pairing $\Delta$ on every bond,
+the exchange of a bond takes both with the same weight:
 
 ```mathematica
 state = SpinSingletState["Pairing" -> Δ];
@@ -109,34 +111,17 @@ WickVEV[SdotS[1, 2], state]
 
 $$-\frac{3}{2} \Delta_{12} \Delta_{12}^{\ast}-\frac{3}{2} \chi_{12} \chi_{12}^{\ast}$$
 
-**Mean field.** The mean-field Hamiltonian of $J\thinspace \mathbf S_1\cdot\mathbf S_2$ has a hopping field, a pairing field
-and a constant, the coefficients of $c^\dagger_{1\uparrow}c_{2\uparrow}$, of $c^\dagger_{1\uparrow}c^\dagger_{2\downarrow}$ and of
-$1$:
+**Mean field.** The Hubbard interaction of a site, in a state with filling $\nu$ per spin and on-site pairing $\eta$, splits into
+its Hartree field, its pairing fields and a constant (collected in $U$):
 
 ```mathematica
-mf = MeanField[J SdotS[1, 2], state];
-fields = OperatorCoefficients[mf];
-{fields[cDag[1, "↑"] ** c[2, "↑"]], fields[cDag[1, "↑"] ** cDag[2, "↓"]], fields[1]}
+bcs = GaussianState["SpinRotation", "Filling" -> ν, "OnSitePairing" -> η];
+Collect[ToSpinChargeBasis[MeanField[U DOp[1], bcs]], U]
 ```
 
-$$\left\\{-\frac{3}{4} J \chi_{12}^{\ast},\frac{3}{4} J \Delta_{12},\frac{3}{2} J \Delta_{12} \Delta_{12}^{\ast}+\frac{3}{2} J \chi_{12} \chi_{12}^{\ast}\right\\}$$
+$$U \left(-B_{1} \eta ^{\ast}-B^\dagger_{1} \eta -\eta  \eta ^{\ast}-\nu ^2+\nu  n_{1}\right)$$
 
-The same works at any order. For the six-fermion chirality $-J_\chi\thinspace \mathbf S_1\cdot(\mathbf S_2\times\mathbf S_3)$
-each bond receives a hopping from the path through the third site:
-
-```mathematica
-mfc = OperatorCoefficients[MeanField[-Jc SdotScrossS[1, 2, 3], state]];
-{mfc[cDag[1, "↑"] ** c[2, "↑"]], mfc[cDag[1, "↑"] ** cDag[2, "↓"]]}
-```
-
-$$\left\\{\frac{3}{4} i J_\chi \Delta_{13} \Delta_{23}^{\ast}+\frac{3}{4} i J_\chi \chi_{23} \chi_{13}^{\ast},\frac{3}{4} i J_\chi \Delta_{13} \chi_{23}^{\ast}-\frac{3}{4} i J_\chi \Delta_{23} \chi_{13}^{\ast}\right\\}$$
-
-**Matrices.** The same operators on the two-site sector with two electrons and $S^z=0$: the spectrum of the Hubbard
-dimer, exact in $t$ and $U$:
-
-```mathematica
-Needs["FermiWick`Fock`"]
-```
+**Matrices.** The same operators, exactly, on two sites with two electrons and $S^z=0$: the spectrum of the Hubbard dimer.
 
 ```mathematica
 hop = Sum[cDag[1, s] ** c[2, s] + cDag[2, s] ** c[1, s], {s, $Spins}];
@@ -146,7 +131,7 @@ Eigenvalues[Normal[FockMatrix[-t hop + U (DOp[1] + DOp[2]), sector]]]
 
 $$\left\\{0,U,\frac{1}{2} \left(U-\sqrt{16 t^2+U^2}\right),\frac{1}{2} \left(\sqrt{16 t^2+U^2}+U\right)\right\\}$$
 
-**LaTeX.** `WickTeX` writes the expansion with the contractions drawn (LaTeX package `simpler-wick`):
+**LaTeX.** `WickTeX` writes Wick's theorem out, with the contractions drawn (LaTeX package `simpler-wick`):
 
 ```mathematica
 WickTeX[cDag[1, SpinUp] ** cDag[2, SpinDown] ** c[3, SpinDown] ** c[4, SpinUp], state]
@@ -155,12 +140,10 @@ WickTeX[cDag[1, SpinUp] ** cDag[2, SpinDown] ** c[3, SpinDown] ** c[4, SpinUp], 
 <p align="center"><img src="Documentation/readme_wick.svg" width="640" alt="Wick's theorem for c-dagger 1 up, c-dagger 2 down,
 c 3 down, c 4 up in a pairing state: two pairings drawn as contractions, equal to Delta 34 Delta 12 star plus chi 14 chi 23"></p>
 
-**Next.** The [showcase](Showcase/FermiWick_Showcase.pdf) goes through everything the package does, in this order:
-local operators and their algebra, the spin–charge basis and the recognition of spin operators, operators of your own,
-states declared by rules, magnetic and general states, the selection of contractions, the mean field of the Hubbard
-interaction and of spin models, Gutzwiller projectors with the Brinkman–Rice transition and the enhancement of the
-exchange, and the matrices of the operators: Hubbard clusters solved exactly, and Wick's theorem checked on them. The [manual](Documentation/FermiWick_Manual.pdf) describes every function. In a notebook, ``?FermiWick`*``
-lists the functions and `?Name` explains each one.
+The [showcase](Showcase/FermiWick_Showcase.pdf) goes on from here: local operators and the recognition of spin operators,
+operators of your own, states declared by their symmetries or by rules, the mean field of spin models of any order,
+Gutzwiller projectors and the Brinkman–Rice transition, and Hubbard clusters solved exactly with Wick's theorem checked on
+them. The [manual](Documentation/FermiWick_Manual.pdf) describes every function.
 
 ## What it does
 
@@ -218,6 +201,9 @@ lists the functions and `?Name` explains each one.
 
 **Lattices**
 - `DefinePeierlsHopping`, `DefineFlux`
+
+**The package**
+- `$FermiWickVersion`, `FermiWickUpdateCheck`, `$FermiWickUpdateCheck`
 
 **Matrices** (``FermiWick`Fock` ``)
 - `FockSpace`, `FockSector`, `ModeIndex`, `FockMatrix`, `FockExpectation`, `OccupationBasis`, `BasisState`, `StateToKet`

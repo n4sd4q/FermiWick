@@ -1,0 +1,30 @@
+{
+  "html_url": "https://github.com/n4sd4q/FermiWick/releases/tag/v0.2.0",
+  "tag_name": "v0.2.0",
+  "name": "FermiWick 0.2.0",
+  "draft": false,
+  "prerelease": false,
+  "created_at": "2026-11-10T14:41:05Z",
+  "published_at": "2026-11-10T14:41:13Z",
+  "assets": [
+    {
+      "name": "FermiWick-0.2.0.paclet",
+      "content_type": "application/octet-stream",
+      "size": 37736,
+      "browser_download_url": "https://github.com/n4sd4q/FermiWick/releases/download/v0.2.0/FermiWick-0.2.0.paclet"
+    },
+    {
+      "name": "FermiWick_Manual.pdf",
+      "content_type": "application/pdf",
+      "size": 217330,
+      "browser_download_url": "https://github.com/n4sd4q/FermiWick/releases/download/v0.2.0/FermiWick_Manual.pdf"
+    },
+    {
+      "name": "FermiWick_Showcase.pdf",
+      "content_type": "application/pdf",
+      "size": 228197,
+      "browser_download_url": "https://github.com/n4sd4q/FermiWick/releases/download/v0.2.0/FermiWick_Showcase.pdf"
+    }
+  ],
+  "body": "Fermion ladder operators in the Wolfram Language, as symbols and as matrices: normal ordering with compact local operators, Wick's theorem in Gaussian states declared by their symmetries, mean field of any order, Gutzwiller projectors, and exact diagonalisation on symmetry sectors.\n\nInstall it with\n\n```mathematica\nPacletInstall[\"https://github.com/n4sd4q/FermiWick/releases/download/v0.2.0/FermiWick-0.2.0.paclet\"]\nNeeds[\"FermiWick`\"]\n```\n\nWebsite: https://n4sd4q.github.io/FermiWick/ · the showcase and the manual are attached as PDFs.\n\n## What is in 0.2.0\n\n- ``FermiWick`Fock` ``: the operators o"
+}

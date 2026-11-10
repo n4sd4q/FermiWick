@@ -9,6 +9,9 @@ which is not versioned.
   (``FermiWick`Gutzwiller` ``), `Kernel/Fock.wl` (``FermiWick`Fock` ``: the operators as sparse matrices on Fock spaces and
   symmetry sectors, exact diagonalisation). `FockMatrix` reads an expression through
   `ToLadderBasis` and the private `iTermList` (no normal ordering): keep those two stable.
+- The banner and the update check (as FunctionalDiagrams): the end of `Kernel/FermiWick.wl`; `SECURITY.md` describes the
+  only access to the network; the tests read a saved answer of GitHub, `Tests/LatestRelease.json` (the release 0.2.0, trimmed),
+  and load the package in fresh kernels.
 - `Tests/FermiWick.wlt`, `Tests/Fock.wlt`, `Tests/RunTests.wls` — `math -script Tests/RunTests.wls`; every test must pass.
   The exact checks of the symbolic engine use `FockMatrix`; the Jordan–Wigner construction is written out once, in the
   first test of `Fock.wlt`.

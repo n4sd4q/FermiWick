@@ -17,7 +17,26 @@
 
 BeginPackage["FermiWick`"];
 
+(* $FermiWickUpdateCheck keeps its setting: the package's own when the package is loaded again, or that of the symbol made
+   by typing the name before the package was first loaded (a symbol of Global` or of another context), which is removed
+   before the package's symbol is made, so that neither shadows the other. The symbols are named by strings, since a name
+   in this code would make the package's symbol at once *)
+With[{FermiWick`Private`others = Select[Names["*`$FermiWickUpdateCheck"], StringContainsQ[#, "`"] && ! StringStartsQ[#, "FermiWick`"] &]},
+  With[{FermiWick`Private`setting = Join @@ (If[ToExpression[#, InputForm, ValueQ], {ToExpression[#]}, {}] &) /@ FermiWick`Private`others},
+   Scan[Quiet[Remove[#]] &, FermiWick`Private`others];
+   If[FermiWick`Private`setting =!= {} && ! ToExpression["FermiWick`$FermiWickUpdateCheck", InputForm, ValueQ],
+    ToExpression["FermiWick`$FermiWickUpdateCheck = " <> ToString[Last[FermiWick`Private`setting], InputForm]]]]];
+
 $FermiWickVersion::usage = "$FermiWickVersion is the version of FermiWick.";
+FermiWickUpdateCheck::usage = "FermiWickUpdateCheck[] asks GitHub (api.github.com) for the latest release of FermiWick and gives \
+<|\"InstalledVersion\" -> ..., \"LatestVersion\" -> ..., \"InstallLine\" -> ...|>, the version loaded, the latest release and the \
+PacletInstall line of its paclet; when the latest release is newer, it also prints that line. It gives $Failed, with a message, when \
+the release cannot be read. Loading FermiWick in a notebook does the same check by itself, at most once a day (see $FermiWickUpdateCheck).";
+$FermiWickUpdateCheck::usage = "$FermiWickUpdateCheck is True (the default) when loading FermiWick in a notebook checks for a newer \
+release: at most once a day, in the background, it asks GitHub (api.github.com) for the latest release and, if it is newer than \
+$FermiWickVersion, adds to the banner the PacletInstall line of that release; any failure is silent, and scripts never check. Set \
+$FermiWickUpdateCheck = False before Needs[\"FermiWick`\"] (in init.m to turn it off for good) to load without it. \
+FermiWickUpdateCheck[] checks by hand.";
 
 c::usage = "c[l1, l2, ...] annihilates a fermion in the mode with labels l1, l2, ...; the meaning of each label is set by \
 DeclareModeLabels. By default c[i] is a spinless fermion on site i and c[i, s] a fermion on site i with spin s (SpinUp = \"\[UpArrow]\", \
@@ -134,7 +153,7 @@ WickVEV::nostate = "`1` is not a GaussianState.";
 
 Begin["`Private`"];
 
-$FermiWickVersion = "0.2.0";
+$FermiWickVersion = "0.3.0";
 SpinString = {"\[UpArrow]", "\[DownArrow]"};
 SpinUp = "\[UpArrow]"; SpinDown = "\[DownArrow]"; $Spins = SpinString;
 $ModeLabels = <|1 -> {"Site"}, 2 -> {"Site", "Spin"}|>;
@@ -1110,6 +1129,148 @@ DefineOperator[SdotScrossS, 3,
         SpOp[#1] ** SmOp[#2] ** SzOp[#3] - SpOp[#1] ** SzOp[#2] ** SmOp[#3] -
         SmOp[#1] ** SpOp[#2] ** SzOp[#3] + SmOp[#1] ** SzOp[#2] ** SpOp[#3])) &,
   Row[{Subscript[Style["S", Bold], #1], "\[CenterDot](", Subscript[Style["S", Bold], #2], "\[Times]", Subscript[Style["S", Bold], #3], ")"}] &];
+
+(* ========================================================================================== *)
+(*  11. The banner and the update check                                                       *)
+(* ========================================================================================== *)
+
+(* the banner shown when the package is loaded in a notebook (as FunctionalDiagrams does): the logo (the small badge of
+   Logo/FermiWick_logo_small.svg, the outer contraction on the gradient of the package, y upwards), the attribution
+   "FermiWick, by Nazzareno Africani" word for word (term (b) of NOTICE), the version, license, how to cite, with links to
+   the repository and the website; printed by the end of this file only when $Notebooks *)
+$fwStart = RGBColor[100/255, 42/255, 140/255]; $fwEnd = RGBColor[176/255, 37/255, 115/255];
+$fwAccent = RGBColor[138/255, 40/255, 128/255]; $fwTint = RGBColor[247/255, 181/255, 218/255];
+(* a colour for light notebooks and one for dark notebooks (LightDarkSwitched, Mathematica 14.3 or later) *)
+lightDarkColor[light_, dark_] := If[Names["System`LightDarkSwitched"] =!= {}, Symbol["LightDarkSwitched"][light, dark], light];
+badgePoints[] := With[{r = 28.}, Join @@ MapThread[Function[{c, a0}, Table[c + r {Cos[a], Sin[a]}, {a, a0, a0 + Pi/2, Pi/16}]],
+     {{{128 - r, r}, {128 - r, 128 - r}, {r, 128 - r}, {r, r}}, {-Pi/2, 0, Pi/2, Pi}}]];
+quarterArc[c_, r_, a0_, a1_] := Table[c + r {Cos[a], Sin[a]}, {a, a0, a1, (a1 - a0)/12}];
+packageLogo[size_: 30] := Module[{pts = badgePoints[], x0 = 26, x1 = 102, y = 36., top = 100., rr = 18.},
+   Graphics[{
+     Polygon[pts, VertexColors -> (Blend[{$fwStart, $fwEnd}, (#[[1]] + 128 - #[[2]])/256] & /@ pts)],
+     {EdgeForm[{White, Opacity[0.16], Thickness[2/128]}], FaceForm[None], Polygon[badgePoints[]]},
+     White, CapForm["Butt"], JoinForm["Round"], Thickness[11/128],
+     Line[Join[{{x0, y + 9.5}}, quarterArc[{x0 + rr, top - rr}, rr, Pi, Pi/2], quarterArc[{x1 - rr, top - rr}, rr, Pi/2, 0],
+       {{x1, y + 10.5}}]],
+     EdgeForm[{White, Thickness[2/128], JoinForm["Round"]}], Polygon[{{54, top}, {70, top + 10}, {70, top - 10}}],
+     EdgeForm[], Disk[{x0, y}, 11], Thickness[6/128], Circle[{x1, y}, 8.5]},
+    PlotRange -> {{0, 128}, {0, 128}}, PlotRangePadding -> None, ImagePadding -> None, ImageSize -> size,
+    BaselinePosition -> Scaled[0.2]]];
+$repositoryURL = "https://github.com/n4sd4q/FermiWick";
+$websiteURL = "https://n4sd4q.github.io/FermiWick/";
+(* the name in the accent of the logo (its tint in a dark notebook), the rest in grey; U+2010 (a hyphen, not a minus
+   sign), U+00B7 and U+00A0 by character code, so that the file stays plain ASCII. Each group is unbreakable and ends with
+   its separator, so that in a narrow window the lines wrap after a separator, never before one *)
+bannerDot[] := With[{nbsp = FromCharacterCode[160]}, nbsp <> nbsp <> FromCharacterCode[183] <> nbsp <> " "];
+bannerGroup[items__] := Style[Row[{items}], LineBreakWithin -> False];
+bannerAccent[] := lightDarkColor[$fwAccent, $fwTint];
+bannerGrey[] := lightDarkColor[GrayLevel[0.45], GrayLevel[0.6]];
+loadBanner[release_ : None] :=
+  Module[{dot = bannerDot[], group = bannerGroup, accent = bannerAccent[], grey = bannerGrey[], file = $repositoryURL <> "/blob/main/"},
+   Style[Grid[{{packageLogo[30],
+       Column[{
+         Row[{group[Style["FermiWick", Bold, 14, accent], Style[", by Nazzareno Africani", 14, accent], Style[dot, 12, grey]],
+           Style["fermion operators, as symbols and as matrices", 12, grey]}],
+         Style[Row[{group["version " <> $FermiWickVersion, dot],
+             group[StringReplace["GPL-3.0-or-later", "-" -> FromCharacterCode[8208]], dot],
+             group["please cite it: ", Hyperlink["CITATION.cff", file <> "CITATION.cff"], dot],
+             group[Hyperlink["GitHub", $repositoryURL], dot],
+             Hyperlink["Website", $websiteURL]}], 11, grey],
+         If[AssociationQ[release], updateNotice[release], Nothing]},
+        Spacings -> 0.1]}},
+      Alignment -> {Left, Center}, Spacings -> {0.7, 0}], FontFamily -> "Source Sans Pro", LineIndent -> 0]];
+
+(* the update check. In a notebook (never in a script), at most once a day, the package asks GitHub for its latest release
+   in the background (URLSubmit: loading never waits for the network) and, if it is newer than the version loaded, the
+   banner gets a third line with the PacletInstall line of its paclet. Any failure (offline, a proxy, a time limit, the rate
+   limit of GitHub, an answer without the fields) is silent. The handler of the answer runs after the evaluation that
+   loaded the package: it writes the banner again in its own cell, found by a tag given to it at load, without moving the
+   selection. FermiWickUpdateCheck[] asks by hand, and waits for the answer *)
+$latestReleaseURL = "https://api.github.com/repos/n4sd4q/FermiWick/releases/latest";
+latestReleaseRequest[] := HTTPRequest[$latestReleaseURL, <|"Headers" -> {"Accept" -> "application/vnd.github+json"}|>];
+$updateCheckDirectory := FileNameJoin[{$UserBaseDirectory, "ApplicationData", "FermiWick"}];
+updateCheckDate[] := DateString[{"Year", "-", "Month", "-", "Day"}];
+networkOptions[f_, opts_List] := FilterRules[opts, Options[f]];
+
+(* the numbers of a version "0.10.0" or of a tag "v0.10.0"; $Failed for anything else (a pre-release "v0.3.0-rc1") *)
+versionNumbers[s_String] := If[StringMatchQ[s, RegularExpression["v?[0-9]+\\.[0-9]+\\.[0-9]+"]],
+   FromDigits /@ StringSplit[StringReplace[s, StartOfString ~~ "v" -> ""], "."], $Failed];
+versionNumbers[_] := $Failed;
+(* whether version a is newer than version b, number by number (0.10.0 is newer than 0.9.0) *)
+newerVersionQ[a_, b_] := With[{x = versionNumbers[a], y = versionNumbers[b]}, ListQ[x] && ListQ[y] && Order[y, x] === 1];
+
+(* the latest release in the answer of GitHub (JSON): <|"Version" -> "0.2.0", "Paclet" -> url of its .paclet, "Page" -> url
+   of its page|>, or $Failed for a draft or a pre-release, a malformed tag or no paclet of this repository. ImportString
+   reads bytes: the text is encoded in UTF-8 first. The paclet's address must be one of this repository's downloads, made
+   of plain characters, since it is shown inside a line of code to copy *)
+latestReleaseOf[body_String] := Module[{json, tag, version, paclets},
+   json = Quiet[ImportString[FromCharacterCode[ToCharacterCode[body, "UTF8"]], "RawJSON"]];
+   If[! AssociationQ[json], Return[$Failed]];
+   tag = Lookup[json, "tag_name"];
+   If[TrueQ[Lookup[json, "draft"]] || TrueQ[Lookup[json, "prerelease"]] || ! ListQ[versionNumbers[tag]], Return[$Failed]];
+   version = StringReplace[tag, StartOfString ~~ "v" -> ""];
+   paclets = Cases[Lookup[json, "assets", {}], KeyValuePattern["browser_download_url" -> url_String] /;
+       StringMatchQ[url, RegularExpression[StringReplace[$repositoryURL, "." -> "\\."] <> "/releases/download/" <>
+          StringReplace[tag, "." -> "\\."] <> "/[A-Za-z0-9._-]+\\.paclet"]] :> url];
+   If[paclets === {}, $Failed,
+    <|"Version" -> version, "Paclet" -> First[paclets], "Page" -> $repositoryURL <> "/releases/tag/" <> tag|>]];
+latestReleaseOf[_] := $Failed;
+installLine[release_Association] := "PacletInstall[\"" <> release["Paclet"] <> "\"]";
+
+(* the third line of the banner: the newer version, a link to its page and the line that installs it, as code to copy *)
+updateNotice[release_Association] := With[{dot = bannerDot[], group = bannerGroup},
+   Style[Row[{group[Style["version " <> release["Version"] <> " is available", Bold, bannerAccent[]], dot],
+      group[Hyperlink["what is new", release["Page"]], dot],
+      With[{url = release["Paclet"]}, Style[Defer[PacletInstall[url]], ShowStringCharacters -> True,
+        PrivateFontOptions -> {"OperatorSubstitution" -> False}]]}], 11, bannerGrey[]]];
+updateNoticeText[release_Association] :=
+  "FermiWick " <> release["Version"] <> " is available (" <> $FermiWickVersion <> " is loaded): " <> installLine[release];
+
+(* whether the check at load is due today: the file LastUpdateCheck.txt of dir holds the date of the last check; the date of
+   today is written into it before asking. Any error reading or writing it: the check is due *)
+updateCheckDueQ[dir_String, today_String] := Module[{file = FileNameJoin[{dir, "LastUpdateCheck.txt"}], last, stream},
+   last = Quiet[ReadString[file]];
+   If[StringQ[last] && StringTrim[last] === today, Return[False]];
+   Quiet[If[! DirectoryQ[dir], CreateDirectory[dir, CreateIntermediateDirectories -> True]];
+    stream = OpenWrite[file];
+    If[Head[stream] === OutputStream, WriteString[stream, today <> "\n"]; Close[stream]]];
+   True];
+
+$updateCheckTask = None;
+submitUpdateCheck[nb_, tag_String] := Quiet[
+   $updateCheckTask = URLSubmit[latestReleaseRequest[],
+     HandlerFunctions -> <|"TaskFinished" -> (showUpdateNotice[nb, tag, #] &)|>,
+     HandlerFunctionsKeys -> {"StatusCode", "Body"}, Sequence @@ networkOptions[URLSubmit, {TimeConstraint -> 30}]]];
+showUpdateNotice[nb_, tag_String, answer_] := Quiet[Module[{release, cells},
+    release = If[Lookup[answer, "StatusCode"] === 200, latestReleaseOf[Lookup[answer, "Body"]], $Failed];
+    If[AssociationQ[release] && newerVersionQ[release["Version"], $FermiWickVersion],
+     cells = Cells[nb, CellTags -> tag];
+     If[ListQ[cells] && Length[cells] == 1,
+      NotebookWrite[First[cells], ReplacePart[NotebookRead[First[cells]], 1 -> BoxData[ToBoxes[loadBanner[release]]]]]]]]];
+
+FermiWickUpdateCheck::latest = "The latest release could not be read from GitHub (`1`).";
+FermiWickUpdateCheck[] := Module[{response, status, release},
+   response = Quiet[URLRead[latestReleaseRequest[], Sequence @@ networkOptions[URLRead, {TimeConstraint -> 10}]]];
+   status = If[Head[response] === HTTPResponse, response["StatusCode"], None];
+   release = If[status === 200, latestReleaseOf[response["Body"]], $Failed];
+   If[! AssociationQ[release],
+    Message[FermiWickUpdateCheck::latest, Which[status === None, "no answer", status =!= 200, "status " <> ToString[status],
+       True, "no release with a paclet in the answer"]];
+    $Failed,
+    If[newerVersionQ[release["Version"], $FermiWickVersion],
+     Print[If[TrueQ[$Notebooks], Style[updateNotice[release], FontFamily -> "Source Sans Pro"], updateNoticeText[release]]]];
+    <|"InstalledVersion" -> $FermiWickVersion, "LatestVersion" -> release["Version"], "InstallLine" -> installLine[release]|>]];
+
+(* the check at load is on unless $FermiWickUpdateCheck was set before loading (kept by the start of the package) *)
+If[! ValueQ[$FermiWickUpdateCheck], $FermiWickUpdateCheck = True];
+
+(* in a notebook (not in scripts, which stay quiet), the banner, and the update check when it is due *)
+If[TrueQ[$Notebooks],
+  If[$FermiWickUpdateCheck =!= False && $AllowInternet =!= False && updateCheckDueQ[$updateCheckDirectory, updateCheckDate[]],
+   With[{tag = "FermiWickBanner" <> ToString[Round[10^6 AbsoluteTime[]]]},
+    CellPrint[ExpressionCell[loadBanner[], "Print", CellTags -> tag]];
+    submitUpdateCheck[EvaluationNotebook[], tag]],
+   Print[loadBanner[]]]];
 
 End[];
 EndPackage[];

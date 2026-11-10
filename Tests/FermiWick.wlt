@@ -171,3 +171,51 @@ VerificationTest[Module[{a8, b8, h8, w8, num, ops},
      Sum[cDag[1, o, s] ** c[2, o, s], {o, 2}, {s, {up, dn}}] ** Sum[cDag[2, o, s] ** c[1, o, s], {o, 2}, {s, {up, dn}}]};
    Max[Abs[(WickVEV[#, GeneralState["Anomalous" -> \[Kappa]]] /. num) - Tr[w8 . toMatrix8[#]] & /@ ops]] < 10^-10], True,
   TestID -> "two orbitals with spin: Wick = exact Fock-space values"]
+
+(* ---------------------------------------------------------------- the banner and the update check, without the network *)
+(* the answer of GitHub read from a saved one (LatestRelease.json, the release 0.2.0, trimmed; its text is UTF-8); the line
+   of a newer release (the next patch of the version loaded); the once-a-day rule in a temporary directory; loading in a
+   script, which never checks; the setting typed before the package is loaded *)
+VerificationTest[FermiWick`Private`newerVersionQ @@@ {{"0.10.0", "0.9.0"}, {"0.9.0", "0.10.0"}, {"v0.2.0", "0.2.0"}, {"1.0.0", "0.99.99"},
+    {"0.2.1", "0.2.0"}, {"v0.3.0-rc1", "0.2.0"}, {"0.3", "0.2.0"}, {"version 0.3.0", "0.2.0"}},
+  {True, False, False, True, True, False, False, False}, TestID -> "update check: versions compared number by number"]
+latestAnswer = FromCharacterCode[BinaryReadList[FileNameJoin[{testDir, "LatestRelease.json"}]], "UTF-8"];
+latestRelease = <|"Version" -> "0.2.0", "Paclet" -> "https://github.com/n4sd4q/FermiWick/releases/download/v0.2.0/FermiWick-0.2.0.paclet",
+   "Page" -> "https://github.com/n4sd4q/FermiWick/releases/tag/v0.2.0"|>;
+VerificationTest[{Max[ToCharacterCode[latestAnswer]] > 127, FermiWick`Private`latestReleaseOf[latestAnswer]},
+  {True, latestRelease}, TestID -> "update check: the latest release read from an answer of GitHub (text beyond ASCII)"]
+VerificationTest[FermiWick`Private`latestReleaseOf /@ {
+    StringReplace[latestAnswer, "\"draft\": false" -> "\"draft\": true"],
+    StringReplace[latestAnswer, "\"prerelease\": false" -> "\"prerelease\": true"],
+    StringReplace[latestAnswer, "\"tag_name\": \"v0.2.0\"" -> "\"tag_name\": \"v0.3.0-rc1\""],
+    StringReplace[latestAnswer, "github.com/n4sd4q/FermiWick/releases/download" -> "example.com/releases/download"],
+    StringReplace[latestAnswer, "/FermiWick-0.2.0.paclet\"" -> "/a\\\"]; Quit[]; (\\\".paclet\""],
+    "{\"message\": \"API rate limit exceeded\", \"documentation_url\": \"https://docs.github.com/rest\"}", "<html>offline</html>", $Failed},
+  ConstantArray[$Failed, 8], TestID -> "update check: no release for a draft, a pre-release, a malformed tag, a paclet elsewhere or with a quote, an error"]
+nextVersion = StringRiffle[ToString /@ (FermiWick`Private`versionNumbers[$FermiWickVersion] + {0, 0, 1}), "."];
+newerRelease = FermiWick`Private`latestReleaseOf[StringReplace[latestAnswer, "0.2.0" -> nextVersion]];
+VerificationTest[With[{paclet = "https://github.com/n4sd4q/FermiWick/releases/download/v" <> nextVersion <> "/FermiWick-" <> nextVersion <> ".paclet"},
+   {FermiWick`Private`newerVersionQ[newerRelease["Version"], $FermiWickVersion],
+    FermiWick`Private`newerVersionQ[latestRelease["Version"], $FermiWickVersion],
+    Cases[FermiWick`Private`loadBanner[], Column[lines_List, ___] :> Length[lines], Infinity],
+    Cases[FermiWick`Private`loadBanner[newerRelease], Column[lines_List, ___] :> Length[lines], Infinity],
+    Cases[FermiWick`Private`updateNotice[newerRelease], Hyperlink[_, url_] :> url, Infinity] === {"https://github.com/n4sd4q/FermiWick/releases/tag/v" <> nextVersion},
+    Cases[FermiWick`Private`updateNotice[newerRelease], Defer[e_] :> HoldForm[e], Infinity] === {HoldForm[PacletInstall[paclet]]},
+    FermiWick`Private`updateNoticeText[newerRelease] === "FermiWick " <> nextVersion <> " is available (" <> $FermiWickVersion <>
+      " is loaded): PacletInstall[\"" <> paclet <> "\"]"}],
+  {True, False, {2}, {3}, True, True, True}, TestID -> "update check: the line of a newer release under the banner, and as text"]
+VerificationTest[Module[{dir = CreateDirectory[], r},
+   r = {FermiWick`Private`updateCheckDueQ[FileNameJoin[{dir, "a"}], "2026-11-10"], FermiWick`Private`updateCheckDueQ[FileNameJoin[{dir, "a"}], "2026-11-10"],
+     FermiWick`Private`updateCheckDueQ[FileNameJoin[{dir, "a"}], "2026-11-11"], StringTrim[ReadString[FileNameJoin[{dir, "a", "LastUpdateCheck.txt"}]]],
+     Quiet[FermiWick`Private`updateCheckDueQ[FileNameJoin[{dir, "a", "LastUpdateCheck.txt", "b"}], "2026-11-10"]]};
+   DeleteDirectory[dir, DeleteContents -> True]; r],
+  {True, False, True, "2026-11-11", True}, TestID -> "update check: at most once a day; a date that cannot be kept means a check"]
+(* in fresh kernels (scripts): loading prints nothing and asks nothing; $FermiWickUpdateCheck = False typed before loading is the
+   package's setting and the symbol typed is removed; loading again keeps the setting *)
+freshKernel[code_String] := Module[{file = FileNameJoin[{$TemporaryDirectory, "fw_check_" <> ToString[RandomInteger[10^9]] <> ".wl"}], out},
+   Export[file, "PacletDirectoryLoad[" <> ToString[FileNameJoin[{root, "FermiWick"}], InputForm] <> "];\n" <> code, "Text"];
+   out = RunProcess[{First[$CommandLine], "-script", file}, "StandardOutput"]; DeleteFile[file]; StringTrim[out]];
+VerificationTest[{freshKernel["Needs[\"FermiWick`\"];"],
+   freshKernel["$FermiWickUpdateCheck = False;\nNeeds[\"FermiWick`\"];\nPrint[ToString[{FermiWick`$FermiWickUpdateCheck, Names[\"Global`$FermiWickUpdateCheck\"]}, InputForm]];"],
+   freshKernel["Needs[\"FermiWick`\"];\n$FermiWickUpdateCheck = False;\nGet[\"FermiWick`\"];\nPrint[ToString[$FermiWickUpdateCheck, InputForm]];"]},
+  {"", "{False, {}}", "False"}, TestID -> "update check: a script loads the package printing nothing; the setting typed before loading is kept"]
