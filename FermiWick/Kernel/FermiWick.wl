@@ -87,8 +87,12 @@ ResetNormalOrder::usage = "ResetNormalOrder[] clears the caches of the normal or
 DefineOperator::usage = "DefineOperator[head, n, definition, display] defines an operator on n sites. definition is a function of the sites \
 that writes it with known operators; display is a function of the sites that gives its form on screen. The operator stays compact: \
 NormalOrder, WickVEV and MeanField expand it, ToSpinChargeBasis recognizes it again (option \"Recognize\", default True for n >= 2; \
-\"Required\" -> All asks the whole operator to be present). A one-site operator on several sites is the product: P[i, j] = P[i]**P[j].";
+\"Required\" -> All asks the whole operator to be present). Its adjoint stays compact too: Dagger[head[...]] is head itself when Hermitian, head \
+with the sites permuted when that is the adjoint (a hopping), otherwise AdjointOperator[head][...]. A one-site operator on several sites is the product: P[i, j] = P[i]**P[j].";
 $DefinedOperators::usage = "$DefinedOperators is the association of the operators defined with DefineOperator.";
+AdjointOperator::usage = "AdjointOperator[head][sites] is the adjoint of the operator head[sites] defined with DefineOperator, when it is \
+neither head itself (Hermitian) nor head with the sites permuted (as a hopping): Dagger[head[i, j]] gives it, it is displayed with a \
+dagger, expands like head, and ToSpinChargeBasis recognizes it.";
 $SpinSymbols::usage = "$SpinSymbols is the list of the symbols used as spins (updated automatically).";
 
 GaussianState::usage = "GaussianState[symmetries] is the Gaussian state with the given symmetries, written with spin channels: \
@@ -474,8 +478,15 @@ iDag[SmOp[i_], _] := SpOp[i];
 iDag[B[i_], _] := Bdag[i];
 iDag[Bdag[i_], _] := B[i];
 iDag[x : (_nOp | _nTotOp | _SzOp | _DOp), _] := x;
+(*A defined operator stays compact: itself when Hermitian, itself with the sites permuted when that is its adjoint (a hopping),
+  otherwise its adjoint operator, registered by DefineOperator*)
 iDag[x_, cplx_] /; KeyExistsQ[$DefinedOperators, Head[x]] :=
-  If[iDefinedHermitianQ[Head[x]], x, iDag[NormalOrder[$DefinedOperators[Head[x]]["Definition"] @@ x], cplx]];
+  With[{a = Lookup[$DefinedOperators[Head[x]], "Adjoint", None]},
+   Switch[a,
+    "Hermitian", x,
+    {"Permutation", _}, Head[x] @@ (List @@ x)[[a[[2]]]],
+    {"Head", _}, a[[2]] @@ x,
+    _, If[iDefinedHermitianQ[Head[x]], x, iDag[NormalOrder[$DefinedOperators[Head[x]]["Definition"] @@ x], cplx]]]];
 iDag[x_, cplx_] := iConjScalar[x, cplx];
 (*A defined operator is Hermitian when its definition is (checked once, on placeholder sites)*)
 iDefinedHermitianQ[h_] := iDefinedHermitianQ[h] =
@@ -911,21 +922,41 @@ iResetNonlocalCache[] := (
    iResetLocalCaches[]);
 
 Options[DefineOperator] = {"Recognize" -> Automatic, "Required" -> Automatic};
-DefineOperator[head_Symbol, arity_Integer?Positive, definition_, display_, OptionsPattern[]] := (
-   If[FreeQ[$compositePattern, head],
+DefineOperator[head : (_Symbol | AdjointOperator[_Symbol]), arity_Integer?Positive, definition_, display_, OptionsPattern[]] := (
+   If[! MemberQ[$compositePattern, Blank[head]],
     $compositePattern = Append[$compositePattern, Blank[head]];
     $opPattern = Append[$opPattern, Blank[head]]];
    $DefinedOperators[head] = <|"Arity" -> arity, "Definition" -> definition,
      "Sites" -> Array[Unique[opSite] &, arity],
      "Recognize" -> TrueQ[Replace[OptionValue["Recognize"], Automatic -> (arity >= 2)]],
-     "RequiredOption" -> OptionValue["Required"]|>;
+     "RequiredOption" -> OptionValue["Required"], "Display" -> display|>;
    iResetNonlocalCache[]; Quiet[Unset[iDefinedHermitianQ[head]]];
    With[{h = head, dsp = display},
     Format[h[args__], StandardForm] := With[{d = dsp[args]}, Interpretation[d, h[args]]];
     If[arity == 1,
      h[sites_List] := h @@ sites;
      h[s1_, s2__] := NonCommutativeMultiply @@ (h /@ {s1, s2})]];
+   With[{adj = iAdjointOf[head, arity, definition, display, OptionValue["Recognize"], OptionValue["Required"]]},
+    $DefinedOperators[head] = Append[$DefinedOperators[head], "Adjoint" -> adj]];
    head);
+
+(*The adjoint of a defined operator, found once on placeholder sites: "Hermitian", {"Permutation", p} when it is the same operator
+  with the sites permuted, otherwise {"Head", AdjointOperator[head]}, a compact operator defined here with a dagger on the display;
+  the adjoint of AdjointOperator[head] is head*)
+iZeroOperatorQ[e_] := AllTrue[Values[OperatorCoefficients[e]], iZeroQ];
+iAdjointOf[AdjointOperator[h_], ___] := {"Head", h};
+iAdjointOf[head_, arity_, definition_, display_, recog_, req_] :=
+  Module[{s = $DefinedOperators[head]["Sites"], d, dag, perm},
+   d = NormalOrder[definition @@ s]; dag = NormalOrder[iDag[d, {}]];
+   perm = If[arity > 4, None, SelectFirst[Permutations[Range[arity]], iZeroOperatorQ[dag - NormalOrder[definition @@ s[[#]]]] &, None]];
+   Which[
+    perm === Range[arity], "Hermitian",
+    perm =!= None, {"Permutation", perm},
+    True,
+    With[{def = definition, dsp = display},
+     DefineOperator[AdjointOperator[head], arity, Function[Null, Dagger[def[##]]], Function[Null, Superscript[dsp[##], "\[Dagger]"]],
+      "Recognize" -> recog, "Required" -> req]];
+    {"Head", AdjointOperator[head]}]];
 
 (*Model of the operator in the spin-charge basis, computed at the first use (on placeholder sites)*)
 iNonlocalData[h_] :=
@@ -1061,8 +1092,14 @@ iTeXArgs[a_String] := With[{x = StringDelete[a, " "]}, If[StringCount[x, ","] >=
 $texOps = {"cDag" -> "c^\\dagger", "nTotOp" -> "n", "nOp" -> "n", "SzOp" -> "S^z", "SpOp" -> "S^+", "SmOp" -> "S^-",
    "DOp" -> "D", "Bdag" -> "B^\\dagger", "EmptyProjector" -> "P^0", "SingleOccupationProjector" -> "P^1",
    "GutzwillerProjector" -> "P^G"};
+(*Operators defined by the user (and adjoints) are written with their display; those of the package have rules below*)
+iUserDisplayQ[AdjointOperator[_]] := True;
+iUserDisplayQ[h_Symbol] := ! MemberQ[Join[Keys[$texOps], {"SdotS", "SdotScrossS"}], SymbolName[h]];
+iUserDisplayQ[_] := False;
+iTeXDisplay[expr_] := If[Length[$DefinedOperators] == 0, expr,
+   expr /. op : iNonlocalPattern[] /; iUserDisplayQ[Head[op]] :> $DefinedOperators[Head[op]]["Display"] @@ op];
 ToTeX[expr_] :=
-  Fold[StringReplace[#1, #2] &, ToString[TeXForm[expr]], {
+  Fold[StringReplace[#1, #2] &, ToString[TeXForm[iTeXDisplay[expr]]], {
     Map[With[{name = #[[1]], tex = #[[2]]},
        RegularExpression["\\\\text\\{" <> name <> "\\}\\(([^()]*)\\)"] :> tex <> "_{" <> iTeXArgs["$1"] <> "}"] &, $texOps],
     RegularExpression["(?<![A-Za-z\\\\])c\\(([^()]*)\\)"] :> "c_{" <> iTeXArgs["$1"] <> "}",

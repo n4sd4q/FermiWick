@@ -219,3 +219,14 @@ VerificationTest[{freshKernel["Needs[\"FermiWick`\"];"],
    freshKernel["$FermiWickUpdateCheck = False;\nNeeds[\"FermiWick`\"];\nPrint[ToString[{FermiWick`$FermiWickUpdateCheck, Names[\"Global`$FermiWickUpdateCheck\"]}, InputForm]];"],
    freshKernel["Needs[\"FermiWick`\"];\n$FermiWickUpdateCheck = False;\nGet[\"FermiWick`\"];\nPrint[ToString[$FermiWickUpdateCheck, InputForm]];"]},
   {"", "{False, {}}", "False"}, TestID -> "update check: a script loads the package printing nothing; the setting typed before loading is kept"]
+
+(* ---------------------------------------------------------------- adjoints of defined operators *)
+VerificationTest[DefineOperator[PairD, 2, (c[#1, up] ** c[#2, dn] - c[#1, dn] ** c[#2, up])/2 &, Subscript["P", Row[{#1, #2}]] &];
+  {Dagger[HopT[1, 2]], Dagger[SdotS[1, 2]], Dagger[PairD[1, 2]], Dagger[Dagger[PairD[1, 2]]],
+   NormalOrder[Dagger[PairD[1, 2]]] === NormalOrder[(cDag[1, dn] ** cDag[2, up] - cDag[1, up] ** cDag[2, dn])/2]},
+  {HopT[2, 1], SdotS[1, 2], AdjointOperator[PairD][1, 2], PairD[1, 2], True}, TestID -> "Dagger of defined operators stays compact"]
+VerificationTest[With[{r = ToSpinChargeBasis[MeanField[SdotS[1, 2], pairing]]},
+   {FreeQ[r, _c | _cDag], Coefficient[r, AdjointOperator[PairD][1, 2]] =!= 0, WickVEV[Dagger[PairD[1, 2]], pairing] === Conjugate[WickVEV[PairD[1, 2], pairing]]}],
+  {True, True, True}, TestID -> "the adjoint pair is recognized in a mean-field Hamiltonian"]
+VerificationTest[StringContainsQ[ToTeX[Dagger[PairD[1, 2]]], "\\dagger"], True, TestID -> "ToTeX of an adjoint"]
+$DefinedOperators = KeyDrop[$DefinedOperators, {PairD, AdjointOperator[PairD]}];

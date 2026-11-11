@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- The adjoint of an operator defined with `DefineOperator` stays compact: `Dagger` gives the operator itself when it is
+  Hermitian, the operator with the sites permuted when that is its adjoint (a hopping), otherwise
+  `AdjointOperator[head][sites]`, registered automatically, displayed with a dagger, recognized by `ToSpinChargeBasis` and
+  written by `ToTeX`. Operators of the user are written by `ToTeX` with their display.
 - Documents: exact diagonalisation done analytically in the showcase, the wiki and the video: the Hubbard dimer's
   eigenstates as kets, its free energy and entropy at finite temperature, and its Green's function as a Lehmann sum.
 - Documents: a demo video (`Media/demo.mp4`, 1920×1080 at 60 fps, made by `Development/make_demo_video.py` from the first
