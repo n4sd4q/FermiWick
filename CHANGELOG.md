@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Website: the link of the icon carries a hash of the file, so that browsers, which keep a favicon for long, fetch
+  it again when the logo changes.
+
 ## 0.4.0 (2026-11-11)
 
 - The adjoint of an operator defined with `DefineOperator` stays compact: `Dagger` gives the operator itself when it is
