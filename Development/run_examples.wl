@@ -19,7 +19,11 @@ docPost[t_String] := StringReplace[t, {
     RegularExpression["(?<![A-Za-z\\\\])m\\(([^()]*)\\)"] :> "m_{$1}",
     RegularExpression["\\\\text\\{nk\\}\\(([^()]*)\\)"] :> "n_{$1}",
     "\\text{eps0}" -> "\\varepsilon_0", "\\text{Jc}" -> "J_\\chi"}];
-toTeX[e_] := docPost[ToTeX[e]];
+(* a ket of sites with one orbital each (StateToKet) written |0,↑↓⟩, without the braces of the sites, its arrows as
+   symbols (no space of a relation after the bar) *)
+ketPost[t_String] := StringReplace[t, RegularExpression["\\|([^|]*?)\\\\rangle"] :>
+    "|" <> StringReplace["$1", {"\\uparrow" -> "{\\uparrow}", "\\downarrow" -> "{\\downarrow}"}] <> "\\rangle"];
+toTeX[e_] := docPost[ketPost[ToTeX[e /. Ket[k : {{_} ..}] :> Ket[Flatten[k]]]]];
 toText[s_String] := s;
 toText[e_] := StringReplace[ToString[e /. FermiWick`GaussianState[a_Association] :> stateShown[Lookup[a, "Description", "..."]], InputForm,
      PageWidth -> 110], "DocsRunner`stateShown" | "stateShown" -> "GaussianState"];

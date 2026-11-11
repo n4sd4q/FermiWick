@@ -160,19 +160,21 @@ def example(doc, name):
 # code and output (example). The last number is how long the card stays in full view (s).
 CARDS = [
     ("Ladder operators and normal order", "anticommutation, the Pauli principle, sites and spins as symbols",
-     [("readme", 0), ("readme", 1), ("showcase", "pauli"), ("showcase", "samesite"), ("showcase", "spinless")], 2.0),
+     [("readme", 0), ("readme", 1), ("showcase", "pauli"), ("showcase", "samesite"), ("showcase", "spinless")], 1.8),
     ("Spins from ladder operators", "the exchange identity, spin flips, the chirality from a commutator",
-     [("readme", 2), ("showcase", "decompose"), ("showcase", "spinlength"), ("showcase", "commutator")], 2.0),
-    ("Exact diagonalisation", "any model as on paper: the Hubbard dimer, a ring of eight sites",
-     [("readme", 3), ("showcase", "ring8")], 2.6),
+     [("readme", 2), ("showcase", "decompose"), ("showcase", "spinlength"), ("showcase", "commutator")], 1.8),
+    ("Exact diagonalisation", "the Hubbard dimer as on paper: its spectrum and its ground state",
+     [("showcase", "fockspace"), ("showcase", "focksector"), ("readme", 3), ("showcase", "dimerground")], 2.2),
+    ("Finite temperature and Green's functions", "the free energy of the dimer, and its Green's function",
+     [("showcase", "dimerfree"), ("showcase", "dimergreen")], 2.2),
     ("Wick's theorem in the state you assume", "the energy; the chirality with and without time reversal",
-     [("readme", 4), ("readme", 5), ("manual", "symmetries")], 2.4),
+     [("readme", 4), ("readme", 5), ("manual", "symmetries")], 2.0),
     ("Mean field of any order", "the Hubbard term in a magnetic state, the chirality with pairing",
-     [("readme", 6), ("showcase", "singletstate"), ("showcase", "chiralfields")], 2.4),
+     [("readme", 6), ("showcase", "singletstate"), ("showcase", "chiralfields")], 2.0),
     ("Gutzwiller projectors", "the projector, the double occupancy, the hopping renormalised",
-     [("manual", "load"), ("showcase", "gutzwillerprojector"), ("showcase", "gutzwillerd"), ("showcase", "hopping")], 2.2),
+     [("manual", "load"), ("showcase", "gutzwillerprojector"), ("showcase", "gutzwillerd"), ("showcase", "hopping")], 2.0),
     ("LaTeX", "any result as LaTeX; Wick's theorem written out and drawn",
-     [("showcase", "totex"), ("readme", 7), ("manual", "wicktex")], 2.8),
+     [("showcase", "totex"), ("readme", 7), ("manual", "wicktex")], 2.4),
 ]
 
 
@@ -185,6 +187,9 @@ docPost[t_String] := StringReplace[t, {
     RegularExpression["(?<![A-Za-z\\\\])m\\(([^()]*)\\)"] :> "m_{$1}",
     RegularExpression["\\\\text\\{nk\\}\\(([^()]*)\\)"] :> "n_{$1}",
     "\\text{eps0}" -> "\\varepsilon_0", "\\text{Jc}" -> "J_\\chi"}];
+ketPost[t_String] := StringReplace[t, RegularExpression["\\|([^|]*?)\\\\rangle"] :>
+    "|" <> StringReplace["$1", {"\\uparrow" -> "{\\uparrow}", "\\downarrow" -> "{\\downarrow}"}] <> "\\rangle"];
+toTeX[e_] := docPost[ketPost[FermiWick`ToTeX[e /. Ket[k : {{_} ..}] :> Ket[Flatten[k]]]]];
 toText[s_String] := s;
 toText[e_] := StringReplace[ToString[e /. FermiWick`GaussianState[a_Association] :> stateShown[Lookup[a, "Description", "..."]],
     InputForm, PageWidth -> 110], "stateShown" -> "GaussianState"];
@@ -194,7 +199,7 @@ Do[
   {name, kind, source} = cell;
   result = ToExpression[read[name <> ".wl"]];
   If[kind =!= "none",
-   got = StringTrim[Switch[kind, "tex", docPost[FermiWick`ToTeX[result]], "string", docPost[result], "text", toText[result]]];
+   got = StringTrim[Switch[kind, "tex", toTeX[result], "string", docPost[result], "text", toText[result]]];
    If[got === StringTrim[read[name <> ".out"]], Print["ok    ", source],
     bad++; Print["DIFF  ", source, "\n  computed: ", got, "\n  shown:    ", read[name <> ".out"]]]],
   {cell, %(cells)s}];
@@ -268,7 +273,7 @@ PREAMBLE = r"""\documentclass[12pt,multi=elem,border=%gpt]{standalone}
 
 # the outputs and the pictures of Wick's theorem, a little larger than the code (CODE_SIZE px), as a notebook shows them
 OUTPUT_SIZE = r"\fontsize{8.5}{10.5}\selectfont"
-CODE_SIZE = px(18)
+CODE_SIZE, CODE_LINE = px(17), px(24)       # the code, and the height of its lines
 
 
 def output_name(k, j):
@@ -298,7 +303,7 @@ def text_output(text, fnt):
     on a transparent image with the border of the LaTeX elements; and the height of its first baseline."""
     lines, border = text.split("\n"), BORDER * PT
     ascent, descent = fnt.getmetrics()
-    lh = px(26)
+    lh = CODE_LINE
     img = Image.new("RGBA", (int(max(fnt.getlength(l) for l in lines) + 2 * border + 1),
                              int(2 * border + ascent + descent + lh * (len(lines) - 1) + 1)), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
@@ -376,10 +381,10 @@ def package_names():
 NAME = r"[A-Za-z$\u0370-\u03ff][A-Za-z0-9$\u0370-\u03ff]*"
 # the names of the system, black in an input cell (those of the examples of the documents, and a few more; another one
 # would be coloured as undefined: add it here)
-SYSTEM_NAMES = set("""Abs Apply Block C Chop Conjugate Cos D Det E Eigensystem Eigenvalues Exp Expand Factor False First Flatten
-    FullSimplify Function I IdentityMatrix If Join K KroneckerDelta Last Length Map MatrixForm Max Min Mod Module N Needs None
-    Normal O Pi Print Range Round Row Select Simplify Sin Solve Sort Sqrt Subscript Sum Table Thread Total Transpose True
-    With""".split())
+SYSTEM_NAMES = set("""Abs Apply Assumptions Block C Chop Conjugate Cos D Det E Eigensystem Eigenvalues Exp Expand Factor False
+    First Flatten FullSimplify Function I IdentityMatrix If Infinity Join K KroneckerDelta Last Length Limit Log Map
+    MatrixForm Max Min Mod Module N Needs None Normal Normalize O Ordering Pi Print Range Round Row Select Simplify Sin Solve
+    Sort Sqrt Subscript Sum Table Thread Total Transpose True With""".split())
 TOKEN = re.compile(r"\(\*.*?\*\)|\"(?:[^\"\\]|\\.)*\"|" + NAME + r"|\d+|.", re.S)
 
 
@@ -396,19 +401,42 @@ def bracket_end(code, i):
     return len(code)
 
 
+def statements(code):
+    """The spans (start, end) of the statements of a cell: they end at a semicolon or a newline outside brackets."""
+    spans, start, depth = [], 0, 0
+    for tok in TOKEN.finditer(code):
+        t = tok.group(0)
+        depth += (t in "[({") - (t in "])}")
+        if depth == 0 and t in ";\n":
+            spans.append((start, tok.end()))
+            start = tok.end()
+    return spans + [(start, len(code))]
+
+
 def colours(code, known):
     """The colour of each character of the code, and the names it gives a value to. `known`: the names with a value
     (the package's once it is loaded, those set by the cells before), with those of the system (SYSTEM_NAMES); the
-    others are undefined; the variables of a Sum are local inside it, and the names of patterns (i_) in the line that
-    has them."""
+    others are undefined; the variables of a Sum, a Module, a With or a Block are local inside it, and the names of
+    patterns (i_) in the statement that has them."""
     local = []      # (start, end, names)
     for m in re.finditer(r"\bSum\[", code):
         end = bracket_end(code, m.end() - 1)
         local.append((m.start(), end, set(re.findall(r",\s*\{\s*(" + NAME + r")\s*,", code[m.end():end]))))
-    start = 0
-    for line in code.split("\n"):
-        local.append((start, start + len(line), set(re.findall("(" + NAME + ")_", line))))
-        start += len(line) + 1
+    for m in re.finditer(r"\b(?:Module|With|Block)\[\{", code):
+        # the variables of a Module, With or Block: the names that begin the items of its first list
+        end, close = bracket_end(code, m.end() - 2), bracket_end(code, m.end() - 1)
+        items, depth, item = [], 0, ""
+        for tok in TOKEN.finditer(code[m.end():close - 1]):
+            depth += (tok.group(0) in "[({") - (tok.group(0) in "])}")
+            if depth == 0 and tok.group(0) == ",":
+                items.append(item)
+                item = ""
+            else:
+                item += tok.group(0)
+        local.append((m.start(), end, {re.match(r"\s*(" + NAME + ")", i).group(1) for i in items + [item]
+                                         if re.match(r"\s*" + NAME, i)}))
+    for a, b in statements(code):
+        local.append((a, b, set(re.findall("(" + NAME + ")_", code[a:b]))))
     out = []
     for m in TOKEN.finditer(code):
         t = m.group(0)
@@ -1045,7 +1073,7 @@ def caption_lines(el, base):
     subs = [k for k in el if re.match(r"s\d+$", k)]
     head = px(44) + max(base[k] for k in heads)
     sub = head + max(el[k].height - base[k] for k in heads) + px(2) + max(base[k] for k in subs)
-    return head, sub, sub + max(el[k].height - base[k] for k in subs) + px(30)
+    return head, sub, sub + max(el[k].height - base[k] for k in subs) + px(20)
 
 
 class Card:
@@ -1054,7 +1082,7 @@ class Card:
     is evaluated, Out[n]= on the left of the output, and on the right a bracket for each cell and one around the group
     of an input with its output. The cells and their outputs are left-aligned with the caption, a little above the
     middle of the height left under it."""
-    X_CODE, LH, CELL_GAP, OUT_GAP = px(122), px(26), px(16), px(12)
+    X_CODE, LH, CELL_GAP, OUT_GAP, FOOT = px(122), CODE_LINE, px(12), px(8), px(32)
     X_BRACKET, X_GROUP = W - ipx(36), W - ipx(27)     # the cell brackets, and those of the groups
 
     def __init__(self, el, base, k, cells, session, hold, start=0.45):
@@ -1077,7 +1105,7 @@ class Card:
             cell = CodeCell(code, session["known"], self.codefont, self.X_CODE, y, self.LH, cols)
             n = expressions(code)
             typing = min(0.95, max(0.35, len(code) / 220))
-            c = dict(cell=cell, n=session["line"], t0=t, cps=len(code) / typing, t_eval=t + typing + 0.12, top=y - px(5))
+            c = dict(cell=cell, n=session["line"], t0=t, cps=len(code) / typing, t_eval=t + typing + 0.12, top=y - px(4))
             session["line"] += n
             session["known"] |= cell.assigned
             if re.search(r"Needs\[\"FermiWick`\"\]", code):
@@ -1097,13 +1125,13 @@ class Card:
                 self.full = t + 0.3
                 y += img.height - 2 * border
             t += 0.22
-            c["bottom"] = y + px(4)
+            c["bottom"] = y + px(3)
             y += self.CELL_GAP
             self.cells.append(c)
         height = y - self.CELL_GAP
-        if height > H - px(40) - top:
-            print("warning: the cells of card %d are %.0f px too tall" % (k, (height - (H - px(40) - top)) / S))
-        dy = top + max(0.0, (H - px(40) - top - height) * 0.32)
+        if height > H - self.FOOT - top:
+            print("warning: the cells of card %d are %.0f px too tall" % (k, (height - (H - self.FOOT - top)) / S))
+        dy = top + max(0.0, (H - self.FOOT - top - height) * 0.32)
         for c in self.cells:
             c["cell"].y += dy
             for key in ("top", "input_bottom", "bottom"):
@@ -1135,7 +1163,7 @@ class Card:
                 colour = tuple(int(255 - (255 - v) * a) for v in LABEL)
                 rise = (1 - ease_out((t - item.t0) / item.fade)) * item.rise
                 self.label(d, "Out[%d]=" % number, item.y + base + rise, colour)
-                self.bracket(d, self.X_BRACKET, item.y + BORDER * PT - px(5), c["bottom"],
+                self.bracket(d, self.X_BRACKET, item.y + BORDER * PT - px(3), c["bottom"],
                              colour=tuple(int(255 - (255 - v) * a) for v in BRACKET))
                 self.bracket(d, self.X_GROUP, c["top"], c["bottom"])
 

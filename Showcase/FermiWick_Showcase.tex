@@ -279,9 +279,24 @@ A sector keeps the states with a given particle number and $S^z$, and every oper
 the whole space:
 \example{focksector}
 \fn{FockMatrix} reads any expression of the package: ladder, local and defined operators, products in the order written,
-symbolic coefficients. The Hubbard dimer, $-t$ times the hopping \pkg{hop} of section~\ref{sec:gutzwiller} plus
-$U(D_1+D_2)$, has in this sector the spectrum
+symbolic coefficients. The Hubbard dimer, written as on paper, has in this sector the spectrum
 \example{dimerspectrum}
+The eigenvectors are exact as well, and \fn{StateToKet} writes a state with the occupations of the sites. The ground
+state, the lowest of the four energies for all $t,U>0$ (the numbers only rank them), is a singlet whose weight on the
+doubly occupied sites falls as $U$ grows:
+\example{dimerground}
+At a finite temperature, the free energy of the whole Fock space, sixteen states, at the chemical potential $U/2$ of
+half filling:
+\example{dimerfree}
+The entropy $S=-\partial F/\partial T$ goes from zero, the ground state being a singlet, to $\log 16$, the sixteen states
+equally likely (at $U=4t$ for the first limit):
+\example{dimerentropy}
+The Green's function at zero temperature, analytically: its Lehmann sum is written with the matrices of
+$c^\dagger_{1\uparrow}$ and $c_{1\uparrow}$ from the sector of the ground state to those with three and one particles,
+\fn{FockMatrix}\texttt{[op, \{from, to\}]}, and with the eigenstates of those sectors:
+\example{dimergreen}
+Its four poles, at $\pm\big(\frac12\sqrt{16t^2+U^2}\pm t\big)$, are the energies of adding and of removing an electron.
+
 Ground states come from \fn{LowestStates} (dense, or Arnoldi on large sectors) and expectation values from
 \fn{FockExpectation}. On a ring of eight sites at half filling with $U=4t$ (a sector of dimension 4900), the energy per
 site, the double occupancy and the correlation of neighbouring spins are

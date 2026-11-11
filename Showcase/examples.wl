@@ -246,7 +246,32 @@ sector = FockSector[space, "N" -> 2, "Sz" -> 0];
 OccupationBasis[sector]
 
 (* ::Example:: dimerspectrum *)
-Eigenvalues[Normal[FockMatrix[-t hop + U (DOp[1] + DOp[2]), sector]]]
+H = -t Sum[PlusHC[cDag[1, s] ** c[2, s]], {s, $Spins}] +
+  U Sum[nOp[i, SpinUp] ** nOp[i, SpinDown], {i, 2}];
+Eigenvalues[Normal[FockMatrix[H, sector]]]
+
+(* ::Example:: dimerground *)
+{vals, vecs} = Eigensystem[Normal[FockMatrix[H, sector]]];
+ground = Normalize[vecs[[First[Ordering[N[vals /. {t -> 1, U -> 1}], 1]]]]];
+FullSimplify[StateToKet[sector, ground], t > 0 && U > 0]
+
+(* ::Example:: dimerfree *)
+h = H - U/2 Sum[nTotOp[i], {i, 2}];
+levels = Eigenvalues[Normal[FockMatrix[h, space]]];
+F = FullSimplify[-T Log[Total[Exp[-levels/T]]], T > 0]
+
+(* ::Example:: dimerentropy *)
+S = -D[F, T];
+{Limit[S /. U -> 4 t, T -> 0, Assumptions -> t > 0], Limit[S, T -> Infinity]}
+
+(* ::Example:: dimergreen *)
+e0 = ground . Normal[FockMatrix[h, sector]] . ground;
+part[op_, to_, sign_] := Module[{e, v, w},
+  {e, v} = Eigensystem[Normal[FockMatrix[h, to]]];
+  w = Normal[FockMatrix[op, {sector, to}]] . ground;
+  Sum[(Normalize[v[[n]]] . w)^2/(z - sign (e[[n]] - e0)), {n, Length[e]}]];
+FullSimplify[part[cDag[1, "\[UpArrow]"], FockSector[space, "N" -> 3, "Sz" -> 1/2], 1] +
+  part[c[1, "\[UpArrow]"], FockSector[space, "N" -> 1, "Sz" -> -1/2], -1], t > 0 && U > 0]
 
 (* ::Example:: ring8 text *)
 nb[i_] := Mod[i - 1, 8] + 1;

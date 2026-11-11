@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Documents: exact diagonalisation done analytically in the showcase, the wiki and the video: the Hubbard dimer's
+  eigenstates as kets, its free energy and entropy at finite temperature, and its Green's function as a Lehmann sum.
 - Documents: a demo video (`Media/demo.mp4`, 1920×1080 at 60 fps, made by `Development/make_demo_video.py` from the first
   example of the README), its looping preview at the top of the README and the video under the hero of the website.
 - In a notebook, the conjugate of an amplitude or of a symbol is shown as $x^\ast$ and the product $x^\ast x$ as
