@@ -114,16 +114,27 @@ The defaults are `{"Site"}` for one label and `{"Site", "Spin"}` for two.
 ## Operators of your own
 
 `DefineOperator[head, n, definition, display]` defines an operator on `n` sites from known ones; it stays compact, and
-`ToSpinChargeBasis` recognizes it in a result. Here the operator $b^\dagger_{ij}$ that creates a singlet on two sites,
-and the number of singlets on a bond, $b^\dagger_{12}b_{12}$:
+`ToSpinChargeBasis` recognizes it in a result. Here the operator $b_{ij}$ that annihilates a singlet on two sites, and
+the number of singlets on a bond, $b^\dagger_{12}b_{12}$:
 
 ```mathematica
-DefineOperator[singlet, 2, Function[{i, j}, (cDag[i, SpinUp] ** cDag[j, SpinDown] - cDag[i, SpinDown] ** cDag[j, SpinUp])/Sqrt[2]],
-  Function[{i, j}, Subscript[b, i, j]]];
-ToSpinChargeBasis[singlet[1, 2] ** Dagger[singlet[1, 2]]]
+DefineOperator[pair, 2, Function[{i, j}, (c[i, SpinUp] ** c[j, SpinDown] - c[i, SpinDown] ** c[j, SpinUp])/Sqrt[2]],
+  Function[{i, j}, Subscript[b, Row[{i, j}]]]];
+ToSpinChargeBasis[Dagger[pair[1, 2]] ** pair[1, 2]]
 ```
 
 $$\frac{1}{4} n_{1}n_{2}-\mathbf S_{1}\cdot\mathbf S_{2}$$
 
 On two singly occupied sites ($n_1=n_2=1$) this is $\frac14-\mathbf S_1\cdot\mathbf S_2$, the
 projector on the singlet.
+
+The adjoint of a defined operator stays compact too: `Dagger` gives the operator itself when it is Hermitian, the
+operator with its sites permuted when that is its adjoint (a hopping), and otherwise `AdjointOperator[head][sites]`,
+shown with a dagger, expanded and recognized like the operator itself. Here $b^\dagger_{12}$ and its expectation value
+in a state with the pairing Δ:
+
+```mathematica
+{Dagger[pair[1, 2]], WickVEV[Dagger[pair[1, 2]], SpinSingletState["Pairing" -> Δ]]}
+```
+
+$$\left\\{b_{12}{}^{\dagger },\sqrt{2} \Delta_{12}^{\ast}\right\\}$$

@@ -31,6 +31,13 @@ DefineOperator[Hop, 2, (cDag[#1, "\[UpArrow]"] ** c[#2, "\[UpArrow]"] + cDag[#1,
   Subscript["T", Row[{#1, #2}]] &];
 ToSpinChargeBasis[NormalOrder[2 Hop[1, 2] ** nTotOp[3]]]
 
+(* ::Example:: adjoint *)
+DefineOperator[Pair, 2,
+  (c[#1, "\[UpArrow]"] ** c[#2, "\[DownArrow]"] - c[#1, "\[DownArrow]"] ** c[#2, "\[UpArrow]"])/Sqrt[2] &,
+  Subscript["b", Row[{#1, #2}]] &];
+{Dagger[Hop[1, 2]], Dagger[Pair[1, 2]],
+  ToSpinChargeBasis[Dagger[Pair[1, 2]] ** Pair[1, 2]]}
+
 (* ::Example:: centerdot *)
 ToSpinChargeBasis[SzOp[1] \[CenterDot] SzOp[1]]
 

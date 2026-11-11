@@ -91,6 +91,11 @@ recognizes it again. Options: \texttt{"Recognize"} (default \texttt{True} for $n
 $J\,\mathbf S\cdot\mathbf S+(J_z-J)S^zS^z$). A one-site operator on several sites is the product. \fn{\$DefinedOperators} is the
 registry.}
 \example{define}
+\fnentry{AdjointOperator}{The adjoint of a defined operator stays compact: \fn{Dagger} gives the operator itself when it is
+Hermitian, the operator with its sites permuted when that is its adjoint (a hopping), and otherwise
+\fn{AdjointOperator[head][sites]}, registered automatically, shown with a dagger, expanded and recognized like the
+operator itself. Here the hopping of the example above and an operator that annihilates a singlet pair on a bond:}
+\example{adjoint}
 
 \section{Products and bases}
 \fnentry{NormalOrder}{Brings an expression to normal order. Products are separated site by site: each factor acts on one
@@ -114,7 +119,7 @@ the fields of a mean-field Hamiltonian.}
 \fnentry{Dagger}{The Hermitian conjugate: products reversed, $c\leftrightarrow c^\dagger$, $S^+\leftrightarrow S^-$,
 $B\leftrightarrow B^\dagger$, coefficients conjugated. The amplitudes $\chi$, $\Delta$, $\rho$, $\kappa$ are complex, the other
 symbols real; option \texttt{"Complex" -> \{\dots\}} declares more complex symbols. Operators defined with
-\fn{DefineOperator} are recognized as Hermitian when they are; otherwise they are expanded.}
+\fn{DefineOperator} stay compact (\fn{AdjointOperator}).}
 \example{dagger}
 \fnentry{PlusHC, HermitianOperatorQ}{\fn{PlusHC[expr]} is $\texttt{expr}+\texttt{expr}^\dagger$; \fn{HermitianOperatorQ[expr]}
 checks $\texttt{expr}=\texttt{expr}^\dagger$. Options as \fn{Dagger}.}
@@ -194,7 +199,8 @@ zero. The density--density interaction (Hartree and Fock):}
 \example{meanfieldquadratic}
 
 \section{\LaTeX}
-\fnentry{ToTeX}{The \LaTeX{} of an expression: ladder and local operators, spin operators, amplitudes and spins.}
+\fnentry{ToTeX}{The \LaTeX{} of an expression: ladder and local operators, spin operators, amplitudes and spins; the
+operators defined with \fn{DefineOperator} are written with their display.}
 \example{totex}
 \fnentry{WickPairings}{\fn{WickPairings[product, state]} lists the pairings of a product of ladder operators that do not vanish
 in the state, in Wick's theorem applied to the product as written: \texttt{"Sign"}, \texttt{"Pairs"} (positions in the
