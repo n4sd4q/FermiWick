@@ -114,7 +114,19 @@ ground = First[vectors];
 (*6. Expectation values by Wick's theorem*)
 
 (* ::Text:: *)
-(*Approximate states are Gaussian: fixed by their contractions, which you declare by the symmetries you assume. ContractionTable shows what survives. SpinSingletState[] is invariant under spin rotations and conserves the charge, at half filling, with hopping amplitudes chi[i, j].*)
+(*Approximate states are Gaussian: fixed by their contractions, one amplitude each. GaussianState[] has them all, and ContractionTable shows them between the modes of some sites: on one site, the densities of each spin and <S^+> off the diagonal.*)
+
+MatrixForm[ContractionTable[GaussianState[], {1}, "Normal"]]
+(* chi^{up up}_11, chi^{down down}_11 on the diagonal, chi^{up down}_11 = <S^+_1> and its conjugate off it *)
+
+(* ::Text:: *)
+(*A symmetry you assume removes contractions, or the indices that told them apart: with the charge conserved there is no pairing; with S^z conserved the hopping keeps the spin and the pairing joins opposite spins; with spin rotations (SU(2)) there is one hopping chi[i, j] and the singlet pairing Delta[i, j]; with time reversal the amplitudes of opposite spins are conjugates, and with SU(2) real.*)
+
+MatrixForm[ContractionTable[GaussianState["SpinRotationZ"], {1, 2}, "Anomalous"]]
+(* S^z conserved: the pairing joins opposite spins *)
+
+(* ::Text:: *)
+(*The state of most calculations has a short name: SpinSingletState[] is GaussianState[{"SpinRotation", "Charge"}, "Filling" -> 1/2], invariant under spin rotations, the charge conserved, at half filling.*)
 
 MatrixForm[ContractionTable[SpinSingletState[], {1, 2}, "Normal"]]
 (* 1/2 on each site, chi_12 between the sites, nothing between opposite spins *)

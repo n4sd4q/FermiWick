@@ -81,12 +81,6 @@ MatrixForm[ContractionTable[GaussianState[{"SpinRotation", "Charge"}, "Filling" 
 (* ::Example:: singletoptions *)
 WickVEV[DOp[1], SpinSingletState["Filling" -> \[Nu], "Pairing" -> \[CapitalDelta], "OnSitePairing" -> \[Eta]]]
 
-(* ::Example:: generalstate *)
-WickVEV[SzOp[1], GeneralState[]]
-
-(* ::Example:: generalanomalous *)
-WickVEV[Bdag[1] ** B[2], GeneralState["Anomalous" -> \[Kappa]]]
-
 (* ::Example:: stateselect *)
 WickVEV[nTotOp[1] ** nTotOp[2], StateSelect[SpinSingletState[], LocalPairQ]]
 

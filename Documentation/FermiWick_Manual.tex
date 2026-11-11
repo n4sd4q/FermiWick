@@ -45,15 +45,16 @@ it, or \texttt{\$Failed} with a message.} The test suite runs with
 \item \textbf{Products.} \texttt{a ** b} is the product in the given order; \texttt{a \textperiodcentered{} b} (\texttt{\textbackslash[CenterDot]})
   is the product brought to normal order. Scalars (anything free of operators) factor out.
 \item \textbf{Normal order.} All $c^\dagger$ to the left of all $c$; results are expanded sums of monomials.
-\item \textbf{Contractions.} On a pair of sites, in spin channels:
-  $\langle c^\dagger_{i\sigma}c_{j\sigma'}\rangle=\chi_{ij}\delta_{\sigma\sigma'}+\sum_a\chi^a_{ij}\sigma^a_{\sigma'\sigma}$ and
-  $\langle c_{i\sigma}c_{j\sigma'}\rangle=[(\Delta_{ij}+\sum_a\Delta^a_{ij}\sigma^a)\epsilon]_{\sigma\sigma'}$, with $\epsilon_{\uparrow\downarrow}=1$,
-  $a=x,y,z$ (written \texttt{"x"}, \texttt{"y"}, \texttt{"z"}): \fn{\textbackslash[Chi][i, j]}, \fn{\textbackslash[Chi][i, j, a]},
-  \fn{\textbackslash[CapitalDelta][i, j]}, \fn{\textbackslash[CapitalDelta][i, j, a]}. $\Delta$ is symmetric and $\Delta^a$
-  antisymmetric in the sites; Hermiticity gives $\chi_{ji}=\chi^*_{ij}$, $\chi^a_{ji}=\chi^{a*}_{ij}$, and the amplitudes are
-  written with the sites in canonical order (\texttt{Conjugate[\textbackslash[Chi][1, 2]]} for $\chi_{21}$). On one site $\chi_{ii}$
-  is the density per spin and $\chi^a_{ii}=\langle S^a_i\rangle$. In the general state by spin components,
-  $\rho_{i\sigma j\sigma'}=\langle c^\dagger_{i\sigma}c_{j\sigma'}\rangle$ and $\kappa_{i\sigma j\sigma'}=\langle c_{i\sigma}c_{j\sigma'}\rangle$.
+\item \textbf{Contractions.} One amplitude for each: the hopping $\chi^{\sigma\sigma'}_{ij}=\langle c^\dagger_{i\sigma}c_{j\sigma'}\rangle$,
+  \fn{\textbackslash[Chi][i, j, s, t]}, and the pairing $\Delta^{\sigma\sigma'}_{ij}=\langle c_{i\sigma}c_{j\sigma'}\rangle$,
+  \fn{\textbackslash[CapitalDelta][i, j, s, t]}. A symmetry removes indices: with $S^z$ conserved $\chi^\sigma_{ij}$
+  (\fn{\textbackslash[Chi][i, j, s]}) and $\Delta^{\uparrow\downarrow}_{ij}$, $\Delta^{\downarrow\uparrow}_{ij}$; with SU(2) $\chi_{ij}$ and the
+  singlet $\Delta_{ij}=\langle c_{i\uparrow}c_{j\downarrow}\rangle$, symmetric in the sites. Hermiticity gives
+  $\langle c^\dagger_bc_a\rangle=\langle c^\dagger_ac_b\rangle^*$ and antisymmetry $\langle c_bc_a\rangle=-\langle c_ac_b\rangle$: an amplitude is written
+  with its modes in canonical order (the sites, then the spins, $\uparrow$ first), the other order as its conjugate or its
+  opposite (\texttt{Conjugate[\textbackslash[Chi][1, 2]]} for $\chi_{21}$). On one site $\chi^{\sigma\sigma}_{ii}$ are the densities,
+  $\chi^{\uparrow\downarrow}_{ii}=\langle S^+_i\rangle$ and $\Delta^{\uparrow\downarrow}_{ii}=\langle c_{i\uparrow}c_{i\downarrow}\rangle$; with SU(2), $\chi_{ii}$ is the
+  density per spin. Modes with more labels group them by type, the spins last: \fn{\textbackslash[Chi][i, j, o, o', s, t]}.
 \item \textbf{Complex conjugation.} The amplitudes are complex; every other symbol is taken as real by \fn{Dagger}, unless
   declared complex.
 \end{itemize}
@@ -117,7 +118,7 @@ the fields of a mean-field Hamiltonian.}
 \example{coefficients}
 \example{coefficient}
 \fnentry{Dagger}{The Hermitian conjugate: products reversed, $c\leftrightarrow c^\dagger$, $S^+\leftrightarrow S^-$,
-$B\leftrightarrow B^\dagger$, coefficients conjugated. The amplitudes $\chi$, $\Delta$, $\rho$, $\kappa$ are complex, the other
+$B\leftrightarrow B^\dagger$, coefficients conjugated. The amplitudes $\chi$, $\Delta$ are complex, the other
 symbols real; option \texttt{"Complex" -> \{\dots\}} declares more complex symbols. Operators defined with
 \fn{DefineOperator} stay compact (\fn{AdjointOperator}).}
 \example{dagger}
@@ -134,21 +135,25 @@ its symmetries, or by rules for the contractions. \fn{state["Symmetries"]}, \fn{
 \fn{state["Contraction"]} give its parts.
 \fnentry{GaussianState}{Gaussian states, in which every expectation value follows from the contractions of two operators,
 are also called quasi-free states (pure, as Slater or BCS states, or mixed, as Gibbs states of quadratic Hamiltonians).
-\fn{GaussianState[symmetries, options]}: the state with the given symmetries, written in spin
-channels (Section~2). \fn{GaussianState[]} is the general state. Each symmetry sets channels to zero or makes them real:
-\begin{tabular}{ll}\toprule symmetry & what it leaves \\ \midrule
-\texttt{"SpinRotation"} & $\chi$, $\Delta$ \\
-\texttt{"SpinRotationZ"} & $\chi$, $\chi^z$, $\Delta$, $\Delta^z$ \\
-\texttt{"Charge"} & $\chi$, $\chi^a$ (no pairing) \\
-\texttt{"TimeReversal"} & $\chi$, $\Delta$ real; $\chi^a$, $\Delta^a$ imaginary; no magnetization \\ \bottomrule\end{tabular}
+\fn{GaussianState[]} is the general one: every contraction, one amplitude each (Section~2), and nothing fixed, not even
+the filling. \fn{GaussianState[symmetries, options]} is the state with the given symmetries; each removes contractions,
+or the indices that told them apart:
+\begin{tabular}{llp{7.2cm}}\toprule symmetry & & what is left \\ \midrule
+\texttt{"Charge"} & particle number conserved & no pairing \\
+\texttt{"SpinRotationZ"} & $S^z$ conserved & the hopping keeps the spin, $\chi^\uparrow_{ij}$, $\chi^\downarrow_{ij}$; the pairing joins
+opposite spins, $\Delta^{\uparrow\downarrow}_{ij}$, $\Delta^{\downarrow\uparrow}_{ij}$ \\
+\texttt{"SpinRotation"} & SU(2) & one hopping $\chi_{ij}$; the singlet $\Delta_{ij}$, symmetric in the sites \\
+\texttt{"TimeReversal"} & $T=i\sigma^yK$ & the components of opposite spins conjugates of each other; with SU(2), $\chi$, $\Delta$
+real \\ \bottomrule\end{tabular}
 
 Options:
-\begin{tabular}{lll}\toprule option & default & \\ \midrule
+\begin{tabular}{llp{6.6cm}}\toprule option & default & \\ \midrule
 \texttt{"Hopping"}, \texttt{"Pairing"} & $\chi$, $\Delta$ & names of the amplitudes \\
-\texttt{"Filling"} & \texttt{Automatic} & $\chi_{ii}$; \texttt{Automatic}: the symbol $\chi_{ii}$ \\
-\texttt{"Magnetization"} & \texttt{Automatic} & $\langle S^z_i\rangle$, a vector, or a function of the site \\
-\texttt{"OnSitePairing"} & \texttt{Automatic} & $\Delta_{ii}$ \\
-\texttt{"Hermitian"} & \texttt{True} & $\chi_{ji}=\chi^*_{ij}$; \texttt{False}: $\chi_{ji}$ is a symbol of its own \\
+\texttt{"Filling"} & \texttt{Automatic} & $\langle n_{i\sigma}\rangle=\nu$; \texttt{Automatic}: the amplitudes $\chi^\sigma_{ii}$ ($\chi_{ii}$ with SU(2)) \\
+\texttt{"Magnetization"} & \texttt{Automatic} & $\langle n_{i\uparrow/\downarrow}\rangle=\nu\pm m$; a vector or a function of the site;
+\texttt{Automatic}: none when the filling is fixed \\
+\texttt{"OnSitePairing"} & \texttt{Automatic} & $\langle c_{i\uparrow}c_{i\downarrow}\rangle$ \\
+\texttt{"Hermitian"} & \texttt{True} & $\langle c^\dagger_bc_a\rangle=\langle c^\dagger_ac_b\rangle^*$; \texttt{False}: an amplitude of its own \\
 \texttt{"Rules"} & \texttt{\{\}} & replacements applied to the results \\ \bottomrule\end{tabular}
 
 \fn{GaussianState[\{\{op1, op2\} :> value, \dots\}]} declares the contractions by rules instead, with patterns in the
@@ -158,20 +163,16 @@ anticommutator when it has no rule of its own. Two sites with hopping $g$:}
 \fnentry{ContractionTable}{\fn{ContractionTable[state, \{i, j, \dots\}]} shows all the contractions between the modes of the
 sites, $\langle c^\dagger_a c_b\rangle$ and $\langle c_ac_b\rangle$; with a third argument \texttt{"Normal"} or \texttt{"Anomalous"}
 it gives the matrix, with the modes in the order of \texttt{Tuples[\{sites, \$Spins\}]}. The general state on one site, and
-the symmetric one:}
+the one invariant under spin rotations, the charge conserved, at filling $\nu$:}
 \example{channels}
 \example{symmetries}
 \fnentry{Contraction}{\fn{Contraction[state, op1, op2]}; \fn{Contraction[op1, op2]} uses \fn{\$State}.}
 \example{contraction}
-\fnentry{SpinSingletState}{The usual shortcut: \texttt{GaussianState[\{"SpinRotation", "Charge"\}, "Filling" -> 1/2]}, or,
-with \texttt{"Pairing" -> \textbackslash[CapitalDelta]}, the SU(2) state with singlet pairing and on-site pairing
-\texttt{"OnSitePairing"} (default 0). Options \texttt{"Hopping"}, \texttt{"Filling"}, \texttt{"Pairing"},
-\texttt{"OnSitePairing"}, \texttt{"Hermitian"}.}
+\fnentry{SpinSingletState}{The state of most calculations, written short: \texttt{SpinSingletState[]} is
+\texttt{GaussianState[\{"SpinRotation", "Charge"\}, "Filling" -> 1/2]}, and \texttt{"Pairing" -> \textbackslash[CapitalDelta]}
+drops the charge symmetry, with the on-site pairing \texttt{"OnSitePairing"} (default 0). Options \texttt{"Hopping"},
+\texttt{"Filling"}, \texttt{"Pairing"}, \texttt{"OnSitePairing"}, \texttt{"Hermitian"}.}
 \example{singletoptions}
-\fnentry{GeneralState}{The general state written by spin components instead of channels: $\rho$ (option \texttt{"Normal"},
-Hermitian) and, with \texttt{"Anomalous" -> \textbackslash[Kappa]}, $\kappa$, antisymmetric and written in canonical order.}
-\example{generalstate}
-\example{generalanomalous}
 \fnentry{StateSelect, LocalPairQ, AnomalousPairQ}{\fn{StateSelect[state, crit]} keeps the contractions of the pairs with
 \texttt{crit[op1, op2]} true. It is a filter, not a symmetry: it gives a physical state when the criterion is a symmetry or
 a decoupling of the sites (\fn{LocalPairQ}: uncorrelated sites), and otherwise a way to isolate a class of terms.

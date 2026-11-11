@@ -154,10 +154,10 @@ WickVEV[SdotS[1, 2], neel]
 WickVEV[SdotS[1, 2], StateSelect[GaussianState["SpinRotationZ", "Magnetization" -> (m[#] &)], LocalPairQ]]
 
 (* ::Example:: general *)
-WickVEV[SpOp[1] + SzOp[1], GeneralState[]]
+WickVEV[SpOp[1] + SzOp[1], GaussianState[]]
 
 (* ::Example:: generalanomalous *)
-WickVEV[Bdag[1] ** B[2], GeneralState["Anomalous" -> \[Kappa]]]
+WickVEV[Bdag[1] ** B[2], GaussianState[]]
 
 (* ::Example:: select *)
 WickVEV[SdotS[1, 2], StateSelect[state, ! AnomalousPairQ[##] &]]

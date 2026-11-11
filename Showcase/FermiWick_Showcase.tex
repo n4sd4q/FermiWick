@@ -120,37 +120,39 @@ permutation. Such states, Gaussian in the fermions, are also called quasi-free. 
 contractions vanish, or by rules for the contractions.
 
 \subsection{The general state and its symmetries}
-On a pair of sites the normal contractions form a $2\times2$ matrix in spin, and so do the anomalous ones. Written in
-spin channels,
-\[
-\langle c^\dagger_{i\sigma}c_{j\sigma'}\rangle=\chi_{ij}\,\delta_{\sigma\sigma'}+\textstyle\sum_a\chi^a_{ij}\,\sigma^a_{\sigma'\sigma},\qquad
-\langle c_{i\sigma}c_{j\sigma'}\rangle=\big[(\Delta_{ij}+\textstyle\sum_a\Delta^a_{ij}\,\sigma^a)\,\epsilon\big]_{\sigma\sigma'},\qquad
-\epsilon_{\uparrow\downarrow}=1,
-\]
-with the charge channels $\chi$ (hopping per spin) and $\Delta$ (singlet pairing, symmetric in the sites) and the spin
-channels $\chi^a$ and $\Delta^a$ (the triplet $d$ vector, antisymmetric in the sites), $a=x,y,z$. Hermiticity,
-$\chi_{ji}=\chi_{ij}^*$ and $\chi^a_{ji}=\chi^{a*}_{ij}$, always holds. On one site $\chi_{ii}$ is the density per spin,
-$\chi^a_{ii}=\langle S^a_i\rangle$ the magnetization and $\Delta_{ii}=\langle c_{i\uparrow}c_{i\downarrow}\rangle$. \fn{GaussianState[]}
-is this general state; \fn{ContractionTable} shows its contractions:
+A Gaussian state has one amplitude for each contraction: the hopping
+$\chi^{\sigma\sigma'}_{ij}=\langle c^\dagger_{i\sigma}c_{j\sigma'}\rangle$ and the pairing
+$\Delta^{\sigma\sigma'}_{ij}=\langle c_{i\sigma}c_{j\sigma'}\rangle$. \fn{GaussianState[]} is the general state, with every
+contraction and nothing fixed, not even the filling; \fn{ContractionTable} shows them between the modes of some sites:
+here $\langle c^\dagger_ac_b\rangle$ on one site, the densities on the diagonal and $\langle S^+_1\rangle$ off it, and
+$\langle c_ac_b\rangle$ on two sites, antisymmetric, so that on one site only $\langle c_{1\uparrow}c_{1\downarrow}\rangle$ is left.
+Hermiticity always holds: an amplitude is written with its modes in canonical order, the other order as its conjugate.
 \example{generallocal}
 \example{generalpairing}
-A symmetry sets channels to zero or makes them real, and the state is declared by its symmetries:
+A symmetry you assume removes contractions, or the indices that told them apart, and the state is declared by its
+symmetries:
 \begin{center}\small
-\begin{tabular}{ll}\toprule
-symmetry & what it leaves \\ \midrule
-\texttt{"SpinRotation"} (SU(2)) & the charge channels $\chi$, $\Delta$ \\
-\texttt{"SpinRotationZ"} (rotations about $z$) & $\chi$, $\chi^z$, $\Delta$, $\Delta^z$ \\
-\texttt{"Charge"} (U(1) of the particle number) & no pairing \\
-\texttt{"TimeReversal"} & $\chi$, $\Delta$ real; $\chi^a$, $\Delta^a$ imaginary; no magnetization \\ \bottomrule
+\begin{tabular}{llp{8.2cm}}\toprule
+symmetry & & what is left \\ \midrule
+\texttt{"Charge"} & particle number conserved & no pairing \\
+\texttt{"SpinRotationZ"} & $S^z$ conserved & the hopping keeps the spin, $\chi^\uparrow_{ij}$, $\chi^\downarrow_{ij}$; the pairing joins
+opposite spins, $\Delta^{\uparrow\downarrow}_{ij}$, $\Delta^{\downarrow\uparrow}_{ij}$ \\
+\texttt{"SpinRotation"} & SU(2) & one hopping $\chi_{ij}$; the singlet $\Delta_{ij}=\langle c_{i\uparrow}c_{j\downarrow}\rangle$, symmetric in
+the sites \\
+\texttt{"TimeReversal"} & & the components of opposite spins conjugates of each other; with SU(2), $\chi$ and $\Delta$ real \\
+\bottomrule
 \end{tabular}
 \end{center}
-With $S^z$ conserved the pairing is a singlet plus the $m=0$ triplet; with SU(2) and time reversal the hopping is real
-and symmetric:
+With $S^z$ conserved, the pairing on two sites; with SU(2) and time reversal, the hopping, real and symmetric:
 \example{symz}
 \example{symsu2tr}
-The exchange in a state that conserves $S^z$ and the particle number has the classical term of the magnetizations, the
-hopping and the $z$ spin channel:
+The exchange in a state that conserves $S^z$ and the particle number: the hopping of each spin, the spin flip
+$\chi^\uparrow\chi^{\downarrow\ast}$ and the product of the magnetizations $\frac12(\chi^\uparrow_{ii}-\chi^\downarrow_{ii})$:
 \example{szexchange}
+The state of most calculations, invariant under spin rotations with the particle number conserved, has a short name:
+\fn{SpinSingletState[]} is \texttt{GaussianState[\{"SpinRotation", "Charge"\}, "Filling" -> 1/2]}, the filling fixed at
+$\frac12$ per spin, and \texttt{"Pairing" -> \textbackslash[CapitalDelta]} drops the charge symmetry:
+\example{singletequal}
 
 \subsection{States declared by rules}
 \fn{GaussianState} takes rules for the contractions, with patterns in the operators. Pairs without a rule contract to
@@ -163,13 +165,9 @@ it enters the correlation of $S^z$ with the opposite sign:
 \example{flipstate}
 
 \subsection{States invariant under spin rotations}
-\fn{SpinSingletState} is the most common state, written short: invariant under spin rotations, with hopping
-$\chi_{ij}=\langle c^\dagger_{i\sigma}c_{j\sigma}\rangle$, filling $\frac12$ per spin and, on request, singlet pairing
-$\Delta_{ij}=\langle c_{i\uparrow}c_{j\downarrow}\rangle$. Without pairing it is \texttt{GaussianState[\{"SpinRotation", "Charge"\}, "Filling" -> 1/2]}:
-\example{singletequal}
+In \fn{SpinSingletState}, with pairing, hopping and pairing enter the exchange with the same weight, as the SU(2) gauge
+structure of spins written with fermions requires~\cite{AZHA88}:
 \example{singletstate}
-In the exchange, hopping and pairing enter with the same weight, as the SU(2) gauge structure of spins written with
-fermions requires~\cite{AZHA88}:
 \example{exchange}
 The chirality is a closed loop of three contractions, three hoppings or one hopping and two pairings; its imaginary part is
 the flux of the amplitudes through the triangle:
@@ -185,8 +183,8 @@ contractions between sites, give the classical exchange:
 The same state follows from the symmetry: rotations about $z$, the magnetization $m_i$ on each site, and only the local
 contractions:
 \example{magneticsym}
-\fn{GeneralState} has normal contractions $\rho_{i\sigma j\sigma'}$ of any spin structure, here a transverse magnetization,
-and anomalous ones $\kappa$ on request:
+The general state has every contraction: a transverse magnetization on one site, $\langle S^+_1\rangle=\chi^{\uparrow\downarrow}_{11}$,
+and the pairing between two sites in the correlation of two pairs:
 \example{general}
 \example{generalanomalous}
 

@@ -71,11 +71,24 @@ ground-state energy, in units of t *)", "Input"],
 ringSector], FockExpectation[DOp[1], ground, ringSector]}\n(* about {-0.32, \
 0.10}: antiferromagnetic neighbours, and few doubly occupied sites *)", 
    "Input"], Cell["6. Expectation values by Wick's theorem", "Section"], 
-  Cell["Approximate states are Gaussian: fixed by their contractions, which \
-you declare by the symmetries you assume. ContractionTable shows what \
-survives. SpinSingletState[] is invariant under spin rotations and conserves \
-the charge, at half filling, with hopping amplitudes chi[i, j].", "Text"], 
-  Cell["MatrixForm[ContractionTable[SpinSingletState[], {1, 2}, \
+  Cell["Approximate states are Gaussian: fixed by their contractions, one \
+amplitude each. GaussianState[] has them all, and ContractionTable shows them \
+between the modes of some sites: on one site, the densities of each spin and \
+<S^+> off the diagonal.", "Text"], Cell["MatrixForm[ContractionTable[Gaussian\
+State[], {1}, \"Normal\"]]\n(* chi^{up up}_11, chi^{down down}_11 on the \
+diagonal, chi^{up down}_11 = <S^+_1> and its conjugate off it *)", "Input"], 
+  Cell["A symmetry you assume removes contractions, or the indices that told \
+them apart: with the charge conserved there is no pairing; with S^z conserved \
+the hopping keeps the spin and the pairing joins opposite spins; with spin \
+rotations (SU(2)) there is one hopping chi[i, j] and the singlet pairing \
+Delta[i, j]; with time reversal the amplitudes of opposite spins are \
+conjugates, and with SU(2) real.", "Text"], Cell["MatrixForm[ContractionTable\
+[GaussianState[\"SpinRotationZ\"], {1, 2}, \"Anomalous\"]]\n(* S^z conserved: \
+the pairing joins opposite spins *)", "Input"], 
+  Cell["The state of most calculations has a short name: SpinSingletState[] \
+is GaussianState[{\"SpinRotation\", \"Charge\"}, \"Filling\" -> 1/2], \
+invariant under spin rotations, the charge conserved, at half filling.", 
+   "Text"], Cell["MatrixForm[ContractionTable[SpinSingletState[], {1, 2}, \
 \"Normal\"]]\n(* 1/2 on each site, chi_12 between the sites, nothing between \
 opposite spins *)", "Input"], Cell["WickVEV[dimer, SpinSingletState[]]\n(* -2 \
 t (chi_12 + Conjugate[chi_12]) + U/2: the energy of the dimer in this state \

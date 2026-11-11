@@ -1,1 +1,1 @@
-WickVEV[SpOp[1] + SzOp[1], GeneralState[]]
+WickVEV[SpOp[1] + SzOp[1], GaussianState[]]

@@ -67,7 +67,7 @@ SingleOccupationProjector::usage = "SingleOccupationProjector[i] projects site i
 NormalOrder::usage = "NormalOrder[expr] writes expr in normal order (cDag to the left of c). Composite operators are written with c, cDag \
 first; a symbolic spin is split into \[UpArrow] and \[DownArrow] with KroneckerDelta.";
 Dagger::usage = "Dagger[expr] is the Hermitian conjugate: products reversed, c <-> cDag, SpOp <-> SmOp, B <-> Bdag, coefficients conjugated. \
-The amplitudes \[Chi], \[CapitalDelta], \[Rho], \[Kappa] are complex; the other symbols (couplings, angles, phases) are taken as real, unless listed in the option \
+The amplitudes \[Chi], \[CapitalDelta] are complex; the other symbols (couplings, angles, phases) are taken as real, unless listed in the option \
 \"Complex\" -> {...}. Operators defined with DefineOperator are recognized as Hermitian when they are.";
 PlusHC::usage = "PlusHC[expr] is expr + Dagger[expr], expr plus its Hermitian conjugate (\"+ h.c.\"). Options as Dagger.";
 HermitianOperatorQ::usage = "HermitianOperatorQ[expr] is True when expr equals its Hermitian conjugate. Options as Dagger.";
@@ -95,21 +95,19 @@ neither head itself (Hermitian) nor head with the sites permuted (as a hopping):
 dagger, expands like head, and ToSpinChargeBasis recognizes it.";
 $SpinSymbols::usage = "$SpinSymbols is the list of the symbols used as spins (updated automatically).";
 
-GaussianState::usage = "GaussianState[symmetries] is the Gaussian state with the given symmetries, written with spin channels: \
-<cDag[i, s] c[j, t]> = \[Chi][i, j] \[Delta]_st + Sum_a \[Chi][i, j, a] (\[Sigma]^a)_ts and <c[i, s] c[j, t]> = ((\[CapitalDelta][i, j] + Sum_a \[CapitalDelta][i, j, a] \[Sigma]^a) \[Epsilon])_st, \
-a = \"x\", \"y\", \"z\", \[Epsilon]_\[UpArrow]\[DownArrow] = 1. The symmetries set channels to zero or make them real: \"SpinRotation\" (SU(2): only \[Chi], \[CapitalDelta]), \
-\"SpinRotationZ\" (rotations about z), \"Charge\" (particle number: no pairing), \"TimeReversal\" (\[Chi], \[CapitalDelta] real; \[Chi]^a, \[CapitalDelta]^a imaginary). \
-GaussianState[] has no symmetry. Hermiticity (\[Chi][j, i] = \[Chi][i, j]\[Conjugate]) is always imposed (option \"Hermitian\"). On site: \[Chi][i, i] = <n_i\[Sigma]> averaged \
-over \[Sigma] (option \"Filling\"), \[Chi][i, i, a] = <S^a_i> (option \"Magnetization\"), \[CapitalDelta][i, i] = <c[i, \[UpArrow]] c[i, \[DownArrow]]> (option \"OnSitePairing\"). \
-GaussianState[{{op1, op2} :> value, ...}] is the state with the contractions given by rules instead. state[\"Symmetries\"], \
+GaussianState::usage = "GaussianState[symmetries] is the Gaussian state with the given symmetries, written with one amplitude for each contraction: \
+<cDag[i, s] c[j, t]> = \[Chi][i, j, s, t] (the hopping; on one site the densities and <S^+_i> = \[Chi][i, i, \[UpArrow], \[DownArrow]]) and <c[i, s] c[j, t]> = \[CapitalDelta][i, j, s, t] \
+(the pairing). GaussianState[] has every contraction; a symmetry removes indices: \"Charge\" (particle number conserved: no pairing), \"SpinRotationZ\" \
+(S^z conserved: the hopping keeps the spin, \[Chi][i, j, s]; the pairing joins opposite spins), \"SpinRotation\" (SU(2): \[Chi][i, j] and the singlet \[CapitalDelta][i, j]), \
+\"TimeReversal\" (the components of opposite spins conjugates of each other; with SU(2), \[Chi] and \[CapitalDelta] real). Hermiticity (<cDag_b c_a> = <cDag_a c_b>\[Conjugate], \
+the amplitudes written with the modes in canonical order) is always imposed (option \"Hermitian\"). On one site: \"Filling\" -> \[Nu] sets <n_{i s}> = \[Nu], \
+\"Magnetization\" -> m makes them \[Nu] \[PlusMinus] m (a vector {mx, my, mz} or a function of the site), \"OnSitePairing\" -> \[Eta] sets <c[i, \[UpArrow]] c[i, \[DownArrow]]> = \[Eta]; \
+unset, they stay amplitudes. GaussianState[{{op1, op2} :> value, ...}] is the state with the contractions given by rules instead. state[\"Symmetries\"], \
 state[\"Description\"], state[\"Contraction\"][op1, op2].";
 GaussianState::sym = "Unknown symmetry `1`; the symmetries are `2`.";
 SpinSingletState::usage = "SpinSingletState[] is GaussianState[{\"SpinRotation\", \"Charge\"}, \"Filling\" -> 1/2]: <cDag[i, s] c[j, t]> = \[Delta]_st \[Chi][i, j]. \
 With \"Pairing\" -> \[CapitalDelta] the charge symmetry is dropped: <c[i, s] c[j, t]> = \[Epsilon]_st \[CapitalDelta][i, j] (on site \"OnSitePairing\", default 0). \
 Options: \"Hopping\" -> \[Chi], \"Filling\" -> 1/2, \"Pairing\" -> None, \"OnSitePairing\" -> 0, \"Hermitian\" -> True.";
-GeneralState::usage = "GeneralState[] is the general Gaussian state written with spin components instead of channels: \
-<cDag[i, s] c[j, t]> = \[Rho][i, s, j, t] (Hermitian: \[Rho][j, t, i, s] = \[Rho][i, s, j, t]\[Conjugate]) and, with \"Anomalous\" -> \[Kappa], <c[i, s] c[j, t]> = \
-\[Kappa][i, s, j, t] (antisymmetric) and <cDag[i, s] cDag[j, t]> = \[Kappa][j, t, i, s]\[Conjugate]. Options: \"Normal\" -> \[Rho], \"Anomalous\" -> None, \"Hermitian\" -> True.";
 ContractionTable::usage = "ContractionTable[state, {i, j, ...}] shows all the contractions between the modes of the sites: \
 <cDag_a c_b> and <c_a c_b>. ContractionTable[state, sites, \"Normal\"] and ContractionTable[state, sites, \"Anomalous\"] give the matrices, \
 with the modes in the order of Tuples[{sites, $Spins}].";
@@ -119,13 +117,10 @@ LocalPairQ::usage = "LocalPairQ[op1, op2] is True when the two ladder operators 
 AnomalousPairQ::usage = "AnomalousPairQ[op1, op2] is True when the two ladder operators are both c or both cDag.";
 Contraction::usage = "Contraction[state, op1, op2] is the contraction <op1 op2> in state; Contraction[op1, op2] uses $State.";
 $State::usage = "$State is the Gaussian state used when none is given (default SpinSingletState[]).";
-\[Chi]::usage = "\[Chi][i, j] = (1/2) Sum_s <cDag[i, s] c[j, s]> is the hopping per spin (the charge channel); \[Chi][i, j, a] is the spin channel a = \"x\", \"y\", \"z\", \
-and \[Chi][i, i, a] = <S^a_i>.";
-\[CapitalDelta]::usage = "\[CapitalDelta][i, j] is the singlet pairing, = <c[i, \[UpArrow]] c[j, \[DownArrow]]> when there is no triplet part, symmetric in the sites; \
-\[CapitalDelta][i, j, a] is the triplet pairing (the d vector), antisymmetric in the sites.";
-\[Rho]::usage = "\[Rho][i, s, j, t] = <cDag[i, s] c[j, t]> in GeneralState.";
-\[Kappa]::usage = "\[Kappa][i, s, j, t] = <c[i, s] c[j, t]> in GeneralState, written with (i, s) before (j, t) in canonical order.";
-
+\[Chi]::usage = "\[Chi][i, j, s, t] = <cDag[i, s] c[j, t]> is the hopping of a Gaussian state; \[Chi][i, j, s] when S^z is conserved, \[Chi][i, j] with SU(2); \
+on one site the densities, and \[Chi][i, i] the density per spin. Modes with more labels: \[Chi][i, j, o, o', s, t], the labels grouped by type.";
+\[CapitalDelta]::usage = "\[CapitalDelta][i, j, s, t] = <c[i, s] c[j, t]> is the pairing of a Gaussian state, written with the modes in canonical order; with SU(2) \
+\[CapitalDelta][i, j] = <c[i, \[UpArrow]] c[j, \[DownArrow]]> is the singlet pairing, symmetric in the sites.";
 WickVEV::usage = "WickVEV[expr, state] is the expectation value of expr in the Gaussian state, by Wick's theorem; WickVEV[expr] uses $State. \
 Options: \"NormalOrder\" -> False applies Wick without normal ordering first; \"MaxOrder\" -> m keeps only the terms with at most m contractions \
 between different sites.";
@@ -136,7 +131,7 @@ rest replaced by its expectation value. The result is quadratic, with the same e
 (the variational principle of HFB). MeanField[expr] uses $State.";
 
 ToTeX::usage = "ToTeX[expr] is the LaTeX of an expression of FermiWick: ladder and local operators (c^\\dagger_{1\\uparrow}, S^z_1, D_1, ...), \
-spin operators, amplitudes (\[Chi]_{ij}, \[CapitalDelta]_{ij}, \[Rho], \[Kappa]) and spins.";
+spin operators, amplitudes (\[Chi]_{ij}, \[CapitalDelta]_{ij}, their spin components) and spins.";
 WickPairings::usage = "WickPairings[product, state] lists the pairings of a product of ladder operators that do not vanish in the state, \
 in Wick's theorem applied to the product as written: each is <|\"Sign\" -> \[PlusMinus]1, \"Pairs\" -> {{p, q}, ...}, \"Value\" -> the product of \
 the contractions|>. WickPairings[product] uses $State.";
@@ -460,7 +455,7 @@ NormalOrder[expr_] :=
     iFromTerms[iNormalOrderTerms[e]]]];
 
 (*--- Hermitian conjugate ---*)
-$complexHeads = {\[Chi], \[CapitalDelta], \[Rho], \[Kappa]};
+$complexHeads = {\[Chi], \[CapitalDelta]};
 Options[Dagger] = {"Complex" -> {}};
 (*Complex conjugate of a scalar: numbers, the amplitudes and the symbols declared complex; the other symbols are real*)
 iConjScalar[e_, cplx_] :=
@@ -559,100 +554,159 @@ iFromRules[rules_, x_, y_] :=
     If[n === iNoRule, 0, iAnticommutator[x, y] - n],
     True, 0]];
 
-(*--- from symmetries: spin channels ---
-  <cDag_{i s} c_{j t}> = G_ij[[s, t]],  G_ij = \[Chi]_ij 1 + Sum_a \[Chi]^a_ij Transpose[\[Sigma]^a]   (\[Chi]^a_ii = <S^a_i>)
-  <c_{i s} c_{j t}>    = F_ij[[s, t]],  F_ij = (\[CapitalDelta]_ij 1 + Sum_a \[CapitalDelta]^a_ij \[Sigma]^a) . \[Epsilon]    (\[CapitalDelta]_ji = \[CapitalDelta]_ij, \[CapitalDelta]^a_ji = -\[CapitalDelta]^a_ij)
-  Hermiticity: G_ji = G_ij^dagger, i.e. \[Chi]_ji = \[Chi]_ij^*, \[Chi]^a_ji = \[Chi]^a_ij^*. A symmetry is a set of channels that vanish, plus reality
-  conditions: SU(2) leaves only the scalars; rotations about z leave the z components; U(1) of charge kills F; time reversal
-  T = i\[Sigma]^y K gives G = \[Epsilon] G^* \[Epsilon]^T and F = \[Epsilon] F^* \[Epsilon]^T, i.e. \[Chi], \[CapitalDelta] real and \[Chi]^a, \[CapitalDelta]^a imaginary.*)
-$symmetries = <|
-   "SpinRotation" -> {{"hop", "x"}, {"hop", "y"}, {"hop", "z"}, {"pair", "x"}, {"pair", "y"}, {"pair", "z"}},
-   "SpinRotationZ" -> {{"hop", "x"}, {"hop", "y"}, {"pair", "x"}, {"pair", "y"}},
-   "Charge" -> {{"pair", 0}, {"pair", "x"}, {"pair", "y"}, {"pair", "z"}},
-   "TimeReversal" -> {}|>;
+(*--- from symmetries: spin components ---
+  A state is fixed by its contractions, one amplitude each; a symmetry removes indices:
+    <cDag_{i s} c_{j t}> = \[Chi][i, j, s, t]   the hopping (on one site the densities <n_{i s}> and <S^+_i> = \[Chi][i, i, \[UpArrow], \[DownArrow]])
+    <c_{i s} c_{j t}>    = \[CapitalDelta][i, j, s, t]   the pairing
+  "SpinRotationZ" (S^z conserved): the hopping keeps the spin, \[Chi][i, j, s] \[Delta]_st; the pairing joins opposite spins, \[CapitalDelta][i, j, s, t]
+  with s != t. "SpinRotation" (SU(2)): \[Chi][i, j] \[Delta]_st and the singlet \[CapitalDelta][i, j] \[Epsilon]_st, symmetric in the sites. "Charge": no
+  pairing. "TimeReversal" (T = i \[Sigma]^y K, antiunitary): the components of opposite spins are conjugates of each other,
+  \[Chi]^\[DownArrow] = \[Chi]^\[UpArrow]*, \[Chi]^{\[DownArrow]\[UpArrow]} = -\[Chi]^{\[UpArrow]\[DownArrow]}*, \[CapitalDelta]^{\[DownArrow]\[UpArrow]} = -\[CapitalDelta]^{\[UpArrow]\[DownArrow]}*, \[CapitalDelta]^{\[DownArrow]\[DownArrow]} = \[CapitalDelta]^{\[UpArrow]\[UpArrow]}* (on one site no magnetization, and
+  \[Chi]^\[UpArrow]_ii = \[Chi]^\[DownArrow]_ii, \[CapitalDelta]_ii real), with SU(2) \[Chi] and \[CapitalDelta] real.
+  Hermiticity: <cDag_b c_a> = \[Chi][a, b]* for a before b (the modes compared on the sites, then on the spins, \[UpArrow] first);
+  antisymmetry: <c_b c_a> = -\[CapitalDelta][a, b]. Modes with more labels (site, orbital, spin): the labels grouped by type, the
+  spins last, \[Chi][i, j, o, o', s, t]; spinless modes: \[Chi][i, j].*)
 $symmetryNames = <|"SpinRotation" -> "spin rotations", "SpinRotationZ" -> "spin rotations about z", "Charge" -> "charge",
    "TimeReversal" -> "time reversal"|>;
-$pauli = <|"x" -> {{0, 1}, {1, 0}}, "y" -> {{0, -I}, {I, 0}}, "z" -> {{1, 0}, {0, -1}}|>;
-$eps = {{0, 1}, {-1, 0}};
-$spinIdx = <|"\[UpArrow]" -> 1, "\[DownArrow]" -> 2|>;
 
 GaussianState[] := GaussianState[{}];
 GaussianState[sym_String, opts : OptionsPattern[]] := GaussianState[{sym}, opts];
 GaussianState[syms : {___String}, opts : OptionsPattern[]] :=
-  Module[{bad = Complement[syms, Keys[$symmetries]], cfg, h, d, rules},
-   If[bad =!= {}, Message[GaussianState::sym, First[bad], Keys[$symmetries]]; Return[$Failed]];
+  Module[{bad = Complement[syms, Keys[$symmetryNames]], h, d, pair, spin, k, herm, cfg, rules},
+   If[bad =!= {}, Message[GaussianState::sym, First[bad], Keys[$symmetryNames]]; Return[$Failed]];
    h = OptionValue[GaussianState, {opts}, "Hopping"]; d = OptionValue[GaussianState, {opts}, "Pairing"];
-   cfg = <|"Hopping" -> h, "Pairing" -> d, "Zero" -> Union @@ Lookup[$symmetries, syms, {}],
-     "Hermitian" -> TrueQ[OptionValue[GaussianState, {opts}, "Hermitian"]],
+   pair = ! MemberQ[syms, "Charge"];
+   spin = Which[MemberQ[syms, "SpinRotation"], "SU2", MemberQ[syms, "SpinRotationZ"], "Z", True, None];
+   k = Switch[spin, "SU2", 0, "Z", 1, _, 2];   (*spin indices of a hopping amplitude*)
+   herm = TrueQ[OptionValue[GaussianState, {opts}, "Hermitian"]];
+   cfg = <|"Hopping" -> h, "Pairing" -> If[pair, d, None], "Spin" -> spin, "Hermitian" -> herm,
      "Filling" -> OptionValue[GaussianState, {opts}, "Filling"],
      "Magnetization" -> OptionValue[GaussianState, {opts}, "Magnetization"],
      "OnSitePairing" -> OptionValue[GaussianState, {opts}, "OnSitePairing"]|>;
    rules = Join[
-     If[cfg["Hermitian"], {Conjugate[h[a_, a_]] :> h[a, a], Conjugate[h[a_, a_, b_String]] :> h[a, a, b]}, {}],
-     If[MemberQ[syms, "TimeReversal"],
-      {h[a_, a_, _String] :> 0, Conjugate[h[a_, b_]] :> h[a, b], Conjugate[h[a_, b_, k_String]] :> -h[a, b, k],
-       Conjugate[d[a_, b_]] :> d[a, b], Conjugate[d[a_, b_, k_String]] :> -d[a, b, k]}, {}],
-     If[cfg["Filling"] =!= Automatic, {h[a_, a_] :> cfg["Filling"], KroneckerDelta[a_, b_] h[a_, b_] :> KroneckerDelta[a, b] cfg["Filling"]}, {}],
+     (*a delta of two symbolic sites brings an amplitude on one site*)
+     {KroneckerDelta[a_, b_] x : h[a_, b_, ___] :> KroneckerDelta[a, b] (x /. b -> a),
+      KroneckerDelta[a_, b_] x : d[a_, b_, ___] :> KroneckerDelta[a, b] (x /. b -> a)},
+     If[herm, {Conjugate[x : h[args__]] /; iDiagonalAmpQ[{args}, 0] || iDiagonalAmpQ[{args}, 1] :> x}, {}],
+     If[MemberQ[syms, "TimeReversal"], iTimeReversalRules[h, d, k], {}],
+     If[cfg["Filling"] =!= Automatic || cfg["Magnetization"] =!= Automatic,
+      With[{c0 = cfg}, {x : h[args__] /; iDiagonalAmpQ[{args}, k] :> iDensity[c0, Drop[{args}, -k][[1 ;; ;; 2]], If[k == 0, None, {args}[[-1]]]]}], {}],
+     If[cfg["OnSitePairing"] =!= Automatic,
+      With[{c0 = cfg}, {x : d[args__] /; iDiagonalAmpQ[{args}, If[k == 0, 0, 2]] && (k == 0 || {args}[[-2 ;;]] === {"\[UpArrow]", "\[DownArrow]"}) :>
+         iOnSitePair[c0, Drop[{args}, -If[k == 0, 0, 2]][[1 ;; ;; 2]]]}], {}],
      OptionValue[GaussianState, {opts}, "Rules"]];
    GaussianState[<|
-     "Contraction" -> If[MemberQ[syms, "SpinRotation"],
-       With[{hh = h, nu = cfg["Filling"], herm = cfg["Hermitian"], dd = If[MemberQ[syms, "Charge"], None, d], d0 = cfg["OnSitePairing"]},
-        Function[{x, y}, iSinglet[hh, nu, herm, dd, d0, x, y]]],
-       With[{c0 = cfg}, Function[{x, y}, iChannelContraction[c0, x, y]]]],
+     "Contraction" -> With[{c0 = cfg}, Function[{x, y}, iComponentContraction[c0, x, y]]],
      "Rules" -> rules, "Symmetries" -> Sort[syms],
      "Description" -> Replace[OptionValue[GaussianState, {opts}, "Description"],
        Automatic -> If[syms === {}, "no symmetry", "symmetric under " <> StringRiffle[Lookup[$symmetryNames, Sort[syms]], ", "]]],
-     "Hopping" -> h, "Amplitudes" -> If[MemberQ[syms, "Charge"], {h}, {h, d}]|>]];
+     "Hopping" -> h, "Amplitudes" -> If[pair, {h, d}, {h}]|>]];
 
-(*Amplitude of a channel {kind, component} on the ordered pair of sites (i, j)*)
-iAmp[cfg_, kc : {k_, a_}, i_, j_] := If[MemberQ[cfg["Zero"], kc], 0, If[k === "hop", iHopAmp[cfg, a, i, j], iPairAmp[cfg, a, i, j]]];
-iHopSym[h_, 0, i_, j_] := h[i, j];
-iHopSym[h_, a_String, i_, j_] := h[i, j, a];
-iHopAmp[cfg_, a_, i_, j_] :=
-  Which[
-   i === j, If[a === 0, Replace[cfg["Filling"], Automatic :> cfg["Hopping"][i, i]], iMagnetization[cfg, a, i]],
-   ! cfg["Hermitian"] || OrderedQ[{i, j}], iHopSym[cfg["Hopping"], a, i, j],
-   True, Conjugate[iHopSym[cfg["Hopping"], a, j, i]]];
-iMagnetization[cfg_, a_, i_] :=
-  With[{m = cfg["Magnetization"]},
-   Which[
-    m === Automatic, cfg["Hopping"][i, i, a],
-    Head[m] === Function, iMagComponent[m[i], a],
-    True, iMagComponent[m, a]]];
+(*The labels of a mode without its spin, and the spin (None for spinless modes); two modes grouped by type: {i, j, o, o', ...}*)
+iSpinPos[n_Integer] := Replace[FirstPosition[iLabelTypes[n], "Spin"], {{p_} :> p, _ :> None}];
+iSplitMode[labels_List] := With[{p = iSpinPos[Length[labels]]}, If[p === None, {labels, None}, {Delete[labels, p], labels[[p]]}]];
+iGroup[ra_List, rb_List] := Flatten[Transpose[{ra, rb}]];
+iExplicitSpinQ[s_] := MemberQ[SpinString, s];
+iSpinArgs[None, _] := {}; iSpinArgs[sa_, sb_] := {sa, sb};
+(*an amplitude on one site (and orbital): the pairs of labels equal, and the k trailing spins explicit and equal*)
+iDiagonalRestQ[r_List] := Length[r] >= 2 && EvenQ[Length[r]] && r[[1 ;; ;; 2]] === r[[2 ;; ;; 2]];
+iDiagonalAmpQ[args_List, k_Integer] := Length[args] > k && With[{r = Drop[args, -k], s = Take[args, -k]},
+    iDiagonalRestQ[r] && AllTrue[s, iExplicitSpinQ] && (k < 2 || s[[1]] === s[[2]])];
+
+(*On one site: the densities <n_{i s}> (options "Filling" and "Magnetization"), <S^+_i> and <c_{i up} c_{i down}>*)
+iMagValue[m_Function, r_List] := m @@ r;
+iMagValue[m_, _] := m;
 iMagComponent[v_List, a_] := v[[Lookup[<|"x" -> 1, "y" -> 2, "z" -> 3|>, a]]];
 iMagComponent[v_, a_] := If[a === "z", v, 0];
-iPairAmp[cfg_, a_, i_, j_] :=
-  Which[
-   i === j, If[a === 0, Replace[cfg["OnSitePairing"], Automatic :> cfg["Pairing"][i, i]], 0],
-   a === 0, cfg["Pairing"] @@ Sort[{i, j}],
-   OrderedQ[{i, j}], cfg["Pairing"][i, j, a],
-   True, -cfg["Pairing"][j, i, a]];
+iSpinSign["\[UpArrow]"] = 1; iSpinSign["\[DownArrow]"] = -1;
+iDensity[cfg_, r_List, s_] :=
+  With[{nu = cfg["Filling"], m = cfg["Magnetization"], h = cfg["Hopping"], g = iGroup[r, r]},
+   Which[
+    s === None || cfg["Spin"] === "SU2", If[nu === Automatic, h @@ g, nu],
+    nu === Automatic && m === Automatic, h @@ Join[g, If[cfg["Spin"] === "Z", {s}, {s, s}]],
+    True, If[nu === Automatic, h @@ g, nu] + If[m === Automatic, 0, iSpinSign[s] iMagComponent[iMagValue[m, r], "z"]]]];
+iTransverse[cfg_, r_List, s_] :=   (*<cDag_{r s} c_{r -s}>, in the general state only*)
+  With[{nu = cfg["Filling"], m = cfg["Magnetization"], h = cfg["Hopping"]},
+   Which[
+    nu === Automatic && m === Automatic,
+    If[s === "\[UpArrow]" || ! cfg["Hermitian"], h @@ Join[iGroup[r, r], {s, iOtherSpin[s]}], Conjugate[h @@ Join[iGroup[r, r], {"\[UpArrow]", "\[DownArrow]"}]]],
+    m === Automatic, 0,
+    True, With[{v = iMagValue[m, r]}, iMagComponent[v, "x"] + iSpinSign[s] I iMagComponent[v, "y"]]]];
+iOtherSpin["\[UpArrow]"] = "\[DownArrow]"; iOtherSpin["\[DownArrow]"] = "\[UpArrow]";
+iOnSitePair[cfg_, r_List] := Replace[cfg["OnSitePairing"],
+   Automatic :> cfg["Pairing"] @@ Join[iGroup[r, r], If[cfg["Spin"] === "SU2", {}, {"\[UpArrow]", "\[DownArrow]"}]]];
 
-iHopMatrix[cfg_, i_, j_] :=
-  iAmp[cfg, {"hop", 0}, i, j] IdentityMatrix[2] + Sum[iAmp[cfg, {"hop", a}, i, j] Transpose[$pauli[a]], {a, {"x", "y", "z"}}];
-iPairMatrix[cfg_, i_, j_] :=
-  (iAmp[cfg, {"pair", 0}, i, j] IdentityMatrix[2] + Sum[iAmp[cfg, {"pair", a}, i, j] $pauli[a], {a, {"x", "y", "z"}}]) . $eps;
-(*Matrix element for explicit spins, or written with KroneckerDelta for symbolic ones*)
-iElem[m_, s_, t_] :=
-  If[KeyExistsQ[$spinIdx, s] && KeyExistsQ[$spinIdx, t], m[[$spinIdx[s], $spinIdx[t]]],
-   Sum[KroneckerDelta[s, SpinString[[u]]] KroneckerDelta[t, SpinString[[v]]] m[[u, v]], {u, 2}, {v, 2}]];
+(*The hopping <cDag_{ra sa} c_{rb sb}> with explicit spins (or None), and the pairing <c_{ra sa} c_{rb sb}>*)
+iHopSymbol[cfg_, ra_, sa_, rb_, sb_] :=
+  cfg["Hopping"] @@ Join[iGroup[ra, rb], Switch[cfg["Spin"], "SU2", {}, "Z", {sa}, _, iSpinArgs[sa, sb]]];
+iNormal[cfg_, ra_, sa_, rb_, sb_] :=
+  Which[
+   cfg["Spin"] =!= None && sa =!= sb, 0,
+   ra === rb, If[sa === sb, iDensity[cfg, ra, sa], iTransverse[cfg, ra, sa]],
+   ! cfg["Hermitian"] || OrderedQ[{ra, rb}], iHopSymbol[cfg, ra, sa, rb, sb],
+   True, Conjugate[iHopSymbol[cfg, rb, sb, ra, sa]]];
+iAnomalous[cfg_, ra_, sa_, rb_, sb_] :=
+  Which[
+   cfg["Spin"] === "Z" && sa === sb, 0,
+   ra === rb && sa === sb, 0,
+   ra === rb, If[sa === "\[UpArrow]", 1, -1] iOnSitePair[cfg, ra],
+   OrderedQ[{ra, rb}], cfg["Pairing"] @@ Join[iGroup[ra, rb], iSpinArgs[sa, sb]],
+   True, -cfg["Pairing"] @@ Join[iGroup[rb, ra], iSpinArgs[sb, sa]]];
+iSingletPair[cfg_, r_, r_] := iOnSitePair[cfg, r];
+iSingletPair[cfg_, ra_, rb_] := cfg["Pairing"] @@ iGroup @@ Sort[{ra, rb}];
+
+(*Symbolic spins: the sum over the explicit ones with deltas (for SU(2) the spin structure is written directly)*)
+iNormalContraction[cfg_, {ra_, sa_}, {rb_, sb_}] :=
+  Which[
+   Length[ra] =!= Length[rb], 0,
+   sa === None, iNormal[cfg, ra, None, rb, None],
+   cfg["Spin"] === "SU2", KroneckerDelta[sa, sb] iNormal[cfg, ra, "\[UpArrow]", rb, "\[UpArrow]"],
+   iExplicitSpinQ[sa] && iExplicitSpinQ[sb], iNormal[cfg, ra, sa, rb, sb],
+   True, Sum[KroneckerDelta[sa, u] KroneckerDelta[sb, v] iNormal[cfg, ra, u, rb, v], {u, SpinString}, {v, SpinString}]];
+iAnomalousContraction[cfg_, {ra_, sa_}, {rb_, sb_}] :=
+  Which[
+   cfg["Pairing"] === None || Length[ra] =!= Length[rb], 0,
+   sa === None, iAnomalous[cfg, ra, None, rb, None],
+   cfg["Spin"] === "SU2", iEps[sa, sb] iSingletPair[cfg, ra, rb],
+   iExplicitSpinQ[sa] && iExplicitSpinQ[sb], iAnomalous[cfg, ra, sa, rb, sb],
+   True, Sum[KroneckerDelta[sa, u] KroneckerDelta[sb, v] iAnomalous[cfg, ra, u, rb, v], {u, SpinString}, {v, SpinString}]];
 (*Complex conjugate, term by term (Conjugate does not distribute over sums and symbolic products)*)
 iConjExpr[e_] := Total[Map[If[Head[#] === Times, Conjugate /@ #, Conjugate[#]] &, If[Head[#] === Plus, List @@ #, {#}] &[Expand[e]]]];
 
-iChannelContraction[cfg_, cDag[i_, s_], c[j_, t_]] := iElem[iHopMatrix[cfg, i, j], s, t];
-iChannelContraction[cfg_, c[i_, s_], cDag[j_, t_]] := If[i === j, KroneckerDelta[s, t], 0] - iElem[iHopMatrix[cfg, j, i], t, s];
-iChannelContraction[cfg_, c[i_, s_], c[j_, t_]] := iElem[iPairMatrix[cfg, i, j], s, t];
-iChannelContraction[cfg_, cDag[i_, s_], cDag[j_, t_]] := iElem[Map[iConjExpr, iPairMatrix[cfg, j, i], {2}], t, s];
-iChannelContraction[___] := 0;
+(*The common case, SU(2) with modes (site, spin), without the general machinery*)
+iSiteSpinQ[] := iLabelTypes[2] === {"Site", "Spin"};
+iHopSU2[cfg_, i_, j_] :=
+  Which[i === j, Replace[cfg["Filling"], Automatic :> cfg["Hopping"][i, i]],
+   ! cfg["Hermitian"] || OrderedQ[{i, j}], cfg["Hopping"][i, j], True, Conjugate[cfg["Hopping"][j, i]]];
+iPairSU2[cfg_, i_, j_] := If[i === j, Replace[cfg["OnSitePairing"], Automatic :> cfg["Pairing"][i, i]], cfg["Pairing"] @@ Sort[{i, j}]];
+iComponentContraction[cfg_, cDag[i_, s_], c[j_, t_]] /; cfg["Spin"] === "SU2" && iSiteSpinQ[] := KroneckerDelta[s, t] iHopSU2[cfg, i, j];
+iComponentContraction[cfg_, c[i_, s_], cDag[j_, t_]] /; cfg["Spin"] === "SU2" && iSiteSpinQ[] :=
+  KroneckerDelta[s, t] If[i === j, 1 - iHopSU2[cfg, i, i], -iHopSU2[cfg, j, i]];
+iComponentContraction[cfg_, c[i_, s_], c[j_, t_]] /; cfg["Spin"] === "SU2" && iSiteSpinQ[] :=
+  If[cfg["Pairing"] === None, 0, iEps[s, t] iPairSU2[cfg, i, j]];
+iComponentContraction[cfg_, cDag[i_, s_], cDag[j_, t_]] /; cfg["Spin"] === "SU2" && iSiteSpinQ[] :=
+  If[cfg["Pairing"] === None, 0, iEps[t, s] Conjugate[iPairSU2[cfg, j, i]]];
+iComponentContraction[cfg_, cDag[a___], c[b___]] := iNormalContraction[cfg, iSplitMode[{a}], iSplitMode[{b}]];
+iComponentContraction[cfg_, c[a___], cDag[b___]] := iModeDelta[{a}, {b}] - iNormalContraction[cfg, iSplitMode[{b}], iSplitMode[{a}]];
+iComponentContraction[cfg_, c[a___], c[b___]] := iAnomalousContraction[cfg, iSplitMode[{a}], iSplitMode[{b}]];
+iComponentContraction[cfg_, cDag[a___], cDag[b___]] := iConjExpr[iAnomalousContraction[cfg, iSplitMode[{b}], iSplitMode[{a}]]];
+iComponentContraction[___] := 0;
 
-(*Fast path for states invariant under spin rotations: G = \[Chi] 1, F = \[CapitalDelta] \[Epsilon], parameters fixed when the state is made*)
-iHop[h_, nu_, herm_, i_, j_] := Which[i === j, If[nu === Automatic, h[i, i], nu], ! herm || OrderedQ[{i, j}], h[i, j], True, Conjugate[h[j, i]]];
-iPair[d_, d0_, i_, j_] := If[i === j, If[d0 === Automatic, d[i, i], d0], d @@ Sort[{i, j}]];
-iSinglet[h_, nu_, herm_, _, _, cDag[i_, s_], c[j_, t_]] := iHop[h, nu, herm, i, j] KroneckerDelta[s, t];
-iSinglet[h_, nu_, herm_, _, _, c[i_, s_], cDag[j_, t_]] := If[i === j, 1 - iHop[h, nu, herm, i, i], -iHop[h, nu, herm, j, i]] KroneckerDelta[s, t];
-iSinglet[_, _, _, d_, d0_, c[i_, s_], c[j_, t_]] /; d =!= None := iEps[s, t] iPair[d, d0, i, j];
-iSinglet[_, _, _, d_, d0_, cDag[i_, s_], cDag[j_, t_]] /; d =!= None := iEps[t, s] Conjugate[iPair[d, d0, j, i]];
-iSinglet[___] := 0;
+(*Time reversal, T = i sigma^y K: c_{i up} -> c_{i down}, c_{i down} -> -c_{i up}, and <A> = <T A T^-1>^*; the rules write the
+  component of spin down (or down-up) through the one of spin up, on one site real or zero*)
+iTimeReversalRules[h_, d_, k_] :=
+  With[{up = "\[UpArrow]", dn = "\[DownArrow]"},
+   Join[
+    Switch[k,
+     0, {Conjugate[x : h[__]] :> x, Conjugate[x : d[__]] :> x},
+     1, {h[r__, dn] :> If[iDiagonalRestQ[{r}], h[r, up], Conjugate[h[r, up]]]},
+     _, {h[r__, dn, dn] :> If[iDiagonalRestQ[{r}], h[r, up, up], Conjugate[h[r, up, up]]],
+       h[r__, dn, up] :> -Conjugate[h[r, up, dn]],
+       h[r__, up, dn] /; iDiagonalRestQ[{r}] :> 0}],
+    If[k == 0, {},
+     {d[r__, dn, up] :> -Conjugate[d[r, up, dn]],
+      d[r__, dn, dn] :> Conjugate[d[r, up, up]],
+      Conjugate[x : d[r__, up, dn]] /; iDiagonalRestQ[{r}] :> x}]]];
 
 (*--- invariant under spin rotations, the usual shortcut ---*)
 Options[SpinSingletState] = {"Hopping" -> \[Chi], "Filling" -> 1/2, "Pairing" -> None, "OnSitePairing" -> 0, "Hermitian" -> True};
@@ -662,23 +716,6 @@ SpinSingletState[OptionsPattern[]] :=
     "Hopping" -> OptionValue["Hopping"], "Pairing" -> Replace[d, None -> \[CapitalDelta]], "Filling" -> OptionValue["Filling"],
     "OnSitePairing" -> OptionValue["OnSitePairing"], "Hermitian" -> OptionValue["Hermitian"],
     "Description" -> If[d === None, "spin singlet", "spin singlet with pairing"]]];
-
-(*--- general, by spin components ---*)
-Options[GeneralState] = {"Normal" -> \[Rho], "Anomalous" -> None, "Hermitian" -> True};
-GeneralState[OptionsPattern[]] :=
-  With[{r = OptionValue["Normal"], k = OptionValue["Anomalous"], herm = TrueQ[OptionValue["Hermitian"]]},
-   GaussianState[<|"Contraction" -> Function[{x, y}, iGeneral[r, k, herm, x, y]],
-     "Rules" -> If[herm, {Conjugate[r[x__]] /; EvenQ[Length[{x}]] && Take[{x}, Length[{x}]/2] === Drop[{x}, Length[{x}]/2] :> r[x]}, {}],
-     "Symmetries" -> {},
-     "Description" -> If[k === None, "general, normal", "general, normal and anomalous"],
-     "Amplitudes" -> DeleteCases[{r, k}, None]|>]];
-iRho[r_, herm_, x_, y_] := If[! herm || OrderedQ[{x, y}], r @@ Join[x, y], Conjugate[r @@ Join[y, x]]];
-iGeneral[r_, _, herm_, cDag[a___], c[b___]] := iRho[r, herm, {a}, {b}];
-iGeneral[r_, _, herm_, c[a___], cDag[b___]] := iModeDelta[{a}, {b}] - iRho[r, herm, {b}, {a}];
-iGeneral[_, k_, _, c[a___], c[b___]] /; k =!= None := iKappa[k, {a}, {b}];
-iGeneral[_, k_, _, cDag[a___], cDag[b___]] /; k =!= None := Conjugate[iKappa[k, {b}, {a}]];
-iGeneral[___] := 0;
-iKappa[k_, x_, y_] := Which[x === y, 0, OrderedQ[{x, y}], k @@ Join[x, y], True, -k @@ Join[y, x]];
 
 (*--- selection ---*)
 StateSelect[GaussianState[a_Association], crit_] :=
@@ -703,11 +740,15 @@ ContractionTable[state_GaussianState, sites_List] :=
       TableForm[ContractionTable[state, sites, "Anomalous"], TableHeadings -> {c @@@ modes, c @@@ modes}]}},
     Spacings -> {4, 1}, Alignment -> Top]];
 
-(*Amplitudes on screen: \[Chi]_ij, \[Chi]^a_ij, ...*)
-Format[\[Chi][i_, j_], StandardForm] := Interpretation[Subscript["\[Chi]", Row[{i, j}]], \[Chi][i, j]];
-Format[\[Chi][i_, j_, a_String], StandardForm] := Interpretation[Subsuperscript["\[Chi]", Row[{i, j}], a], \[Chi][i, j, a]];
-Format[\[CapitalDelta][i_, j_], StandardForm] := Interpretation[Subscript["\[CapitalDelta]", Row[{i, j}]], \[CapitalDelta][i, j]];
-Format[\[CapitalDelta][i_, j_, a_String], StandardForm] := Interpretation[Subsuperscript["\[CapitalDelta]", Row[{i, j}], a], \[CapitalDelta][i, j, a]];
+(*Amplitudes on screen: the pairs of labels grouped by type in the subscript (\[Chi]_12, \[Chi]_12,ab), the spins in the superscript*)
+iTrailingSpins[args_List] := Min[2, LengthWhile[Reverse[args], iExplicitSpinQ]];
+iAmpDisplay[name_, args_List] :=
+  With[{k = iTrailingSpins[args]}, With[{r = Drop[args, -k], sp = Take[args, -k]},
+    If[iDiagonalRestQ[r] || Length[r] >= 2 && EvenQ[Length[r]],
+     With[{sub = Row[Riffle[Row /@ Partition[r, 2], ","]]}, If[k == 0, Subscript[name, sub], Subsuperscript[name, sub, Row[sp]]]],
+     Subscript[name, Row[args, ","]]]]];
+Format[\[Chi][args__], StandardForm] := Interpretation[iAmpDisplay["\[Chi]", {args}], \[Chi][args]];
+Format[\[CapitalDelta][args__], StandardForm] := Interpretation[iAmpDisplay["\[CapitalDelta]", {args}], \[CapitalDelta][args]];
 
 (*Complex conjugates and squared moduli on screen, as ToTeX writes them: Conjugate[x] as x^*, and x^* x as |x|^2, for the
   amplitudes ($complexHeads) and for symbols. Only the display changes: the boxes interpret as the expression.*)
@@ -1112,11 +1153,19 @@ ToTeX[expr_] :=
     RegularExpression["\\\\text\\{SdotScrossS\\}\\(([^(),]*),([^(),]*),([^(),]*)\\)"] :>
       "\\mathbf S_{$1}\\cdot(\\mathbf S_{$2}\\times\\mathbf S_{$3})",
     RegularExpression["\\\\text\\{SdotS\\}\\(([^(),]*),([^(),]*)\\)"] :> "\\mathbf S_{$1}\\cdot\\mathbf S_{$2}",
-    RegularExpression["\\\\(chi|Delta) \\(([^(),]*),([^(),]*),\\\\text\\{([xyz])\\}\\)"] :>
-      "{\\" <> "$1" <> "^{" <> "$4" <> "}_{" <> iTeXArgs["$2"] <> iTeXArgs["$3"] <> "}}",
-    RegularExpression["\\\\(chi|Delta|rho|kappa) \\(([^()]*)\\)"] :> "\\" <> "$1" <> "_{" <> iTeXArgs["$2"] <> "}",
+    RegularExpression["\\\\(chi|Delta) \\(([^()]*)\\)"] :> iAmpTeX["$1", "$2"],
     {"\\uparrow " -> "\\uparrow", "\\downarrow " -> "\\downarrow"}}];
 
+(*an amplitude: the pairs of labels in the subscript, the spins in the superscript, as on screen; with a superscript the
+  amplitude is a group, so that a conjugate's star follows it*)
+iAmpTeX[name_, argString_] :=
+  Module[{args = StringTrim /@ StringSplit[argString, ","], k, r, sp},
+   k = Min[2, LengthWhile[Reverse[args], MemberQ[{"\\uparrow", "\\downarrow"}, #] &]];
+   r = Drop[args, -k]; sp = Take[args, -k];
+   If[Length[r] >= 2 && EvenQ[Length[r]],
+    If[k == 0, "\\" <> name <> "_{" <> StringRiffle[StringJoin /@ Partition[r, 2], ","] <> "}",
+     "{\\" <> name <> "^{" <> StringJoin[sp] <> "}_{" <> StringRiffle[StringJoin /@ Partition[r, 2], ","] <> "}}"],
+    "\\" <> name <> "_{" <> StringJoin[args] <> "}"]];
 iTeXSpin["\[UpArrow]"] = "\\uparrow"; iTeXSpin["\[DownArrow]"] = "\\downarrow"; iTeXSpin[s_] := ToString[TeXForm[s]];
 iTeXLabels[l_List] := StringRiffle[iTeXSpin /@ l, If[Length[l] > 2, ",", ""]];
 iOpTeX[cDag[a___]] := "c^\\dagger_{" <> iTeXLabels[{a}] <> "}";

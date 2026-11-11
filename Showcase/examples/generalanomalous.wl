@@ -1,1 +1,1 @@
-WickVEV[Bdag[1] ** B[2], GeneralState["Anomalous" -> κ]]
+WickVEV[Bdag[1] ** B[2], GaussianState[]]

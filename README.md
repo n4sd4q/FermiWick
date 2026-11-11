@@ -68,7 +68,7 @@ matrix, and every symbolic result can be checked exactly.
 
 **States, Wick and mean field**
 - `GaussianState` (from symmetries `"SpinRotation"`, `"SpinRotationZ"`, `"Charge"`, `"TimeReversal"`, or from rules),
-  `ContractionTable`, `SpinSingletState`, `GeneralState`, `StateSelect` with `LocalPairQ` and `AnomalousPairQ`,
+  `ContractionTable`, `SpinSingletState`, `StateSelect` with `LocalPairQ` and `AnomalousPairQ`,
   `Contraction`, `$State`
 - `WickVEV` (options `"MaxOrder"`, `"NormalOrder"`), `VerifyNormalOrder`, `MeanField`
 
@@ -129,8 +129,8 @@ Eigenvalues[Normal[FockMatrix[H, FockSector[FockSpace[{1, 2}], "N" -> 2, "Sz" ->
 
 $$\left\\{0,U,\frac{1}{2} \left(U-\sqrt{16 t^2+U^2}\right),\frac{1}{2} \left(\sqrt{16 t^2+U^2}+U\right)\right\\}$$
 
-**Expectation values.** By Wick's theorem, in a Gaussian state: `SpinSingletState[]` is invariant under spin rotations,
-with hopping amplitudes $\chi_{ij}$. The energy of the dimer in it:
+**Expectation values.** By Wick's theorem, in a Gaussian state, a state fixed by its contractions: `SpinSingletState[]`
+is the one invariant under spin rotations, with hopping amplitudes $\chi_{ij}$. The energy of the dimer in it:
 
 ```mathematica
 WickVEV[H, SpinSingletState[]]
@@ -220,9 +220,11 @@ Every output printed in the documents is computed by the code shown before it.
   are different sites.
 * `a ** b` is the product in the given order; `a · b` (`\[CenterDot]`) is the product in normal order, with every
   `cDag` to the left of every `c`.
-* Contractions in spin channels: $\langle c^\dagger_{i\sigma}c_{j\sigma'}\rangle=\chi_{ij}\delta_{\sigma\sigma'}+\sum_a\chi^a_{ij}\sigma^a_{\sigma'\sigma}$,
-  $\langle c_{i\sigma}c_{j\sigma'}\rangle=\sum_\tau(\Delta_{ij}\delta_{\sigma\tau}+\sum_a\Delta^a_{ij}\sigma^a_{\sigma\tau})\epsilon_{\tau\sigma'}$, $\epsilon_{\uparrow\downarrow}=1$;
-  $\chi_{ji}=\chi_{ij}^{\ast}$, $\chi^a_{ii}=\langle S^a_i\rangle$, $\Delta_{ji}=\Delta_{ij}$, $\Delta^a_{ji}=-\Delta^a_{ij}$.
+* A Gaussian state has one amplitude for each contraction, the hopping $\chi^{\sigma\sigma'}_{ij}=\langle c^\dagger_{i\sigma}c_{j\sigma'}\rangle$
+  and the pairing $\Delta^{\sigma\sigma'}_{ij}=\langle c_{i\sigma}c_{j\sigma'}\rangle$; a symmetry removes indices: with $S^z$ conserved
+  $\chi^\sigma_{ij}$ and $\Delta^{\uparrow\downarrow}_{ij}$, $\Delta^{\downarrow\uparrow}_{ij}$, with SU(2) $\chi_{ij}$ and the singlet
+  $\Delta_{ij}=\langle c_{i\uparrow}c_{j\downarrow}\rangle$. The other order of the modes is the conjugate, $\chi_{ji}=\chi_{ij}^{\ast}$, or the
+  opposite, $\langle c_bc_a\rangle=-\langle c_ac_b\rangle$.
 
 </details>
 

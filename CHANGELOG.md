@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+- Gaussian states written by spin components, one amplitude for each contraction: $\langle c^\dagger_{i\sigma}c_{j\sigma'}\rangle$ =
+  `χ[i, j, s, t]` and $\langle c_{i\sigma}c_{j\sigma'}\rangle$ = `Δ[i, j, s, t]` in the general state; `χ[i, j, s]`, and `Δ[i, j, s, t]`
+  with `s ≠ t`, when $S^z$ is conserved; `χ[i, j]` and `Δ[i, j]` with SU(2): every symmetry removes indices, and the table of
+  the general state reads at sight. The spin channels `χ[i, j, a]`, `Δ[i, j, a]` are gone (the magnetization is half the
+  difference of the densities, the singlet and the triplet are combinations of the components). The results of states
+  with less than SU(2) symmetry are written differently; `SpinSingletState` and every state invariant under spin rotations
+  give the same expressions as before. `"Filling" -> ν` alone now sets $\langle n_{i\sigma}\rangle=\nu$ with no magnetization
+  (before, with `"SpinRotationZ"`, $\chi^z_{ii}$ stayed free); `"Magnetization"` adds it.
+- `GeneralState` (ρ, κ) is gone: `GaussianState[]` is the general state, also for modes with more labels, whose
+  amplitudes group the labels by type with the spins last (`χ[i, j, o, o', s, t]`), and for spinless modes (`χ[i, j]`).
+- Documents: the Gaussian states introduced from the general one, every contraction and nothing fixed, and its
+  symmetries one at a time (the charge, $S^z$, spin rotations, time reversal), each removing contractions, in the wiki, the
+  showcase, the manual and the guided tour; `SpinSingletState` presented as the shortcut for the state invariant under spin
+  rotations at half filling, where that symmetry is explained; the on-site options after.
 - Website: the link of the icon carries a hash of the file, so that browsers, which keep a favicon for long, fetch
   it again when the logo changes.
 

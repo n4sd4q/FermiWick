@@ -51,8 +51,8 @@ VerificationTest[Simplify[WickVEV[SdotScrossS[1, 2, 3], rulesState] - WickVEV[Sd
 VerificationTest[Simplify[WickVEV[SdotS[1, 2], StateSelect[pairing, ! AnomalousPairQ[##] &]] - WickVEV[SdotS[1, 2], sing]], 0,
   TestID -> "StateSelect without anomalous contractions"]
 VerificationTest[WickVEV[SdotS[1, 2], StateSelect[sing, LocalPairQ]], 0, TestID -> "StateSelect local only: S.S has no local part"]
-VerificationTest[With[{g = WickVEV[SdotS[1, 2], GeneralState[]] /. \[Rho][a_, s_, b_, t_] :> KroneckerDelta[s, t] If[a === b, 1/2, x[a, b]]},
-   Simplify[g + 3/2 x[1, 2] x[2, 1]]], 0, TestID -> "GeneralState reduces to the singlet one"]
+VerificationTest[With[{g = WickVEV[SdotS[1, 2], GaussianState["Charge"]] /. \[Chi][a_, b_, s_, t_] :> KroneckerDelta[s, t] If[a === b, 1/2, x[a, b]]},
+   Simplify[g + 3/2 x[1, 2] x[2, 1]]], 0, TestID -> "the general state with a spin-independent hopping reduces to the singlet one"]
 VerificationTest[GutzwillerVEV[GutzwillerProjector[i]\[CenterDot]GutzwillerProjector[i]], 1, TestID -> "<P_G^2> = 1 at half filling"]
 
 (* ---------------------------------------------------------------- numbers: exact Fock space of 3 sites (FockMatrix) *)
@@ -66,8 +66,8 @@ hFock = Sum[hA[[a, b]] ConjugateTranspose[jw[[a]]] . jw[[b]] + hB[[a, b]] Conjug
 omega = With[{e = MatrixExp[-1.3 hFock]}, e/Tr[e]];
 mat[op_] := Normal[FockMatrix[op, sp3]];
 toMatrix[expr_] := Normal[FockMatrix[expr, sp3]];
-numbers = {\[Rho][a_, s_, b_, t_] :> Tr[omega . mat[cDag[a, s]] . mat[c[b, t]]], \[Kappa][a_, s_, b_, t_] :> Tr[omega . mat[c[a, s]] . mat[c[b, t]]]};
-gen = GeneralState["Anomalous" -> \[Kappa]];
+numbers = {\[Chi][a_, b_, s_, t_] :> Tr[omega . mat[cDag[a, s]] . mat[c[b, t]]], \[CapitalDelta][a_, b_, s_, t_] :> Tr[omega . mat[c[a, s]] . mat[c[b, t]]]};
+gen = GaussianState[];
 tests = {SdotS[1, 2], SdotScrossS[1, 2, 3], DOp[1] ** DOp[2], nTotOp[1] ** SzOp[2] ** SpOp[3], Bdag[1] ** B[3] ** nTotOp[2]};
 VerificationTest[Max[Abs[(WickVEV[#, gen] /. numbers) - Tr[omega . toMatrix[#]] & /@ tests]] < 10^-10, True,
   TestID -> "WickVEV = exact Fock-space value (general state with pairing)"]
@@ -96,41 +96,46 @@ VerificationTest[Simplify[WickVEV[SdotScrossS[1, 2, 3], GaussianState[{"SpinRota
 VerificationTest[ContractionTable[GaussianState[{"SpinRotation", "TimeReversal"}], {1, 2}, "Normal"],
   {{\[Chi][1, 1], 0, \[Chi][1, 2], 0}, {0, \[Chi][1, 1], 0, \[Chi][1, 2]}, {\[Chi][1, 2], 0, \[Chi][2, 2], 0}, {0, \[Chi][1, 2], 0, \[Chi][2, 2]}},
   TestID -> "SU(2) and time reversal: real symmetric hopping"]
-VerificationTest[ContractionTable[GaussianState["SpinRotationZ"], {1, 2}, "Anomalous"][[1, 4]], \[CapitalDelta][1, 2] + \[CapitalDelta][1, 2, "z"],
-  TestID -> "rotations about z: singlet and m = 0 triplet"]
+VerificationTest[ContractionTable[GaussianState["SpinRotationZ"], {1, 2}, "Anomalous"][[{1, 2}, {3, 4}]], {{0, \[CapitalDelta][1, 2, up, dn]}, {\[CapitalDelta][1, 2, dn, up], 0}},
+  TestID -> "rotations about z: the pairing joins opposite spins"]
+VerificationTest[{ContractionTable[GaussianState[], {1}, "Normal"], ContractionTable[GaussianState["Charge"], {1, 2}, "Anomalous"]},
+  {{{\[Chi][1, 1, up, up], \[Chi][1, 1, up, dn]}, {Conjugate[\[Chi][1, 1, up, dn]], \[Chi][1, 1, dn, dn]}}, ConstantArray[0, {4, 4}]},
+  TestID -> "the general state has every contraction; charge conservation removes the pairing"]
 VerificationTest[GaussianState["Foo"], $Failed, {GaussianState::sym}, TestID -> "unknown symmetry"]
 
-(* exact channels of Gibbs states of quadratic Hamiltonians with a given symmetry *)
+(* the amplitudes of Gibbs states of quadratic Hamiltonians with a given symmetry: the components that the symmetry removes vanish *)
 pauli = {{{0, 1}, {1, 0}}, {{0, -I}, {I, 0}}, {{1, 0}, {0, -1}}}; eps = {{0, 1}, {-1, 0}};
 gibbs[hA_, hB_] := With[{h = Sum[hA[[a, b]] ConjugateTranspose[jw[[a]]] . jw[[b]] + hB[[a, b]] ConjugateTranspose[jw[[a]]] . ConjugateTranspose[jw[[b]]] +
        Conjugate[hB[[a, b]]] jw[[b]] . jw[[a]], {a, nm}, {b, nm}]}, With[{e = MatrixExp[-1.1 h]}, e/Tr[e]]];
-blockG[w_, i_, j_] := Table[Tr[w . mat[cDag[i, s]] . mat[c[j, t]]], {s, {up, dn}}, {t, {up, dn}}];
-blockF[w_, i_, j_] := Table[Tr[w . mat[c[i, s]] . mat[c[j, t]]], {s, {up, dn}}, {t, {up, dn}}];
-channels[w_] := Flatten[Table[{
-     \[Chi][i, j] -> Tr[blockG[w, i, j]]/2, Table[\[Chi][i, j, a] -> Tr[blockG[w, i, j] . Transpose[pauli[[k]]]]/2, {a, {"x", "y", "z"}}, {k, {Position[{"x", "y", "z"}, a][[1, 1]]}}],
-     \[CapitalDelta][i, j] -> Tr[blockF[w, i, j] . (-eps)]/2, Table[\[CapitalDelta][i, j, a] -> Tr[blockF[w, i, j] . (-eps) . pauli[[k]]]/2, {a, {"x", "y", "z"}}, {k, {Position[{"x", "y", "z"}, a][[1, 1]]}}]},
-    {i, 3}, {j, i, 3}]];
+hopOf[w_, i_, j_, s_, t_] := Tr[w . mat[cDag[i, s]] . mat[c[j, t]]];
+pairOf[w_, i_, j_, s_, t_] := Tr[w . mat[c[i, s]] . mat[c[j, t]]];
 spinMat[m_] := ArrayFlatten[Table[m[i, j], {i, 3}, {j, 3}]];  (* 6 x 6 with modes (site, spin) *)
 SeedRandom[11];
 rs := RandomReal[{-1, 1}, {3, 3}];
 symm[m_] := m + Transpose[m]; anti[m_] := m - Transpose[m];
-VerificationTest[Module[{w = gibbs[hA, hB], ch, gen = GaussianState[]},
-   ch = channels[w];
-   Max[Abs[(WickVEV[#, gen] /. ch) - Tr[w . toMatrix[#]] & /@ tests]] < 10^-10], True,
-  TestID -> "general state in channels = exact Fock-space values"]
-VerificationTest[Module[{a = symm[rs], b = symm[rs], w, ch},
+VerificationTest[Module[{w = gibbs[hA, hB], num},
+   num = {\[Chi][i_, j_, s_, t_] :> hopOf[w, i, j, s, t], \[CapitalDelta][i_, j_, s_, t_] :> pairOf[w, i, j, s, t]};
+   Max[Abs[(WickVEV[#, GaussianState[]] /. num) - Tr[w . toMatrix[#]] & /@ tests]] < 10^-10], True,
+  TestID -> "general state = exact Fock-space values"]
+VerificationTest[Module[{a = symm[rs], b = symm[rs], w, num},
    w = gibbs[spinMat[a[[#1, #2]] IdentityMatrix[2] &], spinMat[b[[#1, #2]] eps &]/2];
-   ch = Association[channels[w]];
-   Max[Abs[Values[KeySelect[ch, Length[#] == 3 &]]]] < 10^-10], True, TestID -> "SU(2) Hamiltonian: no spin channels"]
-VerificationTest[Module[{a = symm[rs], az = symm[rs], b = rs, w, ch},
+   num = {\[Chi][i_, j_] :> hopOf[w, i, j, up, up], \[CapitalDelta][i_, j_] :> pairOf[w, i, j, up, dn]};
+   {Max[Abs[(WickVEV[#, GaussianState["SpinRotation"]] /. num) - Tr[w . toMatrix[#]] & /@ tests]] < 10^-10,
+    Max[Abs[Flatten[Table[{hopOf[w, i, j, up, up] - hopOf[w, i, j, dn, dn], hopOf[w, i, j, up, dn], pairOf[w, i, j, up, dn] + pairOf[w, i, j, dn, up], pairOf[w, i, j, up, up]},
+        {i, 3}, {j, 3}]]]] < 10^-10}], {True, True}, TestID -> "SU(2) Hamiltonian: one hopping and the singlet pairing"]
+VerificationTest[Module[{a = symm[rs], az = symm[rs], b = rs, w, num},
    w = gibbs[spinMat[a[[#1, #2]] IdentityMatrix[2] + az[[#1, #2]] pauli[[3]] &], spinMat[b[[#1, #2]] {{0, 1}, {0, 0}} &]];
-   ch = Association[channels[w]];
-   Max[Abs[Values[KeySelect[ch, MatchQ[#, _[_, _, "x" | "y"]] &]]]] < 10^-10], True, TestID -> "Sz-conserving Hamiltonian: only z channels"]
-VerificationTest[Module[{a = symm[rs], bs = Table[anti[rs], 3], p = symm[rs], w, ch},
+   num = {\[Chi][i_, j_, s_] :> hopOf[w, i, j, s, s], \[CapitalDelta][i_, j_, s_, t_] :> pairOf[w, i, j, s, t]};
+   {Max[Abs[(WickVEV[#, GaussianState["SpinRotationZ"]] /. num) - Tr[w . toMatrix[#]] & /@ tests]] < 10^-10,
+    Max[Abs[Flatten[Table[{hopOf[w, i, j, up, dn], pairOf[w, i, j, up, up], pairOf[w, i, j, dn, dn]}, {i, 3}, {j, 3}]]]] < 10^-10}], {True, True},
+  TestID -> "Sz-conserving Hamiltonian: the hopping keeps the spin, the pairing joins opposite spins"]
+VerificationTest[Module[{a = symm[rs], bs = Table[anti[rs], 3], p = symm[rs], w, num},
    w = gibbs[spinMat[a[[#1, #2]] IdentityMatrix[2] + I Sum[bs[[k, #1, #2]] pauli[[k]], {k, 3}] &], spinMat[p[[#1, #2]] eps &]/2];
-   ch = Association[channels[w]];
-   Max[Abs[Join[Im[Values[KeySelect[ch, Length[#] == 2 &]]], Re[Values[KeySelect[ch, Length[#] == 3 &]]]]]] < 10^-10], True,
-  TestID -> "time-reversal invariant Hamiltonian: real scalar channels, imaginary spin channels"]
+   num = {\[Chi][i_, j_, s_, t_] :> hopOf[w, i, j, s, t], \[CapitalDelta][i_, j_, s_, t_] :> pairOf[w, i, j, s, t]};
+   {Max[Abs[(WickVEV[#, GaussianState["TimeReversal"]] /. num) - Tr[w . toMatrix[#]] & /@ tests]] < 10^-10,
+    Max[Abs[Flatten[Table[{hopOf[w, i, j, dn, dn] - Conjugate[hopOf[w, i, j, up, up]], hopOf[w, i, j, dn, up] + Conjugate[hopOf[w, i, j, up, dn]],
+         pairOf[w, i, j, dn, up] + Conjugate[pairOf[w, i, j, up, dn]], pairOf[w, i, j, dn, dn] - Conjugate[pairOf[w, i, j, up, up]]}, {i, 3}, {j, 3}]]]] < 10^-10}],
+  {True, True}, TestID -> "time-reversal invariant Hamiltonian: the components of opposite spins are conjugates"]
 
 (* ---------------------------------------------------------------- Hermitian conjugate *)
 VerificationTest[Dagger[2 I J cDag[1, up] ** c[2, dn] + \[Chi][1, 2] SpOp[1] ** Bdag[2]],
@@ -166,10 +171,10 @@ VerificationTest[Module[{a8, b8, h8, w8, num, ops},
    h8 = Sum[a8[[p, q]] ConjugateTranspose[jw8[[p]]] . jw8[[q]] + b8[[p, q]] ConjugateTranspose[jw8[[p]]] . ConjugateTranspose[jw8[[q]]] +
        Conjugate[b8[[p, q]]] jw8[[q]] . jw8[[p]], {p, 8}, {q, 8}];
    w8 = With[{e = MatrixExp[-0.9 h8]}, e/Tr[e]];
-   num = {\[Rho][x__] :> Tr[w8 . mat8[cDag @@ Take[{x}, 3]] . mat8[c @@ Drop[{x}, 3]]], \[Kappa][x__] :> Tr[w8 . mat8[c @@ Take[{x}, 3]] . mat8[c @@ Drop[{x}, 3]]]};
+   num = {\[Chi][i_, j_, o_, q_, s_, t_] :> Tr[w8 . mat8[cDag[i, o, s]] . mat8[c[j, q, t]]], \[CapitalDelta][i_, j_, o_, q_, s_, t_] :> Tr[w8 . mat8[c[i, o, s]] . mat8[c[j, q, t]]]};
    ops = {cDag[1, 1, up] ** c[2, 2, dn] ** cDag[2, 1, dn] ** c[1, 2, up], cDag[1, 2, up] ** cDag[2, 1, dn] ** c[1, 1, dn] ** c[2, 2, up],
      Sum[cDag[1, o, s] ** c[2, o, s], {o, 2}, {s, {up, dn}}] ** Sum[cDag[2, o, s] ** c[1, o, s], {o, 2}, {s, {up, dn}}]};
-   Max[Abs[(WickVEV[#, GeneralState["Anomalous" -> \[Kappa]]] /. num) - Tr[w8 . toMatrix8[#]] & /@ ops]] < 10^-10], True,
+   Max[Abs[(WickVEV[#, GaussianState[]] /. num) - Tr[w8 . toMatrix8[#]] & /@ ops]] < 10^-10], True,
   TestID -> "two orbitals with spin: Wick = exact Fock-space values"]
 
 (* ---------------------------------------------------------------- the banner and the update check, without the network *)
