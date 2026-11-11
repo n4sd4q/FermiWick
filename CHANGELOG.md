@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Fixed: `?GaussianState` (and `?` of other functions) in a notebook printed messages, because the display rules of
+  $|x|^2$ and of a state evaluated the held code of the definitions; they now apply only to evaluated expressions.
 - The adjoint of an operator defined with `DefineOperator` stays compact: `Dagger` gives the operator itself when it is
   Hermitian, the operator with the sites permuted when that is its adjoint (a hopping), otherwise
   `AdjointOperator[head][sites]`, registered automatically, displayed with a dagger, recognized by `ToSpinChargeBasis` and

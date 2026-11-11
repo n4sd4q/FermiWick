@@ -531,7 +531,8 @@ CleanDeltas[expr_, extra_List] :=
 (* ========================================================================================== *)
 
 GaussianState[a_Association][key_String] := Lookup[a, key, Missing["KeyAbsent", key]];
-Format[GaussianState[a_Association], StandardForm] :=
+(*only a built state (an association already evaluated): not the held code shown by ?GaussianState*)
+Format[GaussianState[a_Association?(Function[x, AssociationQ[Unevaluated[x]], HoldAllComplete])], StandardForm] :=
   Interpretation[Row[{"GaussianState[", Style[Lookup[a, "Description", "\[Ellipsis]"], Italic], "]"}], GaussianState[a]];
 
 LocalPairQ[x_, y_] := iSiteOf[x] === iSiteOf[y] && ! MissingQ[iSiteOf[x]];
@@ -724,7 +725,11 @@ pairUp[t_Times] := Module[{f = factorExponents[t], mods = {}, k},
    Do[If[conjugateShownQ[x] && IntegerQ[f[x]] && f[x] > 0 && IntegerQ[Lookup[f, Key[Conjugate[x]], 0]] && Lookup[f, Key[Conjugate[x]], 0] > 0,
       k = Min[f[x], f[Conjugate[x]]]; f[x] -= k; f[Conjugate[x]] -= k; AppendTo[mods, modulusSquared[x, k]]], {x, Keys[f]}];
    Times @@ Join[KeyValueMap[#1^#2 &, f], mods]];
-MakeBoxes[t_Times?pairedQ, StandardForm] := MakeBoxes[#, StandardForm] &[pairUp[t]];
+(*only for inert products: the definitions shown by ?f are held code (patterns, OptionValue, private symbols), never evaluated*)
+inertQ[h_Hold] := FreeQ[h, _OptionValue | _Pattern | _Blank | _BlankSequence | _BlankNullSequence | _Condition | _PatternTest |
+     _Slot | _SlotSequence | _Function | _Module | _With | _Block | _CompoundExpression | _Set | _SetDelayed, Heads -> True] &&
+   FreeQ[h, s_Symbol /; Context[Unevaluated[s]] === "FermiWick`Private`", Heads -> True];
+MakeBoxes[t_Times, StandardForm] := MakeBoxes[#, StandardForm] &[pairUp[t]] /; inertQ[Hold[t]] && pairedQ[t];
 
 (* ========================================================================================== *)
 (*  5. Wick's theorem and mean field                                                          *)
