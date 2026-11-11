@@ -1205,15 +1205,25 @@ lightDarkColor[light_, dark_] := If[Names["System`LightDarkSwitched"] =!= {}, Sy
 badgePoints[] := With[{r = 28.}, Join @@ MapThread[Function[{c, a0}, Table[c + r {Cos[a], Sin[a]}, {a, a0, a0 + Pi/2, Pi/16}]],
      {{{128 - r, r}, {128 - r, 128 - r}, {r, 128 - r}, {r, r}}, {-Pi/2, 0, Pi/2, Pi}}]];
 quarterArc[c_, r_, a0_, a1_] := Table[c + r {Cos[a], Sin[a]}, {a, a0, a1, (a1 - a0)/12}];
-packageLogo[size_: 30] := Module[{pts = badgePoints[], x0 = 26, x1 = 102, y = 36., top = 100., rr = 18.},
+(*The logo, as Logo/FermiWick_logo_small.svg (the badge for 16 to 32 px, with heavier lines): two Wick contractions, the
+  outer one in white from the open circle on the right (a creator) to the filled one on the left (an annihilator), the
+  inner one in the tint from the open circle on the left to the filled one on the right, each an arrow on its bracket;
+  the legs end inside the circles (the open ones are annuli: a stroked circle is drawn ragged at 30 px)*)
+packageLogo[size_: 30] := Module[{pts = badgePoints[], y = 33., rr = 18., ri = 11.},
    Graphics[{
      Polygon[pts, VertexColors -> (Blend[{$fwStart, $fwEnd}, (#[[1]] + 128 - #[[2]])/256] & /@ pts)],
      {EdgeForm[{White, Opacity[0.16], Thickness[2/128]}], FaceForm[None], Polygon[badgePoints[]]},
-     White, CapForm["Butt"], JoinForm["Round"], Thickness[11/128],
-     Line[Join[{{x0, y + 9.5}}, quarterArc[{x0 + rr, top - rr}, rr, Pi, Pi/2], quarterArc[{x1 - rr, top - rr}, rr, Pi/2, 0],
-       {{x1, y + 10.5}}]],
-     EdgeForm[{White, Thickness[2/128], JoinForm["Round"]}], Polygon[{{54, top}, {70, top + 10}, {70, top - 10}}],
-     EdgeForm[], Disk[{x0, y}, 11], Thickness[6/128], Circle[{x1, y}, 8.5]},
+     CapForm["Butt"], JoinForm["Round"],
+     White, Thickness[10/128],
+     Line[Join[{{20, 40}}, quarterArc[{20 + rr, 102 - rr}, rr, Pi, Pi/2], quarterArc[{108 - rr, 102 - rr}, rr, Pi/2, 0],
+       {{108, 41.5}}]],
+     EdgeForm[{White, Thickness[3/128], JoinForm["Round"]}], Polygon[{{55, 102}, {70, 111.5}, {70, 92.5}}],
+     $fwTint, Thickness[9/128],
+     Line[Join[{{47, 41.5}}, quarterArc[{47 + ri, 72 - ri}, ri, Pi, Pi/2], quarterArc[{81 - ri, 72 - ri}, ri, Pi/2, 0],
+       {{81, 40}}]],
+     EdgeForm[{$fwTint, Thickness[3/128], JoinForm["Round"]}], Polygon[{{71, 72}, {58, 79.5}, {58, 64.5}}],
+     EdgeForm[], White, Disk[{20, y}, 10], Annulus[{108, y}, {5, 10}],
+     $fwTint, Disk[{81, y}, 10], Annulus[{47, y}, {5, 10}]},
     PlotRange -> {{0, 128}, {0, 128}}, PlotRangePadding -> None, ImagePadding -> None, ImageSize -> size,
     BaselinePosition -> Scaled[0.2]]];
 $repositoryURL = "https://github.com/n4sd4q/FermiWick";

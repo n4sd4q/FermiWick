@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- The logo of the banner shown at load draws both contractions, as the full logo does (the outer one in white from the
+  creator on the right to the annihilator on the left, the inner one in the tint the other way), with the heavier lines of
+  the small badge.
 - Fixed: `?GaussianState` (and `?` of other functions) in a notebook printed messages, because the display rules of
   $|x|^2$ and of a state evaluated the held code of the definitions; they now apply only to evaluated expressions.
 - The adjoint of an operator defined with `DefineOperator` stays compact: `Dagger` gives the operator itself when it is
