@@ -12,7 +12,7 @@
 <p align="center">
   <a href="https://github.com/n4sd4q/FermiWick/releases/latest"><img src="https://img.shields.io/github/v/release/n4sd4q/FermiWick?label=release&color=8A2880" alt="latest release"></a>
   <img src="https://img.shields.io/badge/Mathematica-13.0%2B-8A2880" alt="Mathematica 13.0 or later">
-  <a href="Tests"><img src="https://img.shields.io/badge/tests-94%20passed-2E7D32" alt="94 tests passed"></a>
+  <a href="Tests"><img src="https://img.shields.io/badge/tests-95%20passed-2E7D32" alt="95 tests passed"></a>
   <img src="https://img.shields.io/badge/license-GPL--3.0--or--later-8A2880" alt="GNU GPL v3 or later">
 </p>
 
@@ -230,7 +230,7 @@ Every output printed in the documents is computed by the code shown before it.
 
 ## Checks
 
-The tests (`math -script Tests/RunTests.wls`, 94 tests) check the algebra and the states, and the symbolic engine
+The tests (`math -script Tests/RunTests.wls`, 95 tests) check the algebra and the states, and the symbolic engine
 against the matrices: `WickVEV` and `MeanField` give the exact values in random Gibbs states of quadratic Hamiltonians
 with pairing, and the matrices agree with the Jordan–Wigner construction and with exact solutions of Hubbard clusters.
 `sh Development/check_docs.sh` runs the code of the showcase, the manual, the guided tour, the README and the wiki again,
