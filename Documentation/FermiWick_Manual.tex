@@ -3,9 +3,10 @@
 \familysetup{document=Reference manual}
 \newcommand{\fnentry}[2]{\par\needspace{4\baselineskip}\noindent\fn{#1}\par\nobreak
   \noindent\begin{minipage}[t]{\linewidth}\leftskip=1.2em #2\end{minipage}\par}
+\newcommand{\fncont}[1]{\par\noindent\begin{minipage}[t]{\linewidth}\leftskip=1.2em #1\end{minipage}\par}
 
 \begin{document}
-\familytitle{Reference manual}{Every function, option and convention, with an example computed by the package}{version 0.4.0 \textperiodcentered{} November 2026}
+\familytitle{Reference manual}{Every function, option and convention, with an example computed by the package}{version 0.5.0 \textperiodcentered{} November 2026}
 
 {\small\tableofcontents}
 
@@ -14,7 +15,7 @@ FermiWick is a paclet. Install the paclet of the latest \href{https://github.com
 then load it in every session, with the Gutzwiller and Fock modules when needed; the guided tour comes with the paclet:
 \begin{tcblisting}{listing only, colback=codebg, colframe=codeframe, boxrule=0.5pt, arc=2pt, left=6pt, right=6pt, top=3pt, bottom=3pt,
   listing options={language=WL, basicstyle=\ttfamily\fontsize{7.5pt}{9.6pt}\selectfont}}
-PacletInstall["https://github.com/n4sd4q/FermiWick/releases/download/v0.4.0/FermiWick-0.4.0.paclet"]
+PacletInstall["https://github.com/n4sd4q/FermiWick/releases/download/v0.5.0/FermiWick-0.5.0.paclet"]
 Needs["FermiWick`"]; Needs["FermiWick`Gutzwiller`"]; Needs["FermiWick`Fock`"];
 NotebookOpen[PacletObject["FermiWick"]["AssetLocation", "Examples"]]
 \end{tcblisting}
@@ -135,36 +136,52 @@ its symmetries, or by rules for the contractions. \fn{state["Symmetries"]}, \fn{
 \fn{state["Contraction"]} give its parts.
 \fnentry{GaussianState}{Gaussian states, in which every expectation value follows from the contractions of two operators,
 are also called quasi-free states (pure, as Slater or BCS states, or mixed, as Gibbs states of quadratic Hamiltonians).
-\fn{GaussianState[]} is the general one: every contraction, one amplitude each (Section~2), and nothing fixed, not even
-the filling. \fn{GaussianState[symmetries, options]} is the state with the given symmetries; each removes contractions,
-or the indices that told them apart:
-\begin{tabular}{llp{7.2cm}}\toprule symmetry & & what is left \\ \midrule
-\texttt{"Charge"} & particle number conserved & no pairing \\
-\texttt{"SpinRotationZ"} & $S^z$ conserved & the hopping keeps the spin, $\chi^\uparrow_{ij}$, $\chi^\downarrow_{ij}$; the pairing joins
-opposite spins, $\Delta^{\uparrow\downarrow}_{ij}$, $\Delta^{\downarrow\uparrow}_{ij}$ \\
-\texttt{"SpinRotation"} & SU(2) & one hopping $\chi_{ij}$; the singlet $\Delta_{ij}$, symmetric in the sites \\
-\texttt{"TimeReversal"} & $T=i\sigma^yK$ & the components of opposite spins conjugates of each other; with SU(2), $\chi$, $\Delta$
-real \\ \bottomrule\end{tabular}
-
-Options:
+\fn{GaussianState[]} is the general one: every contraction, one amplitude each, the hopping
+$\chi^{\sigma\sigma'}_{ij}=\langle c^\dagger_{i\sigma}c_{j\sigma'}\rangle$ and the pairing
+$\Delta^{\sigma\sigma'}_{ij}=\langle c_{i\sigma}c_{j\sigma'}\rangle$, and nothing fixed, not even the filling. \fn{ContractionTable}
+shows them between the modes of some sites, here $1\uparrow$, $1\downarrow$, $2\uparrow$, $2\downarrow$. On one site the diagonal
+entries of $\langle c^\dagger_ac_b\rangle$ are the densities and the other one is $\langle S^+_1\rangle=\chi^{\uparrow\downarrow}_{11}$;
+Hermiticity always holds: an amplitude is written with its modes in canonical order, the other order as its conjugate.}
+\example{general}
+\fncont{The pairing $\langle c_ac_b\rangle$ is antisymmetric, so that on one site only $\langle c_{1\uparrow}c_{1\downarrow}\rangle$ is left:}
+\example{generalpair}
+\fncont{\fn{GaussianState[symmetries, options]} is the state with the given symmetries. Each one removes contractions, or the
+indices that told them apart. With the particle number conserved, \texttt{"Charge"}, there is no pairing:}
+\example{charge}
+\fncont{With $S^z$ conserved, \texttt{"SpinRotationZ"} (rotations about $z$), the hopping keeps the spin, one amplitude for each,
+$\chi^\uparrow_{ij}$ and $\chi^\downarrow_{ij}$, and the pairing joins opposite spins, $\Delta^{\uparrow\downarrow}_{ij}$ and
+$\Delta^{\downarrow\uparrow}_{ij}$:}
+\example{szhop}
+\example{szpair}
+\fncont{With spin rotations, \texttt{"SpinRotation"} (SU(2)), the hopping is the same for both spins, $\chi_{ij}$, and the pairing
+is a singlet, $\Delta_{ij}=\langle c_{i\uparrow}c_{j\downarrow}\rangle=-\langle c_{i\downarrow}c_{j\uparrow}\rangle$, symmetric in the sites:}
+\example{su2hop}
+\example{su2pair}
+\fncont{With time reversal, \texttt{"TimeReversal"} ($T=i\sigma^yK$), the components of opposite spins are conjugates of each
+other ($\chi^\downarrow_{ij}=\chi^{\uparrow*}_{ij}$, $\chi^{\downarrow\uparrow}_{ij}=-\chi^{\uparrow\downarrow*}_{ij}$,
+$\Delta^{\downarrow\uparrow}_{ij}=-\Delta^{\uparrow\downarrow*}_{ij}$, $\Delta^{\downarrow\downarrow}_{ij}=\Delta^{\uparrow\uparrow*}_{ij}$), on one site there is
+no magnetization, and with SU(2) the amplitudes are real:}
+\example{timereversal}
+\fncont{The contractions on one site are the densities, the magnetization and the on-site pairing; the options fix them:
 \begin{tabular}{llp{6.6cm}}\toprule option & default & \\ \midrule
 \texttt{"Hopping"}, \texttt{"Pairing"} & $\chi$, $\Delta$ & names of the amplitudes \\
 \texttt{"Filling"} & \texttt{Automatic} & $\langle n_{i\sigma}\rangle=\nu$; \texttt{Automatic}: the amplitudes $\chi^\sigma_{ii}$ ($\chi_{ii}$ with SU(2)) \\
-\texttt{"Magnetization"} & \texttt{Automatic} & $\langle n_{i\uparrow/\downarrow}\rangle=\nu\pm m$; a vector or a function of the site;
-\texttt{Automatic}: none when the filling is fixed \\
+\texttt{"Magnetization"} & \texttt{Automatic} & $\langle n_{i\uparrow/\downarrow}\rangle=\nu\pm m$; a vector \texttt{\{mx, my, mz\}} in the general
+state, or a function of the site; \texttt{Automatic}: none when the filling is fixed \\
 \texttt{"OnSitePairing"} & \texttt{Automatic} & $\langle c_{i\uparrow}c_{i\downarrow}\rangle$ \\
 \texttt{"Hermitian"} & \texttt{True} & $\langle c^\dagger_bc_a\rangle=\langle c^\dagger_ac_b\rangle^*$; \texttt{False}: an amplitude of its own \\
 \texttt{"Rules"} & \texttt{\{\}} & replacements applied to the results \\ \bottomrule\end{tabular}
 
-\fn{GaussianState[\{\{op1, op2\} :> value, \dots\}]} declares the contractions by rules instead, with patterns in the
+A state with $S^z$ conserved, at half filling with a magnetization $m$ along $z$:}
+\example{magnetic}
+\fncont{\fn{GaussianState[\{\{op1, op2\} :> value, \dots\}]} declares the contractions by rules instead, with patterns in the
 operators. Pairs with no rule contract to zero, and $\langle c\,c^\dagger\rangle$ follows from $\langle c^\dagger c\rangle$ by the
 anticommutator when it has no rule of its own. Two sites with hopping $g$:}
 \example{rulesstate}
 \fnentry{ContractionTable}{\fn{ContractionTable[state, \{i, j, \dots\}]} shows all the contractions between the modes of the
 sites, $\langle c^\dagger_a c_b\rangle$ and $\langle c_ac_b\rangle$; with a third argument \texttt{"Normal"} or \texttt{"Anomalous"}
-it gives the matrix, with the modes in the order of \texttt{Tuples[\{sites, \$Spins\}]}. The general state on one site, and
-the one invariant under spin rotations, the charge conserved, at filling $\nu$:}
-\example{channels}
+it gives the matrix, with the modes in the order of \texttt{Tuples[\{sites, \$Spins\}]}. The state invariant under spin
+rotations, the charge conserved, at filling $\nu$:}
 \example{symmetries}
 \fnentry{Contraction}{\fn{Contraction[state, op1, op2]}; \fn{Contraction[op1, op2]} uses \fn{\$State}.}
 \example{contraction}

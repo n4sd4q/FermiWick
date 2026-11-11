@@ -1,0 +1,1 @@
+MatrixForm[ContractionTable[GaussianState[{"SpinRotation", "TimeReversal"}], {1, 2}, "Normal"]]

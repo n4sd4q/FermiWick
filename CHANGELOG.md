@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.5.0 (2026-11-11)
 
 - Gaussian states written by spin components, one amplitude for each contraction: $\langle c^\dagger_{i\sigma}c_{j\sigma'}\rangle$ =
   `χ[i, j, s, t]` and $\langle c_{i\sigma}c_{j\sigma'}\rangle$ = `Δ[i, j, s, t]` in the general state; `χ[i, j, s]`, and `Δ[i, j, s, t]`

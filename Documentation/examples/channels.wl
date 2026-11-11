@@ -1,1 +1,0 @@
-MatrixForm[ContractionTable[GaussianState[], {1}, "Normal"]]

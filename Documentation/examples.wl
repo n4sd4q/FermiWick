@@ -65,12 +65,37 @@ OperatorCoefficients[2 x cDag[1, "\[UpArrow]"] ** c[2, "\[UpArrow]"] + y + c[2, 
 (* ::Example:: coefficient *)
 OperatorCoefficients[2 x cDag[1, SpinUp] ** c[2, SpinUp], c[2, SpinUp] ** cDag[1, SpinUp]]
 
+(* ::Example:: general *)
+MatrixForm[ContractionTable[GaussianState[], {1, 2}, "Normal"]]
+
+(* ::Example:: generalpair *)
+MatrixForm[ContractionTable[GaussianState[], {1, 2}, "Anomalous"]]
+
+(* ::Example:: charge *)
+MatrixForm[ContractionTable[GaussianState["Charge"], {1, 2}, "Anomalous"]]
+
+(* ::Example:: szhop *)
+MatrixForm[ContractionTable[GaussianState["SpinRotationZ"], {1, 2}, "Normal"]]
+
+(* ::Example:: szpair *)
+MatrixForm[ContractionTable[GaussianState["SpinRotationZ"], {1, 2}, "Anomalous"]]
+
+(* ::Example:: su2hop *)
+MatrixForm[ContractionTable[GaussianState["SpinRotation"], {1, 2}, "Normal"]]
+
+(* ::Example:: su2pair *)
+MatrixForm[ContractionTable[GaussianState["SpinRotation"], {1, 2}, "Anomalous"]]
+
+(* ::Example:: timereversal *)
+MatrixForm[ContractionTable[GaussianState[{"SpinRotation", "TimeReversal"}], {1, 2}, "Normal"]]
+
+(* ::Example:: magnetic *)
+magnetic = GaussianState[{"SpinRotationZ", "Charge"}, "Filling" -> 1/2, "Magnetization" -> m];
+MatrixForm[ContractionTable[magnetic, {1}, "Normal"]]
+
 (* ::Example:: rulesstate *)
 dimer = GaussianState[{{cDag[i_, s_], c[j_, t_]} :> KroneckerDelta[s, t] If[i === j, 1/2, g]}];
 WickVEV[nOp[1, "\[UpArrow]"] ** nOp[2, "\[UpArrow]"], dimer]
-
-(* ::Example:: channels *)
-MatrixForm[ContractionTable[GaussianState[], {1}, "Normal"]]
 
 (* ::Example:: symmetries *)
 MatrixForm[ContractionTable[GaussianState[{"SpinRotation", "Charge"}, "Filling" -> \[Nu]], {1, 2}, "Normal"]]

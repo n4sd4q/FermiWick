@@ -1,6 +1,6 @@
 PacletObject[<|
   "Name" -> "FermiWick",
-  "Version" -> "0.4.0",
+  "Version" -> "0.5.0",
   "WolframVersion" -> "13.0+",
   "Description" -> "Symbolic algebra of fermion ladder operators: normal ordering with compact local operators, Wick's theorem in declarable Gaussian states, mean-field decoupling of any order, Gutzwiller projectors; the same operators as sparse matrices on Fock spaces and symmetry sectors, for exact diagonalisation.",
   "Creator" -> "Nazzareno Africani",

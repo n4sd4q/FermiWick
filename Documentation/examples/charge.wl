@@ -1,0 +1,1 @@
+MatrixForm[ContractionTable[GaussianState["Charge"], {1, 2}, "Anomalous"]]
