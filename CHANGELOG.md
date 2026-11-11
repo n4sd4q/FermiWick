@@ -1,16 +1,16 @@
 # Changelog
 
-## Unreleased
+## 0.4.0 (2026-11-11)
 
-- The logo of the banner shown at load draws both contractions, as the full logo does (the outer one in white from the
-  creator on the right to the annihilator on the left, the inner one in the tint the other way), with the heavier lines of
-  the small badge.
-- Fixed: `?GaussianState` (and `?` of other functions) in a notebook printed messages, because the display rules of
-  $|x|^2$ and of a state evaluated the held code of the definitions; they now apply only to evaluated expressions.
 - The adjoint of an operator defined with `DefineOperator` stays compact: `Dagger` gives the operator itself when it is
   Hermitian, the operator with the sites permuted when that is its adjoint (a hopping), otherwise
   `AdjointOperator[head][sites]`, registered automatically, displayed with a dagger, recognized by `ToSpinChargeBasis` and
   written by `ToTeX`. Operators of the user are written by `ToTeX` with their display.
+- Fixed: `?GaussianState` (and `?` of other functions) in a notebook printed messages, because the display rules of
+  $|x|^2$ and of a state evaluated the held code of the definitions; they now apply only to evaluated expressions.
+- The logo of the banner shown at load draws both contractions, as the full logo does (the outer one in white from the
+  creator on the right to the annihilator on the left, the inner one in the tint the other way), with the heavier lines of
+  the small badge.
 - Documents: exact diagonalisation done analytically in the showcase, the wiki and the video: the Hubbard dimer's
   eigenstates as kets, its free energy and entropy at finite temperature, and its Green's function as a Lehmann sum.
 - Documents: a demo video (`Media/demo.mp4`, 1920×1080 at 60 fps, made by `Development/make_demo_video.py` from the first

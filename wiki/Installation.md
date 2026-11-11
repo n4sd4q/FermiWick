@@ -5,7 +5,7 @@ FermiWick needs Mathematica 13.0 or later and nothing else. Install the paclet o
 
 <!-- not run -->
 ```mathematica
-PacletInstall["https://github.com/n4sd4q/FermiWick/releases/download/v0.3.0/FermiWick-0.3.0.paclet"]
+PacletInstall["https://github.com/n4sd4q/FermiWick/releases/download/v0.4.0/FermiWick-0.4.0.paclet"]
 ```
 
 Without a connection, download the `.paclet` file from the release page and give `PacletInstall` its path.
@@ -27,7 +27,7 @@ $FermiWickVersion
 ```
 
 ```text
-0.3.0
+0.4.0
 ```
 
 The guided tour, a notebook to run cell by cell, comes with the paclet:

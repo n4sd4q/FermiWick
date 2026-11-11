@@ -25,7 +25,7 @@ With[{folder = Quiet[If[$InputFileName =!= "", DirectoryName[$InputFileName], No
 Needs["FermiWick`"]; Needs["FermiWick`Fock`"]; Needs["FermiWick`Gutzwiller`"];
 
 $FermiWickVersion
-(* the version of the package, e.g. "0.3.0" *)
+(* the version of the package, e.g. "0.4.0" *)
 
 (* ::Section:: *)
 (*1. Ladder operators*)
