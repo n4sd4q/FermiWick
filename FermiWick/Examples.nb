@@ -17,7 +17,7 @@ If[StringQ[folder],\n   Scan[If[FileExistsQ[FileNameJoin[{#, \
 \"PacletInfo.wl\"}]], PacletDirectoryLoad[#]] &, {FileNameJoin[{folder, \
 \"FermiWick\"}], folder}]]];\nNeeds[\"FermiWick`\"]; \
 Needs[\"FermiWick`Fock`\"]; Needs[\"FermiWick`Gutzwiller`\"];", "Input"], 
-  Cell["$FermiWickVersion\n(* the version of the package, e.g. \"0.5.0\" *)", 
+  Cell["$FermiWickVersion\n(* the version of the package, e.g. \"0.6.0\" *)", 
    "Input"], Cell["1. Ladder operators", "Section"], 
   Cell["c[i, s] annihilates a fermion on site i with spin s, and cDag[i, s] \
 creates it; the spin is SpinUp, SpinDown or a symbol. ** multiplies in the \

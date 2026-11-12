@@ -179,7 +179,7 @@ every function. ``?FermiWick`*`` lists the functions and `?Name` explains each o
 Install the paclet of the latest [release](https://github.com/n4sd4q/FermiWick/releases) once:
 
 ```mathematica
-PacletInstall["https://github.com/n4sd4q/FermiWick/releases/download/v0.5.0/FermiWick-0.5.0.paclet"]
+PacletInstall["https://github.com/n4sd4q/FermiWick/releases/download/v0.6.0/FermiWick-0.6.0.paclet"]
 ```
 
 and load it in every session:

@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.6.0 (2026-11-12)
 
 - `LehmannGreen` at a finite temperature and with symbols: `"Temperature" -> T` (a number or a symbol) weighs every state
   of the Fock space with $e^{-(E-\mu N)/T}/Z$, and a Hamiltonian with symbols is diagonalised exactly, sector by sector

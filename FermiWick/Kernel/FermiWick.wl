@@ -152,7 +152,7 @@ WickVEV::nostate = "`1` is not a GaussianState.";
 
 Begin["`Private`"];
 
-$FermiWickVersion = "0.5.0";
+$FermiWickVersion = "0.6.0";
 SpinString = {"\[UpArrow]", "\[DownArrow]"};
 SpinUp = "\[UpArrow]"; SpinDown = "\[DownArrow]"; $Spins = SpinString;
 $ModeLabels = <|1 -> {"Site"}, 2 -> {"Site", "Spin"}|>;
