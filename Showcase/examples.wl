@@ -261,24 +261,23 @@ Z = PartitionFunction[H, space, T, \[Mu]]
 \[CapitalOmega] = -T Log[Z];
 FullSimplify[{-D[\[CapitalOmega], \[Mu]], -D[\[CapitalOmega], {\[Mu], 2}]} /. \[Mu] -> 0, T > 0]
 
-(* ::Example:: dimerfree *)
-F = FullSimplify[-T Log[PartitionFunction[H, space, T]], T > 0]
-
 (* ::Example:: dimerentropy *)
-S = -D[F, T];
-{Limit[S /. U -> 4 t, T -> 0, Assumptions -> t > 0], Limit[S, T -> Infinity]}
+S = -D[\[CapitalOmega], T];
+{Limit[S /. {\[Mu] -> 0, U -> 4 t}, T -> 0, Assumptions -> t > 0], Limit[S /. \[Mu] -> 0, T -> Infinity]}
 
 (* ::Example:: dimergreen *)
-g = LehmannGreen[H, space, {c[1, "\[UpArrow]"]}];
-FullSimplify[GreenMatrix[g, z][[1, 1]], t > 0 && U > 0]
+g = LehmannGreen[H, space, {c[1, "\[UpArrow]"], c[2, "\[UpArrow]"]}, "ChemicalPotential" -> \[Mu],
+  "Assumptions" -> t > 0 && U > 0 && Abs[\[Mu]] < Sqrt[16 t^2 + U^2]/2 - t];
+First[g["GroundSectors"]]
+
+(* ::Example:: dimergreenmatrix *)
+P = {{1, 1}, {1, -1}}/Sqrt[2];
+MatrixForm[Simplify[P . GreenMatrix[g, z] . P, t > 0 && U > 0]]
 
 (* ::Example:: dimergreenT *)
-gT = LehmannGreen[H, space, {c[1, "\[UpArrow]"]}, "Temperature" -> T];
-Complement[gT["Poles"], g["Poles"]]
-
-(* ::Example:: dimerweight *)
-weights = AssociationThread[gT["Poles"], gT["Residues"][[All, 1, 1]]];
-FullSimplify[weights[t + U/2], T > 0]
+gT = LehmannGreen[H, space, {c[1, "\[UpArrow]"], c[2, "\[UpArrow]"]}, "Temperature" -> T, "ChemicalPotential" -> \[Mu]];
+bonding = Select[Transpose[{gT["Poles"], Z (P . # . P)[[1, 1]] & /@ gT["Residues"]}], ! PossibleZeroQ[Last[#]] &];
+MatrixForm[FullSimplify[bonding, T > 0 && t > 0 && U > 0]]
 
 (* ::Example:: ring8 text *)
 nb[i_] := Mod[i - 1, 8] + 1;
@@ -290,7 +289,7 @@ N[Round[10^4 {First[e]/8, FockExpectation[DOp[1], First[v], half],
 
 (* ::Example:: lehmann text *)
 ring4 = -Sum[PlusHC[cDag[i, s] ** c[Mod[i, 4] + 1, s]], {i, 4}, {s, $Spins}] + 2 Sum[(nTotOp[i] - 1)^2, {i, 4}];
-g4 = LehmannGreen[ring4, FockSpace[Range[4]], {c[1, "\[UpArrow]"]}, "Temperature" -> 1/2];
+g4 = LehmannGreen[ring4, FockSpace[Range[4]], {c[1, "\[UpArrow]"]}, "Temperature" -> 1/2, "ChemicalPotential" -> 0];
 {N[Round[10^4 g4["GrandPotential"]]/10^4], Length[g4["Poles"]], N[Round[10^4 Im[GreenMatrix[g4, I Pi/2][[1, 1]]]]/10^4]}
 
 (* ::Example:: wickexact text *)

@@ -285,35 +285,43 @@ state, the lowest of the four energies for all $t,U>0$ (the numbers only rank th
 doubly occupied sites falls as $U$ grows:
 \example{dimerground}
 At a finite temperature everything follows from the grand-canonical partition function
-$Z=\mathrm{Tr}\,e^{-(H-\mu N)/T}$, the trace over the whole Fock space, here sixteen states. \fn{PartitionFunction} gives it
-exactly, as a sum of exponentials over the levels of every sector:
+$Z(T,\mu)=\mathrm{Tr}\,e^{-(H-\mu N)/T}$, the trace over the whole Fock space (here sixteen states) at the temperature $T$
+and the chemical potential $\mu$, both variables. \fn{PartitionFunction} gives it exactly, as a sum over the levels of every
+sector:
 \example{dimerpartition}
-Its logarithm is the grand potential $\Omega=-T\log Z$, and the physical quantities are its derivatives. The particle
-number $-\partial\Omega/\partial\mu$ is two at $\mu=0$, half filling, by the symmetry of the interaction; its derivative is the
+Its logarithm is the grand potential $\Omega(T,\mu)=-T\log Z$, and the physical quantities are its derivatives, taken before
+any value is given to $\mu$. The particle number $N=-\partial\Omega/\partial\mu$ is two at $\mu=0$: with the interaction written as
+$\frac U2(n_i-1)^2$, $\mu=0$ is half filling, by particle--hole symmetry. Its derivative $\partial N/\partial\mu$ is the
 compressibility:
 \example{dimerfilling}
-At half filling the free energy is
-\example{dimerfree}
-and the entropy $S=-\partial F/\partial T$ goes from zero, the ground state being a singlet, to $\log 16$, the sixteen states
-equally likely (at $U=4t$ for the first limit):
+The entropy $S=-\partial\Omega/\partial T$ at half filling goes from zero, the ground state being a singlet, to $\log 16$, the
+sixteen states equally likely (at $U=4t$ for the first limit):
 \example{dimerentropy}
 The single-particle Green's function is a sum over the same levels, the Lehmann representation,
-$G_{ab}(z)=\sum_{nm}(w_n+w_m)\langle n|c_a|m\rangle\langle m|c^\dagger_b|n\rangle/(z-E_m+E_n)$, with $w_n$ the weight of a state.
-\fn{LehmannGreen} takes the Hamiltonian, the space and the modes, and returns its poles and residues; \fn{GreenMatrix}
-evaluates it. At zero temperature, in closed form:
+$G_{ab}(z)=\sum_{nm}(w_n+w_m)\langle n|c_a|m\rangle\langle m|c^\dagger_b|n\rangle/(z-E_m+E_n)$, with $w_n$ the weight of a state and the
+energies those of $H-\mu N$. \fn{LehmannGreen} takes the Hamiltonian, the space, the modes, the temperature and the chemical
+potential, and returns the poles and the residues; no sector is chosen by hand. At zero temperature only the ground state of
+$H-\mu N$ has weight. It depends on $\mu$, and the assumptions say where $\mu$ is: inside the gap, where the ground state is
+the singlet with two electrons and $S^z=0$, the sector $\{N,S^z\}$ printed:
 \example{dimergreen}
-Its four poles, at $\pm\big(\frac12\sqrt{16t^2+U^2}\pm t\big)$, are the energies of adding and of removing an electron. At
-a temperature $T$ every state has the weight $e^{-E_n/T}/Z$, and the transitions between excited states add four poles:
+\fn{GreenMatrix} gives the matrix $G_{ab}(z)$ between the modes, here those of spin up (the spin is conserved, and spin down
+gives the same block). In the basis of the bonding and antibonding orbitals, $(c_1\pm c_2)/\sqrt2$, it is diagonal:
+\example{dimergreenmatrix}
+The frequency enters as $z+\mu$: the poles, at $\pm\big(\frac12\sqrt{16t^2+U^2}\pm t\big)-\mu$, are the energies of adding and of removing an
+electron, measured from $\mu$. At a temperature $T$ every state of the Fock space has the weight $e^{-(E_n-\mu N_n)/T}/Z$, and
+the transitions between excited states add poles. The matrix is still diagonal, each orbital with
+$G(z)=\frac1Z\sum_pB_p/(z-\varepsilon_p)$, and $B_p$ is a sum of Boltzmann factors. The bonding orbital has four poles
+$\varepsilon_p$; the table gives them with their $B_p$:
 \example{dimergreenT}
-Each of the new poles has the same weight, which vanishes as $T\to0$:
-\example{dimerweight}
+The antibonding orbital has the other four, those of the bonding orbital with $t\to-t$: changing the sign of $c_2$ maps one
+orbital onto the other.
 
 Ground states come from \fn{LowestStates} (dense, or Arnoldi on large sectors) and expectation values from
 \fn{FockExpectation}. On a ring of eight sites at half filling with $U=4t$ (a sector of dimension 4900), the energy per
 site, the double occupancy and the correlation of neighbouring spins are
 \example{ring8}
 With numbers, \fn{LehmannGreen} and \fn{GrandPotential} work on larger clusters: a ring of four sites at $U=4t$ and
-$T=t/2$, a Fock space of 256 states: its grand potential, the number of poles of its local Green's function, and the
+$T=t/2$ and $\mu=0$, half filling, a Fock space of 256 states: its grand potential, the number of poles of its local Green's function, and the
 imaginary part of the latter at the first Matsubara frequency, $z=i\pi T$:
 \example{lehmann}
 Wick's theorem is exact in a Gaussian state, and here it can be checked: the contractions of the free ground state of the

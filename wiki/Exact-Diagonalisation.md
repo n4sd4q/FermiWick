@@ -55,18 +55,21 @@ A singlet, whose weight on the doubly occupied sites falls as $U$ grows.
 ### Thermodynamics
 
 Everything at a finite temperature follows from the grand-canonical partition function,
-$Z=\mathrm{Tr}\thinspace e^{-(H-\mu N)/T}$, the trace over the whole Fock space, here sixteen states.
-`PartitionFunction[H, space, T, μ]` gives it exactly, as a sum of exponentials over the levels of every sector:
+$Z(T,\mu)=\mathrm{Tr}\thinspace e^{-(H-\mu N)/T}$, the trace over the whole Fock space (here sixteen states), with the
+temperature $T$ and the chemical potential $\mu$ as variables. `PartitionFunction[H, space, T, μ]` gives it exactly, as a
+sum over the levels of every sector:
 
 ```mathematica
-Z = PartitionFunction[dimer, FockSpace[{1, 2}], T, μ]
+space = FockSpace[{1, 2}];
+Z = PartitionFunction[dimer, space, T, μ]
 ```
 
 $$e^{\frac{2 \mu +\frac{1}{2} \left(-\sqrt{16 t^2+U^2}-U\right)}{T}}+e^{\frac{2 \mu +\frac{1}{2} \left(\sqrt{16 t^2+U^2}-U\right)}{T}}+2 e^{\frac{\mu +\frac{1}{2} (2 t-U)}{T}}+2 e^{\frac{\mu -t-\frac{U}{2}}{T}}+2 e^{\frac{3 \mu +\frac{1}{2} (2 t-U)}{T}}+2 e^{\frac{3 \mu -t-\frac{U}{2}}{T}}+3 e^{\frac{2 \mu }{T}}+e^{\frac{2 \mu -U}{T}}+e^{\frac{4 \mu -U}{T}}+e^{-\frac{U}{T}}$$
 
-Its logarithm is the grand potential $\Omega=-T\log Z$, and the physical quantities are its derivatives. The particle
-number $-\partial\Omega/\partial\mu$ is two at $\mu=0$, half filling, by the symmetry of the interaction; its derivative is
-the compressibility:
+Its logarithm is the grand potential $\Omega(T,\mu)=-T\log Z$, and the physical quantities are its derivatives, taken before
+any value is given to $\mu$. The particle number $N=-\partial\Omega/\partial\mu$ is two at $\mu=0$: with the interaction
+written as $\frac U2(n_i-1)^2$, $\mu=0$ is half filling, by particle–hole symmetry. Its derivative $\partial N/\partial\mu$
+is the compressibility:
 
 ```mathematica
 Ω = -T Log[Z];
@@ -75,20 +78,12 @@ FullSimplify[{-D[Ω, μ], -D[Ω, {μ, 2}]} /. μ -> 0, T > 0]
 
 $$\left\\{2,\frac{4 \left(\cosh \left(\frac{t}{T}\right)+e^{-\frac{U}{2 T}}\right)}{T \left(\cosh \left(\frac{\sqrt{16 t^2+U^2}}{2 T}\right)+4 \cosh \left(\frac{t}{T}\right)+3 \cosh \left(\frac{U}{2 T}\right)\right)}\right\\}$$
 
-The free energy at half filling,
+The entropy $S = -\partial\Omega/\partial T$ at half filling goes from zero (the ground state is a singlet; the limit at
+$U = 4t$) to $\log 16$, the sixteen states equally likely:
 
 ```mathematica
-F = FullSimplify[Ω /. μ -> 0, T > 0]
-```
-
-$$-T \log \left(2 e^{-\frac{U}{2 T}} \left(\cosh \left(\frac{\sqrt{16 t^2+U^2}}{2 T}\right)+4 \cosh \left(\frac{t}{T}\right)+3 \cosh \left(\frac{U}{2 T}\right)\right)\right)$$
-
-and the entropy $S = -\partial F/\partial T$, from zero (the ground state is a singlet; the limit at $U = 4t$) to
-$\log 16$, the sixteen states equally likely:
-
-```mathematica
-S = -D[F, T];
-{Limit[S /. U -> 4 t, T -> 0, Assumptions -> t > 0], Limit[S, T -> Infinity]}
+S = -D[Ω, T];
+{Limit[S /. {μ -> 0, U -> 4 t}, T -> 0, Assumptions -> t > 0], Limit[S /. μ -> 0, T -> Infinity]}
 ```
 
 $$\\{0,\log (16)\\}$$
@@ -99,39 +94,62 @@ temperature.
 ### The Green's function
 
 `LehmannGreen[H, space, modes]` is the single-particle Green's function as a sum over the same levels, the Lehmann
-representation, $G_{ab}(z)=\sum_{nm}(w_n+w_m)\thinspace \langle n|c_a|m\rangle\langle m|c^\dagger_b|n\rangle/(z-E_m+E_n)$, with $w_n$ the
-weight of a state; it returns the poles and the residues, and `GreenMatrix` evaluates it. At zero temperature, in
-closed form:
+representation, $G_{ab}(z)=\sum_{nm}(w_n+w_m)\thinspace \langle n|c_a|m\rangle\langle m|c^\dagger_b|n\rangle/(z-E_m+E_n)$, with $w_n$
+the weight of a state and the energies those of $H-\mu N$ (`"ChemicalPotential" -> μ`); `"Temperature" -> T` sets the
+temperature. It works in the grand-canonical ensemble on the whole Fock space: no sector is chosen by hand. At zero
+temperature only the ground state of $H-\mu N$ has weight; it depends on $\mu$, and `"Assumptions"` say where $\mu$ is,
+here inside the gap, where the ground state is the singlet with two electrons and $S^z=0$ (the sector $\\{N,S^z\\}$):
 
 ```mathematica
-g = LehmannGreen[dimer, FockSpace[{1, 2}], {c[1, SpinUp]}];
-FullSimplify[GreenMatrix[g, z][[1, 1]], t > 0 && U > 0]
+g = LehmannGreen[dimer, space, {c[1, SpinUp], c[2, SpinUp]}, "ChemicalPotential" -> μ,
+  "Assumptions" -> t > 0 && U > 0 && Abs[μ] < Sqrt[16 t^2 + U^2]/2 - t];
+First[g["GroundSectors"]]
 ```
 
-$$-\frac{4 z \left(36 t^2+U^2-4 z^2\right)}{-8 z^2 \left(20 t^2+U^2\right)+\left(12 t^2+U^2\right)^2+16 z^4}$$
+$$\\{2,0\\}$$
 
-Its four poles, at $\pm(\frac{1}{2}\sqrt{16t^2+U^2} \pm t)$, are the energies of adding and of removing an electron. At
-a temperature, `"Temperature" -> T` gives every state the weight $e^{-E_n/T}/Z$, and the transitions between excited
-states add four poles:
+`GreenMatrix[g, z]` is the matrix $G_{ab}(z)$ between the modes, here those of spin up (spin down gives the same block). In
+the basis of the bonding and antibonding orbitals, $(c_1\pm c_2)/\sqrt2$, it is diagonal:
 
 ```mathematica
-gT = LehmannGreen[dimer, FockSpace[{1, 2}], {c[1, SpinUp]}, "Temperature" -> T];
-Complement[gT["Poles"], g["Poles"]]
+P = {{1, 1}, {1, -1}}/Sqrt[2];
+MatrixForm[Simplify[P . GreenMatrix[g, z] . P, t > 0 && U > 0]]
 ```
 
-$$\left\\{-t-\frac{U}{2},t-\frac{U}{2},t+\frac{U}{2},\frac{1}{2} (U-2 t)\right\\}$$
+```math
+\left(
+\begin{array}{cc}
+ \frac{12 t-4 (\mu +z)}{12 t^2+8 t (\mu +z)+U^2-4 (\mu +z)^2} & 0 \\
+ 0 & -\frac{4 (\mu +3 t+z)}{12 t^2-8 t (\mu +z)+U^2-4 (\mu +z)^2} \\
+\end{array}
+\right)
+```
 
-Each of the new poles has the same weight, which vanishes as $T\to0$:
+The frequency enters as $z+\mu$: the poles, at $\pm(\frac{1}{2}\sqrt{16t^2+U^2} \pm t)-\mu$, are the energies of adding and
+of removing an electron, measured from $\mu$. At a temperature every state of the Fock space has the weight
+$e^{-(E_n-\mu N_n)/T}/Z$, and the transitions between excited states add poles. The matrix is still diagonal, each orbital
+with $G(z)=\frac1Z\sum_p B_p/(z-\varepsilon_p)$, $B_p$ a sum of Boltzmann factors. The four poles of the bonding orbital,
+with their $B_p$:
 
 ```mathematica
-weights = AssociationThread[gT["Poles"], gT["Residues"][[All, 1, 1]]];
-FullSimplify[weights[t + U/2], T > 0]
+gT = LehmannGreen[dimer, space, {c[1, SpinUp], c[2, SpinUp]}, "Temperature" -> T, "ChemicalPotential" -> μ];
+bonding = Select[Transpose[{gT["Poles"], Z (P . # . P)[[1, 1]] & /@ gT["Residues"]}], ! PossibleZeroQ[Last[#]] &];
+MatrixForm[FullSimplify[bonding, T > 0 && t > 0 && U > 0]]
 ```
 
-$$\frac{3 \left(\cosh \left(\frac{t}{T}\right)+\cosh \left(\frac{U}{2 T}\right)\right)}{4 \left(\cosh \left(\frac{\sqrt{16 t^2+U^2}}{2 T}\right)+4 \cosh \left(\frac{t}{T}\right)+3 \cosh \left(\frac{U}{2 T}\right)\right)}$$
+```math
+\left(
+\begin{array}{cc}
+ -\mu -t-\frac{U}{2} & \frac{1}{2} e^{-\frac{t+U}{T}} \left(e^{\frac{2 \mu +t}{T}}+2 e^{t/T}+3 e^{\frac{2 \mu +U}{2 T}}\right) \left(e^{\frac{2 \mu +2 t+U}{2 T}}+1\right) \\
+ -\mu -\frac{1}{2} \sqrt{16 t^2+U^2}+t & \frac{\left(\sqrt{16 t^2+U^2}+4 t\right) e^{-\frac{U-4 \mu }{2 T}} \left(\cosh \left(\frac{\sqrt{16 t^2+U^2}}{2 T}\right)+\cosh \left(\frac{t-\mu }{T}\right)\right)}{\sqrt{16 t^2+U^2}} \\
+ -\mu +\frac{1}{2} \sqrt{16 t^2+U^2}+t & \frac{\left(\sqrt{16 t^2+U^2}-4 t\right) e^{-\frac{U-4 \mu }{2 T}} \left(\cosh \left(\frac{\sqrt{16 t^2+U^2}}{2 T}\right)+\cosh \left(\frac{t-\mu }{T}\right)\right)}{\sqrt{16 t^2+U^2}} \\
+ \frac{1}{2} (-2 \mu -2 t+U) & \frac{1}{2} e^{-\frac{-\mu +t+U}{T}} \left(e^{\frac{\mu +t}{T}}+e^{\frac{U}{2 T}}\right) \left(3 e^{\frac{2 \mu +2 t+U}{2 T}}+2 e^{\frac{2 \mu }{T}}+1\right) \\
+\end{array}
+\right)
+```
 
-With symbols at zero temperature, the ground level must be the lowest for every value that `"Assumptions"` allows
-(none are needed here); `"ChemicalPotential" -> μ` uses $H-\mu N$.
+The antibonding orbital has the other four, those of the bonding orbital with $t\to-t$ (changing the sign of $c_2$ maps one
+orbital onto the other).
 
 ## With numbers
 

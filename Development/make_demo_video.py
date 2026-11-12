@@ -165,8 +165,12 @@ CARDS = [
      [("readme", 2), ("showcase", "decompose"), ("showcase", "spinlength"), ("showcase", "commutator")], 1.8),
     ("Exact diagonalisation", "the Hubbard dimer as on paper: its spectrum and its ground state",
      [("showcase", "fockspace"), ("showcase", "focksector"), ("readme", 3), ("showcase", "dimerground")], 2.2),
-    ("Finite temperature and Green's functions", "the free energy, the Green's function, the poles a temperature adds",
-     [("showcase", "dimerfree"), ("showcase", "dimergreen"), ("showcase", "dimergreenT")], 2.4),
+    ("Finite temperature", "the partition function at any temperature and chemical potential",
+     [("showcase", "dimerpartition"), ("showcase", "dimerfilling")], 2.2),
+    ("Green's functions", "at zero temperature, the chemical potential in the gap",
+     [("showcase", "dimergreen"), ("showcase", "dimergreenmatrix")], 2.2),
+    ("Green's functions at a temperature", "the bonding orbital: its poles and their Boltzmann weights",
+     [("showcase", "dimergreenT")], 2.4),
     ("Wick's theorem in the state you assume", "the energy; the chirality with and without time reversal",
      [("readme", 4), ("readme", 5), ("manual", "symmetries")], 2.0),
     ("Mean field of any order", "the Hubbard term in a magnetic state, the chirality with pairing",
@@ -265,7 +269,7 @@ PREAMBLE = r"""\documentclass[12pt,multi=elem,border=%gpt]{standalone}
 \usepackage[T1]{fontenc}
 \usepackage[sc]{mathpazo}
 \usepackage[scale=0.9]{sourcecodepro}
-\usepackage{amsmath,xcolor,simpler-wick}
+\usepackage{amsmath,xcolor,simpler-wick,varwidth}
 \definecolor{accent}{HTML}{%02X%02X%02X}\definecolor{muted}{HTML}{%02X%02X%02X}
 \newsavebox{\elembox}
 \begin{document}
@@ -294,7 +298,10 @@ def elements(cards):
         for j, (_, out) in enumerate(cells):
             if out and out[0] == "tex":
                 body = out[1] if out[1].startswith("$") else r"$\displaystyle %s$" % out[1]     # wick.tex: a formula already
-                e[output_name(k, j)] = r"{%s%s}" % (OUTPUT_SIZE, body)
+                # as a notebook wraps a long output at the width of the window: a sum too long for the space before the
+                # cell brackets goes on in the next line (varwidth keeps a shorter output at its own width)
+                width = (Card.X_BRACKET - px(16) - Card.X_CODE) / PT - 2 * BORDER
+                e[output_name(k, j)] = r"{%s\begin{varwidth}{%.1fpt}\raggedright %s\end{varwidth}}" % (OUTPUT_SIZE, width, body)
     return e
 
 

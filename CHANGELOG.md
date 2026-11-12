@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+- Documents: the chemical potential $\mu$ is a variable everywhere, as the temperature: the partition function $Z(T,\mu)$,
+  the grand potential and its derivatives (the particle number, the compressibility, the entropy, set to $\mu=0$, half
+  filling, only after differentiating), and the Green's function, which `LehmannGreen` computes with
+  `"ChemicalPotential" -> μ` (at zero temperature with `"Assumptions"` that put $\mu$ in the gap). The Green's function is
+  printed as a matrix between the modes, diagonal in the bonding and antibonding orbitals: at zero temperature in closed
+  form, $1/(z+\mu\pm t-\Sigma(z))$, and at a temperature as its poles with their Boltzmann weights, on the whole Fock space.
+  In the showcase, the wiki, the manual, the guided tour and the video (one card on the partition function, two on the
+  Green's function).
+
 ## 0.6.0 (2026-11-12)
 
 - `LehmannGreen` at a finite temperature and with symbols: `"Temperature" -> T` (a number or a symbol) weighs every state

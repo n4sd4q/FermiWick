@@ -183,19 +183,20 @@ N[Round[10^4 First[LowestStates[FockMatrix[dimer, sec], 2]]]/10^4]
 
 (* ::Example:: lehmann text *)
 space = FockSpace[{1, 2}];
-g = LehmannGreen[dimer, space, {c[1, "\[UpArrow]"]}];
+g = LehmannGreen[dimer, space, {c[1, "\[UpArrow]"]}, "ChemicalPotential" -> 0];
 {N[Round[10^4 g["GroundEnergy"]]/10^4], g["Degeneracy"], Max[Abs[Total[g["Residues"]] - IdentityMatrix[1]]] < 10^-12}
 
 (* ::Example:: greenmatrix text *)
 N[Round[10^4 GreenMatrix[g, 0.5 I]]/10^4]
 
 (* ::Example:: lehmannthermal text *)
-gT = LehmannGreen[dimer, space, {c[1, "\[UpArrow]"]}, "Temperature" -> 1/2];
+gT = LehmannGreen[dimer, space, {c[1, "\[UpArrow]"]}, "Temperature" -> 1/2, "ChemicalPotential" -> 0];
 {N[Round[10^4 gT["GrandPotential"]]/10^4], Length[gT["Poles"]], Max[Abs[Total[gT["Residues"]] - IdentityMatrix[1]]] < 10^-12}
 
 (* ::Example:: lehmannatom *)
 atom = U/2 (nTotOp[1] - 1)^2;
-FullSimplify[GreenMatrix[LehmannGreen[atom, FockSpace[{1}], {c[1, "\[UpArrow]"]}, "Temperature" -> T], z][[1, 1]]]
+FullSimplify[GreenMatrix[LehmannGreen[atom, FockSpace[{1}], {c[1, "\[UpArrow]"]}, "Temperature" -> T,
+   "ChemicalPotential" -> \[Mu]], z][[1, 1]] /. \[Mu] -> 0]
 
 (* ::Example:: partition *)
 Z = PartitionFunction[atom, FockSpace[{1}], T, \[Mu]]
@@ -204,7 +205,7 @@ Z = PartitionFunction[atom, FockSpace[{1}], T, \[Mu]]
 FullSimplify[T D[Log[Z], \[Mu]] /. \[Mu] -> 0]
 
 (* ::Example:: grandpotential text *)
-N[Round[10^4 {GrandPotential[dimer, space, 1/2], GrandPotential[dimer, space, 1/100], GrandPotential[dimer, space, 0]}]/10^4]
+N[Round[10^4 {GrandPotential[dimer, space, 1/2, 0], GrandPotential[dimer, space, 1/100, 0], GrandPotential[dimer, space, 0, 0]}]/10^4]
 
 (* ::Example:: particlehole text *)
 With[{ph = ParticleHoleOperator[space]}, Max[Abs[ph . FockMatrix[c[1, "\[UpArrow]"], space] . Transpose[ph] - FockMatrix[cDag[1, "\[UpArrow]"], space]]]]

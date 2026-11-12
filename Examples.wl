@@ -98,19 +98,24 @@ Eigenvalues[Normal[FockMatrix[dimer, dimerSector]]]
 (* 0, U and (U -+ Sqrt[U^2 + 16 t^2])/2 *)
 
 (* ::Text:: *)
-(*At a finite temperature everything follows from the grand-canonical partition function, the trace of Exp[-(H - mu N)/T] over the whole Fock space, sixteen states here: its logarithm is the free energy, at half filling for mu = 0, and derivatives give the entropy, the particle number, the compressibility.*)
+(*At a finite temperature everything follows from the grand-canonical partition function, the trace of Exp[-(H - \[Mu] N)/T] over the whole Fock space, sixteen states here, with the temperature T and the chemical potential \[Mu] as variables. Its logarithm is the grand potential, and its derivatives are the particle number, the compressibility, the entropy; \[Mu] = 0 is half filling.*)
 
-F = FullSimplify[-T Log[PartitionFunction[dimer, FockSpace[{1, 2}], T]], T > 0]
-(* -T Log[2 Exp[-U/(2 T)] (4 Cosh[t/T] + 3 Cosh[U/(2 T)] + Cosh[Sqrt[16 t^2 + U^2]/(2 T)])] *)
+Z = PartitionFunction[dimer, FockSpace[{1, 2}], T, \[Mu]];
+\[CapitalOmega] = -T Log[Z];
+FullSimplify[-D[\[CapitalOmega], \[Mu]] /. \[Mu] -> 0, T > 0]
+(* 2: half filling at \[Mu] = 0 *)
 
-Limit[-D[F, T], T -> Infinity]
+Limit[-D[\[CapitalOmega], T] /. \[Mu] -> 0, T -> Infinity]
 (* Log[16]: at a high temperature the sixteen states are equally likely *)
 
 (* ::Text:: *)
-(*The single-particle Green's function, as a sum over the same levels (the Lehmann representation), in closed form at zero temperature: its four poles are the energies of adding and of removing an electron. With "Temperature" -> T the excited states contribute too.*)
+(*The single-particle Green's function, as a sum over the same levels (the Lehmann representation), as a matrix between the modes of spin up. At zero temperature, with \[Mu] inside the gap, where the ground state is the singlet with two electrons; in the basis of the bonding and antibonding orbitals it is diagonal, and z enters as z + \[Mu]. With "Temperature" -> T the excited states contribute too.*)
 
-FullSimplify[GreenMatrix[LehmannGreen[dimer, FockSpace[{1, 2}], {c[1, SpinUp]}], z][[1, 1]], t > 0 && U > 0]
-(* -4 z (36 t^2 + U^2 - 4 z^2)/((12 t^2 + U^2)^2 - 8 z^2 (20 t^2 + U^2) + 16 z^4) *)
+g = LehmannGreen[dimer, FockSpace[{1, 2}], {c[1, SpinUp], c[2, SpinUp]}, "ChemicalPotential" -> \[Mu],
+   "Assumptions" -> t > 0 && U > 0 && Abs[\[Mu]] < Sqrt[16 t^2 + U^2]/2 - t];
+P = {{1, 1}, {1, -1}}/Sqrt[2];
+Simplify[P . GreenMatrix[g, z] . P, t > 0 && U > 0]
+(* {{(12 t - 4 (z + \[Mu]))/(12 t^2 + 8 t (z + \[Mu]) + U^2 - 4 (z + \[Mu])^2), 0}, {0, ...}}: z enters as z + \[Mu] *)
 
 (* ::Text:: *)
 (*A ring of ten sites at half filling, with U = 4t: a sector of 63 504 states, solved in about a second.*)

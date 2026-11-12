@@ -1,1 +1,0 @@
-F = FullSimplify[-T Log[PartitionFunction[H, space, T]], T > 0]
