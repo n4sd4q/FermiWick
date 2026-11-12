@@ -165,7 +165,7 @@ CARDS = [
      [("readme", 2), ("showcase", "decompose"), ("showcase", "spinlength"), ("showcase", "commutator")], 1.8),
     ("Exact diagonalisation", "the Hubbard dimer as on paper: its spectrum and its ground state",
      [("showcase", "fockspace"), ("showcase", "focksector"), ("readme", 3), ("showcase", "dimerground")], 2.2),
-    ("Finite temperature and Green's functions", "the free energy of the dimer; its Green's function, and the poles a temperature adds",
+    ("Finite temperature and Green's functions", "the free energy, the Green's function, the poles a temperature adds",
      [("showcase", "dimerfree"), ("showcase", "dimergreen"), ("showcase", "dimergreenT")], 2.4),
     ("Wick's theorem in the state you assume", "the energy; the chirality with and without time reversal",
      [("readme", 4), ("readme", 5), ("manual", "symmetries")], 2.0),
@@ -381,7 +381,7 @@ def package_names():
 NAME = r"[A-Za-z$\u0370-\u03ff][A-Za-z0-9$\u0370-\u03ff]*"
 # the names of the system, black in an input cell (those of the examples of the documents, and a few more; another one
 # would be coloured as undefined: add it here)
-SYSTEM_NAMES = set("""Abs Apply Assumptions Block C Chop Conjugate Cos D Det E Eigensystem Eigenvalues Exp Expand Factor False
+SYSTEM_NAMES = set("""Abs Apply Assumptions AssociationThread Block C Chop Complement Conjugate Cos D Det E Eigensystem Eigenvalues Exp Expand Factor False
     First Flatten FullSimplify Function I IdentityMatrix If Infinity Join K KroneckerDelta Last Length Limit Log Map
     MatrixForm Max Min Mod Module N Needs None Normal Normalize O Ordering Pi Print Range Round Row Select Simplify Sin Solve
     Sort Sqrt Subscript Sum Table Thread Total Transpose True With""".split())
@@ -469,6 +469,19 @@ def expressions(code):
         if depth == 0 and line.strip() and not re.search(r"(?:[-+*/^=,~|<>:]|&&)$", line.strip()):
             n += 1
     return n
+
+
+FORMS = "MatrixForm|TableForm|TraditionalForm|InputForm|FullForm|TeXForm|NumberForm|ScientificForm"
+
+
+def output_form(code):
+    """The form that wraps the last expression of a cell (MatrixForm[...] or ... // MatrixForm), or None: a notebook
+    labels such an output Out[n]//MatrixForm=, on a line of its own above the output (the label is too long for the
+    margin)."""
+    spans = [code[a:b] for a, b in statements(code) if code[a:b].strip()]
+    last = spans[-1] if spans else ""
+    m = re.match(r"\s*(%s)\[" % FORMS, last) or re.search(r"//\s*(%s)\s*;?\s*$" % FORMS, last)
+    return m.group(1) if m else None
 
 
 def wrap(code, cols, indent=2):
@@ -1118,11 +1131,14 @@ class Card:
             c["out"] = None
             if out:
                 y += self.OUT_GAP
+                form = output_form(code)
+                if form:
+                    y += px(19)      # the line of the label Out[n]//Form=, above the output
                 img = el[out]
                 if self.X_CODE + img.width - 2 * border > self.X_BRACKET - px(16):
                     print("warning: the output %s runs into the cell brackets" % out)
                 # Out[n]= with the number of the last expression, on the baseline of the output
-                c["out"] = (Item(img, self.X_CODE - border, y, t, fade=0.3), session["line"] - 1, base[out])
+                c["out"] = (Item(img, self.X_CODE - border, y, t, fade=0.3), session["line"] - 1, base[out], form)
                 self.full = t + 0.3
                 y += img.height - 2 * border
             t += 0.22
@@ -1158,12 +1174,18 @@ class Card:
                 self.label(d, "In[%d]:=" % c["n"], cell.baseline(0), LABEL)
             self.bracket(d, self.X_BRACKET, c["top"], c["input_bottom"])
             if c["out"] and t >= c["out"][0].t0:
-                item, number, base = c["out"]
+                item, number, base, form = c["out"]
                 item.draw(frame, t)
                 a = ease((t - item.t0) / 0.3)
                 colour = tuple(int(255 - (255 - v) * a) for v in LABEL)
                 rise = (1 - ease_out((t - item.t0) / item.fade)) * item.rise
-                self.label(d, "Out[%d]=" % number, item.y + base + rise, colour)
+                if form:
+                    # as a notebook does: the long label on its own line above the output, from where the labels begin
+                    x0 = self.X_CODE - px(12) - self.labelfont.getlength("Out[%d]=" % number)
+                    d.text((x0, item.y + BORDER * PT - px(6) + rise), "Out[%d]//%s=" % (number, form), font=self.labelfont,
+                           fill=colour, anchor="ls")
+                else:
+                    self.label(d, "Out[%d]=" % number, item.y + base + rise, colour)
                 self.bracket(d, self.X_BRACKET, item.y + BORDER * PT - px(3), c["bottom"],
                              colour=tuple(int(255 - (255 - v) * a) for v in BRACKET))
                 self.bracket(d, self.X_GROUP, c["top"], c["bottom"])

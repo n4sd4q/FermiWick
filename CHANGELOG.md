@@ -17,7 +17,10 @@
   comes from `PartitionFunction` (the particle number, the compressibility, the free energy, the entropy) and its
   Green's function from `LehmannGreen`, at zero temperature in closed form and at a temperature with the four poles
   that the excited states add, in the showcase, the wiki, the manual, the guided tour and the video.
-- Video: the In[n] of a cell whose first line goes on after a binary operator is counted once.
+- Video: the card on finite temperature shows the free energy from `PartitionFunction`, the Green's function from
+  `LehmannGreen` and the poles that a temperature adds; the labels are those of a notebook: the In[n] of a cell whose
+  first line goes on after a binary operator is counted once, and an output wrapped in a form is labelled
+  `Out[n]//MatrixForm=`, on a line of its own.
 - Wiki: the workflow that publishes `wiki/` compares the pages by content; a page changed without changing its size
   (the version in the installation line and in the footer) was skipped, and the wiki still showed 0.3.0.
 
