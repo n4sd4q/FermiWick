@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Wiki: the workflow that publishes `wiki/` compares the pages by content; a page changed without changing its size
+  (the version in the installation line and in the footer) was skipped, and the wiki still showed 0.3.0.
+
 ## 0.5.0 (2026-11-11)
 
 - Gaussian states written by spin components, one amplitude for each contraction: $\langle c^\dagger_{i\sigma}c_{j\sigma'}\rangle$ =
