@@ -123,6 +123,49 @@ VerificationTest[With[{g = LehmannGreen[dimer, dimerSpace, dimerSpace["Modes"]]}
 VerificationTest[With[{g = LehmannGreen[dimer, dimerSpace, {c[1, up], c[2, up]}]}, {g["Modes"], Chop[GreenMatrix[g, 0.3 I] - GreenMatrix[LehmannGreen[dimer, dimerSpace, {1, 3}], 0.3 I]]}],
   {{c[1, up], c[2, up]}, {{0, 0}, {0, 0}}}, TestID -> "LehmannGreen with ladder operators"]
 
+(* ---------------------------------------------------------------- finite temperature, symbols, the partition function *)
+(* the brute-force Lehmann sum and trace on the whole Fock space, sixteen states *)
+hs = -t Sum[PlusHC[cDag[1, s] ** c[2, s]], {s, $Spins}] + U (DOp[1] + DOp[2]);
+bruteGreen[h_, modes_, temp_, z_] := Module[{ev, vv, cm = Normal[FockMatrix[#, dimerSpace]] & /@ modes, w},
+   {ev, vv} = Eigensystem[N[Normal[(h + ConjugateTranspose[h])/2]]]; w = Exp[-(ev - Min[ev])/temp]; w = w/Total[w];
+   Table[Sum[(w[[n]] + w[[k]]) (Conjugate[vv[[n]]] . cm[[a]] . vv[[k]]) Conjugate[Conjugate[vv[[n]]] . cm[[b]] . vv[[k]]]/(z - (ev[[k]] - ev[[n]])),
+     {n, 16}, {k, 16}], {a, Length[modes]}, {b, Length[modes]}]];
+VerificationTest[With[{g = LehmannGreen[dimer, dimerSpace, {c[1, up], c[2, dn], c[2, up]}, "Temperature" -> 0.7]},
+   {Max[Abs[GreenMatrix[g, 0.3 + 0.4 I] - bruteGreen[dimer, {c[1, up], c[2, dn], c[2, up]}, 0.7, 0.3 + 0.4 I]]] < 10^-12,
+    Max[Abs[Total[g["Residues"]] - IdentityMatrix[3]]] < 10^-12, g["Temperature"], Sort[Keys[g]]}],
+  {True, True, 0.7, Sort[{"Temperature", "GroundEnergy", "GroundSectors", "Degeneracy", "GrandPotential", "Modes", "Poles", "Residues"}]},
+  TestID -> "thermal Green's function = the Lehmann sum over the whole Fock space; sum rule"]
+VerificationTest[{Max[Abs[GreenMatrix[LehmannGreen[dimer, dimerSpace, {1, 3}, "Temperature" -> 0.01], 0.3 I] - GreenMatrix[LehmannGreen[dimer, dimerSpace, {1, 3}], 0.3 I]]] < 10^-9,
+   Max[Abs[GreenMatrix[LehmannGreen[dimer, dimerSpace, {1}, "Temperature" -> 0.7, "N" -> 2], 0.3 I] -
+      GreenMatrix[LehmannGreen[SectorBlock[dimer, #] &, dimerSpace, {1}, "Temperature" -> 0.7, "N" -> 2, "UseSz" -> False], 0.3 I]]] < 10^-12,
+   Quiet[LehmannGreen[dimer, dimerSpace, {1}, "Temperature" -> -1]]},
+  {True, True, $Failed}, TestID -> "thermal Green's function: low temperature, canonical ensemble without Sz sectors, negative temperature refused"]
+gSym = LehmannGreen[hs - U/2 (nTotOp[1] + nTotOp[2]), dimerSpace, {c[1, up], c[2, up]}];
+VerificationTest[{Simplify[GreenMatrix[gSym, z][[1, 1]] + 4 z (36 t^2 + U^2 - 4 z^2)/((12 t^2 + U^2)^2 - 8 z^2 (20 t^2 + U^2) + 16 z^4)],
+   Simplify[Total[gSym["Residues"]]], gSym["GroundSectors"], gSym["Degeneracy"], FreeQ[gSym, _Real]},
+  {0, IdentityMatrix[2], {{2, 0}}, 1, True}, TestID -> "Hamiltonian with symbols at T = 0: the Green's function of the Hubbard dimer in closed form"]
+VerificationTest[With[{g = LehmannGreen[hs, dimerSpace, {c[1, up]}, "Temperature" -> T, "ChemicalPotential" -> U/2], num = {t -> 1, U -> 3, T -> 7/10}},
+   {Simplify[Total[g["Residues"]]], Length[g["Poles"]],
+    Abs[(GreenMatrix[g, 3/10 + 2 I/5][[1, 1]] /. num) - bruteGreen[FockMatrix[(hs - U/2 (nTotOp[1] + nTotOp[2])) /. num, dimerSpace], {c[1, up]}, 0.7, 0.3 + 0.4 I][[1, 1]]] < 10^-12,
+    Simplify[g["GrandPotential"] + T Log[PartitionFunction[hs, dimerSpace, T, U/2]]]}],
+  {{{1}}, 8, True, 0}, TestID -> "Hamiltonian with symbols at a symbolic temperature: eight poles, sum rule, numbers, grand potential"]
+VerificationTest[{Simplify[GreenMatrix[LehmannGreen[U (DOp[1] + DOp[2]) - U/2 (nTotOp[1] + nTotOp[2]), dimerSpace, {c[1, up]}, "Temperature" -> T], z][[1, 1]] -
+     (1/2)/(z - U/2) - (1/2)/(z + U/2)],
+   Max[Abs[GreenMatrix[LehmannGreen[hs /. {t -> 1, U -> 3}, dimerSpace, {1}, "ChemicalPotential" -> 3/2], 0.3 I] -
+      GreenMatrix[LehmannGreen[FockMatrix[(hs - 3/2 (nTotOp[1] + nTotOp[2])) /. {t -> 1, U -> 3}, dimerSpace], dimerSpace, {1}], 0.3 I]]] < 10^-12,
+   Quiet[LehmannGreen[hs, dimerSpace, {1}, "ChemicalPotential" -> \[Mu]]],
+   Head[LehmannGreen[hs, dimerSpace, {1}, "ChemicalPotential" -> \[Mu], "Assumptions" -> t > 0 && U > 0 && \[Mu] == U/2]]},
+  {0, True, $Failed, Association}, TestID -> "degenerate levels (atomic limit), the chemical potential, and a ground state that needs assumptions"]
+VerificationTest[With[{z = PartitionFunction[hs, dimerSpace, T, \[Mu]], num = {t -> 1, U -> 3, T -> 7/10, \[Mu] -> 13/10},
+    ev = Eigenvalues[N[Normal[FockMatrix[(hs - 13/10 (nTotOp[1] + nTotOp[2])) /. {t -> 1, U -> 3}, dimerSpace]]]]},
+   {Abs[(z /. num) - Total[Exp[-ev/0.7]]] < 10^-9, Abs[PartitionFunction[hs /. {t -> 1, U -> 3}, dimerSpace, 0.7, 1.3] - Total[Exp[-ev/0.7]]] < 10^-9,
+    Abs[GrandPotential[hs /. {t -> 1, U -> 3}, dimerSpace, 0.7, 1.3] + 0.7 Log[Total[Exp[-ev/0.7]]]] < 10^-12,
+    Simplify[(T D[Log[z], \[Mu]]) /. \[Mu] -> U/2], Simplify[GrandPotential[hs, dimerSpace, T, \[Mu]] + T Log[z]],
+    Simplify[PartitionFunction[hs, dimerSpace, T, "N" -> 2] - (3 + Exp[-U/T] + Exp[(-U - Sqrt[16 t^2 + U^2])/(2 T)] + Exp[(-U + Sqrt[16 t^2 + U^2])/(2 T)])],
+    Abs[GrandPotential[dimer, dimerSpace, 0] + 1.] < 10^-12, Abs[GrandPotential[dimer, dimerSpace, 0.001] + 1.] < 10^-6, Quiet[PartitionFunction[dimer, dimerSpace, 0]]}],
+  {True, True, True, 2, 0, 0, True, True, $Failed},
+  TestID -> "PartitionFunction and GrandPotential: symbols and numbers, half filling at \[Mu] = U/2, canonical ensemble, low temperature"]
+
 (* magnetic plaquette, t = 1, t0 = 0.5, phi = pi/3, U = 5, N = 4 (value checked against an independent code) *)
 VerificationTest[Module[{sp = FockSpace[Range[4]], nb, phi = Pi/3, t0 = 0.5, u = 5., h},
    nb[j_] := Mod[j - 1, 4] + 1;

@@ -58,12 +58,22 @@ SectorBlock::usage = "SectorBlock[H, sector] extracts from a full-space matrix H
 LowestStates::usage = "LowestStates[H, k] gives {energies, vectors} of the k lowest eigenstates of the Hermitian matrix H (dense below \
 $FockDenseLimit, Arnoldi above; for k > 1 Arnoldi is run from several starting vectors and H is diagonalised in their span, \
 so that degenerate multiplets are complete).";
-LehmannGreen::usage = "LehmannGreen[H, space, modes] computes the T = 0 single-particle Green's function G_ab(z) = <c_a (z - H + E0)^-1 c_b^dagger> \
-+ <c_b^dagger (z + H - E0)^-1 c_a> of the number-conserving Hamiltonian H (full-space matrix, or a function sector -> matrix) for the \
-modes a, b in modes (ladder operators c[...] or mode indices), averaged over the degenerate ground multiplet. The result is an \
-association with \"GroundEnergy\", \"GroundSectors\", \"Degeneracy\", \"Poles\", \"Residues\". Options: \"N\" (particle numbers to search \
-for the ground state, default All), \"UseSz\" (work in (N, Sz) sectors; Automatic checks that a matrix H conserves Sz, and a function H on \
-the sector N = M/2), \"Tolerance\" (energy window of the ground multiplet, 10^-9), \"ResidueCutoff\" (smaller residues are dropped, 10^-12).";
+LehmannGreen::usage = "LehmannGreen[H, space, modes] computes the single-particle Green's function of the number-conserving Hamiltonian H on the whole \
+Fock space, in the Lehmann representation: G_ab(z) = Sum_{n, m} (w_n + w_m) <n|c_a|m> <m|c_b^dagger|n> / (z - (E_m - E_n)), for the modes a, b in modes \
+(ladder operators c[...] or mode indices). H is an expression of FermiWick, a matrix on the whole space or a function sector -> matrix, with numbers or \
+with symbols (small clusters: every sector is diagonalised exactly). \"Temperature\" -> T weighs the states with e^(-(E - \[Mu] N)/T)/Z, T a number or a \
+symbol; at T = 0 (the default) G_ab(z) = <c_a (z - H + E0)^-1 c_b^dagger> + <c_b^dagger (z + H - E0)^-1 c_a>, averaged over the degenerate ground \
+multiplet (with symbols, the lowest level for every value allowed by \"Assumptions\"). \"ChemicalPotential\" -> \[Mu] uses H - \[Mu] N. The result is an \
+association with \"Temperature\", \"Poles\", \"Residues\", \"Modes\" and, when they are defined, \"GroundEnergy\", \"GroundSectors\", \"Degeneracy\" and \
+\"GrandPotential\" (-T Log[Z]). Other options: \"N\" (the particle numbers that carry weight, default All), \"UseSz\" (work in (N, Sz) sectors; Automatic \
+checks that H conserves Sz), \"Tolerance\" (energies closer than this are one level, 10^-9), \"ResidueCutoff\" (smaller residues are dropped, 10^-12).";
+PartitionFunction::usage = "PartitionFunction[H, space, T, \[Mu]] is the grand-canonical partition function Z = Tr e^(-(H - \[Mu] N)/T) of the \
+number-conserving Hamiltonian H (an expression of FermiWick, a matrix on the whole space or a function sector -> matrix) on the whole Fock space of \
+space; PartitionFunction[H, space, T] has \[Mu] = 0. With symbols in H, T or \[Mu] the result is exact, a sum of exponentials over the levels, to be \
+differentiated: the grand potential \[CapitalOmega] = -T Log[Z], the entropy -D[\[CapitalOmega], T], the particle number -D[\[CapitalOmega], \[Mu]]. Options: \"N\" (the \
+particle numbers kept, default All: one number gives the canonical ensemble), \"UseSz\", \"Assumptions\", \"Tolerance\".";
+GrandPotential::usage = "GrandPotential[H, space, T, \[Mu]] is \[CapitalOmega] = -T Log[Z], with Z = PartitionFunction[H, space, T, \[Mu]]; with numbers it is \
+computed from the lowest level, without overflow at low temperature, and at T = 0 it is the lowest value of H - \[Mu] N. Options as PartitionFunction.";
 GreenMatrix::usage = "GreenMatrix[g, z] evaluates the Green's function g returned by LehmannGreen at the complex frequency z.";
 ClearFockCache::usage = "ClearFockCache[] forgets the sectors built so far (they are cached by space and constraints).";
 $FockFullLimit::usage = "$FockFullLimit is the largest number of modes for which sectors without a fixed particle number, which need the \
@@ -362,30 +372,44 @@ lowestComplete[H_, k_] := Module[{n = Length[H], kk, basis = {}, new, hs, e, v, 
     prev = e[[;; k]]];
    {e[[;; k]], v[[;; k]] . basis}];
 
-Options[LehmannGreen] = {"Tolerance" -> 10^-9, "ResidueCutoff" -> 10^-12, "N" -> All, "UseSz" -> Automatic};
-LehmannGreen[H_, sp_FockSpace, modes0_List, opts : OptionsPattern[]] := Module[{m = sp["Count"], tol = OptionValue["Tolerance"], useSz, keys,
-    sec, block, eig, E0, gs, deg, spinOf, poles = {}, res = {}, modes = modeIndices[sp, modes0], isMatrix = MatrixQ[H]},
+Options[LehmannGreen] = {"Temperature" -> 0, "ChemicalPotential" -> 0, "Assumptions" :> $Assumptions, "Tolerance" -> 10^-9, "ResidueCutoff" -> 10^-12, "N" -> All,
+   "UseSz" -> Automatic};
+(* H: a matrix on the whole space, a function sector -> matrix, or an expression of FermiWick (its matrix is built sector by sector) *)
+LehmannGreen[H_, sp_FockSpace, modes0_List, opts : OptionsPattern[]] :=
+  lehmannGreen[If[MatrixQ[H] || MatchQ[H, _Function | _Symbol], H, With[{e = H}, FockMatrix[e, #] &]], sp, modes0, opts];
+zeroMatrixQ[x_] := With[{f = Flatten[Normal[x]]}, If[VectorQ[f, NumericQ], Max[Abs[f], 0] < 10^-12, AllTrue[f, PossibleZeroQ]]];
+lehmannGreen[H_, sp_FockSpace, modes0_List, opts : OptionsPattern[LehmannGreen]] := Module[{m = sp["Count"], tol = OptionValue[LehmannGreen, {opts}, "Tolerance"], useSz, keys,
+    sec, block, eig, E0, gs, deg, spinOf, poles = {}, res = {}, modes = modeIndices[sp, modes0], isMatrix = MatrixQ[H], temp, mu, symbolic},
    If[! posModesOK[LehmannGreen, m, modes], Return[$Failed]];
    (* Sz sectors are used only if H conserves Sz (checked when H is a full-space matrix; a function H must conserve it,
       or be called with "UseSz" -> False) *)
    If[isMatrix && Dimensions[H] =!= {2^m, 2^m}, Message[LehmannGreen::dims, Dimensions[H], 2^m]; Return[$Failed]];
-   If[TrueQ[OptionValue["UseSz"]] && sp["Shape"][[3]] =!= 2, Message[LehmannGreen::spin]; Return[$Failed]];
-   useSz = Which[OptionValue["UseSz"] =!= Automatic, TrueQ[OptionValue["UseSz"]], sp["Shape"][[3]] =!= 2, False,
-     isMatrix, With[{sz = spinZ[sp]}, Max[Abs[H . sz - sz . H]] < 10^-12],
+   If[TrueQ[OptionValue[LehmannGreen, {opts}, "UseSz"]] && sp["Shape"][[3]] =!= 2, Message[LehmannGreen::spin]; Return[$Failed]];
+   useSz = Which[OptionValue[LehmannGreen, {opts}, "UseSz"] =!= Automatic, TrueQ[OptionValue[LehmannGreen, {opts}, "UseSz"]], sp["Shape"][[3]] =!= 2, False,
+     isMatrix, With[{sz = spinZ[sp]}, zeroMatrixQ[H . sz - sz . H]],
      (* a function H: test the sector with N = M/2 and any Sz *)
      True, With[{s = FockSector[sp, "N" -> Floor[m/2]]}, With[{b = H[s]}, MatrixQ[b] && Dimensions[b] == {s["Dimension"], s["Dimension"]} &&
-        With[{sz = spinZ[s]}, Max[Abs[b . sz - sz . b]] < 10^-12]]]];
-   If[useSz && isMatrix && OptionValue["UseSz"] === True && With[{sz = spinZ[sp]}, Max[Abs[H . sz - sz . H]] >= 10^-12],
+        With[{sz = spinZ[s]}, zeroMatrixQ[b . sz - sz . b]]]]];
+   If[useSz && isMatrix && OptionValue[LehmannGreen, {opts}, "UseSz"] === True && With[{sz = spinZ[sp]}, ! zeroMatrixQ[H . sz - sz . H]],
     Message[LehmannGreen::sz]];
+   (* a temperature, or a Hamiltonian with symbols: the general sum over the levels of every sector *)
+   temp = OptionValue[LehmannGreen, {opts}, "Temperature"];
+   If[NumericQ[temp] && ! TrueQ[temp >= 0], Message[LehmannGreen::temp, temp]; Return[$Failed]];
+   symbolic = If[isMatrix, ! MatrixQ[H, NumericQ],
+     AnyTrue[{FockSector[sp, "N" -> Floor[m/2]], FockSector[sp, "N" -> 1]}, With[{b = H[#]}, MatrixQ[b] && ! MatrixQ[b, NumericQ]] &]];
+   mu = OptionValue[LehmannGreen, {opts}, "ChemicalPotential"];
+   If[symbolic || ! PossibleZeroQ[temp] || ! NumericQ[mu],
+    Return[lehmannLevels[H, isMatrix, sp, modes0, modes, useSz, temp, mu, OptionValue[LehmannGreen, {opts}, "Assumptions"], tol,
+      OptionValue[LehmannGreen, {opts}, "ResidueCutoff"], OptionValue[LehmannGreen, {opts}, "N"]]]];
    spinOf[a_] := If[useSz, If[OddQ[a], 1/2, -1/2], 0];
    keys = Flatten[Table[If[useSz, Table[{n, sz}, {sz, -Min[n, m - n]/2, Min[n, m - n]/2}], {{n, All}}],
-      {n, If[OptionValue["N"] === All, Range[0, m], Flatten[{OptionValue["N"]}]]}], 1];
+      {n, If[OptionValue[LehmannGreen, {opts}, "N"] === All, Range[0, m], Flatten[{OptionValue[LehmannGreen, {opts}, "N"]}]]}], 1];
    sec[k_] := sec[k] = FockSector[sp, "N" -> k[[1]], "Sz" -> k[[2]]];
    block[k_] := With[{s = sec[k]}, With[{b = If[isMatrix, SectorBlock[H, s], H[s]]},
       If[MatrixQ[b, NumericQ] && Dimensions[b] == {s["Dimension"], s["Dimension"]}, b,
        Message[LehmannGreen::block, s["Constraints"]]; Throw[$Failed, fwFail]]]];
    eig[k_] := eig[k] = If[sec[k]["Dimension"] == 0, {{}, {}},
-      Module[{b = block[k], vals, vecs}, {vals, vecs} = Eigensystem[N@Normal[(b + ConjugateTranspose[b])/2]]; {Re@vals, vecs}]];
+      Module[{b = block[k], vals, vecs}, {vals, vecs} = Eigensystem[N@Normal[(b + ConjugateTranspose[b])/2]]; {Re@vals - mu k[[1]], vecs}]];
    E0 = Min[Flatten[eig[#][[1]] & /@ keys]];
    gs = Flatten[Table[{k, i}, {k, keys}, {i, Flatten@Position[eig[k][[1]], e_ /; e < E0 + tol]}], 1];
    deg = Length[gs];
@@ -402,9 +426,139 @@ LehmannGreen[H_, sp_FockSpace, modes0_List, opts : OptionsPattern[]] := Module[{
               poles = Join[poles, pm (e1 - E0)];
               res = Join[res, Table[If[pm == 1, Outer[Times, Conjugate[amp[[q]]], amp[[q]]], Outer[Times, amp[[q]], Conjugate[amp[[q]]]]]/deg,
                  {q, Length[e1]}]]]], {grp, targets}]]], {pm, {1, -1}}]], {g, gs}];
-   With[{keep = Flatten@Position[Max[Abs[#]] & /@ res, x_ /; x > OptionValue["ResidueCutoff"]]},
-    <|"GroundEnergy" -> E0, "GroundSectors" -> Union[gs[[All, 1]]], "Degeneracy" -> deg, "Modes" -> modes0,
+   With[{keep = Flatten@Position[Max[Abs[#]] & /@ res, x_ /; x > OptionValue[LehmannGreen, {opts}, "ResidueCutoff"]]},
+    <|"Temperature" -> 0, "GroundEnergy" -> E0, "GroundSectors" -> Union[gs[[All, 1]]], "Degeneracy" -> deg, "Modes" -> modes0,
       "Poles" -> poles[[keep]], "Residues" -> res[[keep]]|>]];
+
+(* The general Lehmann sum, at any temperature and for matrices with symbols:
+     G_ab(z) = Sum_{n, m} (w_n + w_m) <n|c_a|m> <m|c_b^dagger|n> / (z - (E_m - E_n)),
+   n in a sector and m in the sector with one particle more, w the weight of a state: e^(-E/T)/Z over the whole Fock space
+   (or over the particle numbers of "N"), and at T = 0 the average over the ground multiplet. The states are grouped in
+   levels: a pole for each difference of two levels, its residue (w_L + w_L') Tr[P_L c_a P_L' c_b^dagger], P the projectors
+   on the levels, so that degenerate eigenvectors need no orthogonalisation and the residues of a symbolic matrix are
+   rational in its eigenvalues. Symbols are real (as for Dagger); a matrix of numbers goes through its eigenvectors. *)
+lehmannConj[x_] := x /. Complex[u_, v_] :> Complex[u, -v];
+lehmannZeroQ[x_] := If[NumericQ[x], Abs[x] < 10^-9, PossibleZeroQ[x]];
+lehmannDecompose[b_, exact_, shift_, assum_, tol_] :=
+  If[! exact,
+   Module[{vals, vecs, o, groups},
+    {vals, vecs} = Eigensystem[N[Normal[(b + ConjugateTranspose[b])/2]]]; vals = Re[vals]; o = Ordering[vals]; vals = vals[[o]]; vecs = vecs[[o]];
+    groups = Split[Range[Length[vals]], Abs[vals[[#1]] - vals[[#2]]] <= tol &];
+    <|"Numeric" -> True, "Energies" -> (Mean[vals[[#]]] + shift & /@ groups), "Mult" -> (Length /@ groups), "Vectors" -> vecs, "Groups" -> groups|>],
+   Module[{vals, vecs, groups = {}, q},
+    {vals, vecs} = Eigensystem[Normal[b]]; vals = Simplify[vals, assum];
+    Do[q = FirstPosition[groups, g_List /; lehmannZeroQ[Simplify[vals[[First[g]]] - vals[[i]], assum]], None, {1}, Heads -> False];
+     If[q === None, AppendTo[groups, {i}], groups[[First[q]]] = Append[groups[[First[q]]], i]], {i, Length[vals]}];
+    <|"Numeric" -> False, "Energies" -> (Simplify[vals[[First[#]]] + shift, assum] & /@ groups), "Mult" -> (Length /@ groups),
+      "Projectors" -> (With[{v = vecs[[#]]}, Simplify[Transpose[v] . Inverse[lehmannConj[v] . Transpose[v]] . lehmannConj[v], assum]] & /@ groups)|>]];
+lehmannProjector[d_, i_] := If[d["Numeric"], With[{v = d["Vectors"][[d["Groups"][[i]]]]}, Transpose[v] . Conjugate[v]], d["Projectors"][[i]]];
+(* a <= b for every value of the symbols allowed by the assumptions *)
+lehmannLessEqual[a_, b_, assum_] :=
+  With[{d = Simplify[b - a, assum]},
+   Which[NumericQ[d], d >= -10^-9,
+    TrueQ[Simplify[d >= 0, assum]], True,
+    True, With[{vars = Union[Cases[{d, assum}, x_Symbol /; ! NumericQ[x] && Context[x] =!= "System`", {0, Infinity}]]},
+      TrueQ[Quiet[Resolve[ForAll[vars, assum, d >= 0], Reals]]]]]];
+lehmannLevels[H_, isMatrix_, sp_, modes0_, modes_, useSz_, temp_, mu_, assum_, tol_, cutoff_, nOpt_] :=
+  Module[{m = sp["Count"], zeroT = PossibleZeroQ[temp], keysOf, weighted, sec, block, dec, spinOf, all, energies, E0 = Missing["NotAvailable"],
+    groundKeys = {}, deg = Missing["NotAvailable"], ref = 0, Z = 1, weight, entries = {}, numericPoles, free = Missing["NotAvailable"], exact},
+   spinOf[a_] := If[useSz, If[OddQ[a], 1/2, -1/2], 0];
+   keysOf[n_] := If[useSz, Table[{n, sz}, {sz, -Min[n, m - n]/2, Min[n, m - n]/2}], {{n, All}}];
+   sec[k_] := sec[k] = FockSector[sp, "N" -> k[[1]], "Sz" -> k[[2]]];
+   block[k_] := block[k] = With[{s = sec[k]}, With[{b = If[isMatrix, SectorBlock[H, s], H[s]]},
+      If[MatrixQ[b] && Dimensions[b] == {s["Dimension"], s["Dimension"]}, b, Message[LehmannGreen::block, s["Constraints"]]; Throw[$Failed, fwFail]]]];
+   (* with symbols anywhere, every block is diagonalised exactly (a block of numbers too: no machine numbers in the result) *)
+   exact = ! AllTrue[Select[Flatten[keysOf /@ Range[0, m], 1], sec[#]["Dimension"] > 0 &], MatrixQ[block[#], NumericQ] &];
+   dec[k_] := dec[k] = lehmannDecompose[block[k], exact, -mu k[[1]], assum, tol];
+   (* the sectors that carry weight, and the energies of their levels *)
+   weighted = Select[Flatten[keysOf /@ If[nOpt === All, Range[0, m], Flatten[{nOpt}]], 1], sec[#]["Dimension"] > 0 &];
+   all = Flatten[Table[{k, i}, {k, weighted}, {i, Length[dec[k]["Energies"]]}], 1];
+   energies = dec[#[[1]]]["Energies"][[#[[2]]]] & /@ all;
+   If[zeroT || VectorQ[energies, NumericQ],
+    (* the ground level: the lowest energy, for every value of the symbols that the assumptions allow *)
+    E0 = If[VectorQ[energies, NumericQ], Min[energies],
+      SelectFirst[DeleteDuplicates[energies, lehmannZeroQ[Simplify[#1 - #2, assum]] &],
+       Function[e, AllTrue[energies, lehmannLessEqual[e, #, assum] &]], None]];
+    If[E0 === None, Message[LehmannGreen::ground]; Throw[$Failed, fwFail]];
+    groundKeys = Pick[all, lehmannZeroQ[Simplify[# - E0, assum]] & /@ energies];
+    deg = Total[dec[#[[1]]]["Mult"][[#[[2]]]] & /@ groundKeys]];
+   If[zeroT,
+    weight[k_, i_] := If[MemberQ[groundKeys, {k, i}], 1/deg, 0],
+    If[VectorQ[energies, NumericQ] && NumericQ[temp], ref = E0];
+    Z = Quiet[Total[MapThread[#2 Exp[-(#1 - ref)/temp] &, {energies, dec[#[[1]]]["Mult"][[#[[2]]]] & /@ all}]], General::munfl];
+    free = ref - temp Log[Z];
+    weight[k_, i_] := If[MemberQ[weighted, k], Quiet[Exp[-(dec[k]["Energies"][[i]] - ref)/temp], General::munfl]/Z, 0]];
+   (* every sector and the one with a particle more, created by the modes of one spin *)
+   Do[If[sec[k]["Dimension"] > 0 && k[[1]] < m,
+     Do[Module[{tk = {k[[1]] + 1, If[useSz, k[[2]] + spinOf[First[grp]], All]}, d0, d1, cd, amp, w, r},
+        If[sec[tk]["Dimension"] > 0 && (MemberQ[weighted, k] || MemberQ[weighted, tk]),
+         d0 = dec[k]; d1 = dec[tk];
+         cd = Table[If[MemberQ[grp, a], ladder[{sec[k], sec[tk]}, {a}], None], {a, modes}];
+         If[d0["Numeric"] && d1["Numeric"],
+          amp = Table[If[x === None, None, Conjugate[d1["Vectors"]] . (x . Transpose[d0["Vectors"]])], {x, cd}],
+          cd = Replace[cd, x : Except[None] :> Normal[x], {1}]];
+         Do[w = weight[k, i] + weight[tk, j];
+          If[! (NumericQ[w] && Abs[w] <= cutoff),
+           r = If[d0["Numeric"] && d1["Numeric"],
+             With[{gi = d0["Groups"][[i]], gj = d1["Groups"][[j]]},
+              Table[If[amp[[p]] === None || amp[[q]] === None, 0, Total[Conjugate[amp[[p]][[gj, gi]]] amp[[q]][[gj, gi]], 2]],
+               {p, Length[modes]}, {q, Length[modes]}]],
+             With[{p0 = lehmannProjector[d0, i], p1 = lehmannProjector[d1, j]},
+              Table[If[cd[[p]] === None || cd[[q]] === None, 0, Tr[p0 . Transpose[cd[[p]]] . p1 . cd[[q]]]], {p, Length[modes]}, {q, Length[modes]}]]];
+           AppendTo[entries, {d1["Energies"][[j]] - d0["Energies"][[i]], w r}]],
+          {i, Length[d0["Energies"]]}, {j, Length[d1["Energies"]]}]]], {grp, GatherBy[modes, spinOf]}]],
+    {k, Flatten[keysOf /@ Range[0, m - 1], 1]}];
+   (* one pole for each energy difference; the residues that vanish are dropped *)
+   numericPoles = VectorQ[entries[[All, 1]], NumericQ];
+   entries = If[numericPoles,
+     {Mean[#[[All, 1]]], Total[#[[All, 2]]]} & /@ Split[SortBy[entries, First], Abs[#1[[1]] - #2[[1]]] <= tol &],
+     {Simplify[#[[1, 1]], assum], Total[#[[All, 2]]]} & /@ Gather[entries, lehmannZeroQ[Simplify[#1[[1]] - #2[[1]], assum]] &]];
+   entries = Map[{#[[1]], If[MatrixQ[#[[2]], NumericQ], #[[2]], Simplify[#[[2]], assum]]} &, entries];
+   entries = Select[entries, If[MatrixQ[#[[2]], NumericQ], Max[Abs[#[[2]]]] > cutoff, ! AllTrue[Flatten[#[[2]]], PossibleZeroQ]] &];
+   DeleteMissing[<|"Temperature" -> temp, "GroundEnergy" -> E0, "GroundSectors" -> If[groundKeys === {}, Missing[], Union[groundKeys[[All, 1]]]],
+     "Degeneracy" -> deg, "GrandPotential" -> free, "Modes" -> modes0, "Poles" -> entries[[All, 1]], "Residues" -> entries[[All, 2]]|>]];
+
+(* The levels of H on the whole Fock space, sector by sector: {N, energy, multiplicity}; then
+   Z = Tr e^(-(H - mu N)/T) = Sum g e^(-(E - mu N)/T), the particle number being fixed in each sector *)
+levelEnergies[b_, exact_, assum_, tol_] :=
+  If[! exact,
+   With[{v = Sort[Re[Eigenvalues[N[Normal[(b + ConjugateTranspose[b])/2]]]]]}, {Mean[#], Length[#]} & /@ Split[v, Abs[#1 - #2] <= tol &]],
+   With[{v = Simplify[Eigenvalues[Normal[b]], assum]}, {First[#], Length[#]} & /@ Gather[v, lehmannZeroQ[Simplify[#1 - #2, assum]] &]]];
+thermalLevels[head_, H0_, sp_, opts_List] :=
+  Module[{H = If[MatrixQ[H0] || MatchQ[H0, _Function | _Symbol], H0, With[{e = H0}, FockMatrix[e, #] &]], m = sp["Count"], isMatrix, useSz, keysOf, keys,
+    sec, block, exact, assum = OptionValue[head, opts, "Assumptions"], tol = OptionValue[head, opts, "Tolerance"], nOpt = OptionValue[head, opts, "N"]},
+   isMatrix = MatrixQ[H];
+   If[isMatrix && Dimensions[H] =!= {2^m, 2^m}, Message[LehmannGreen::dims, Dimensions[H], 2^m]; Throw[$Failed, fwFail]];
+   useSz = With[{o = OptionValue[head, opts, "UseSz"]},
+     Which[sp["Shape"][[3]] =!= 2, False, o =!= Automatic, TrueQ[o],
+      isMatrix, With[{sz = spinZ[sp]}, zeroMatrixQ[H . sz - sz . H]],
+      True, With[{s = FockSector[sp, "N" -> Floor[m/2]]}, With[{b = H[s], sz = spinZ[s]}, MatrixQ[b] && zeroMatrixQ[b . sz - sz . b]]]]];
+   keysOf[n_] := If[useSz, Table[{n, sz}, {sz, -Min[n, m - n]/2, Min[n, m - n]/2}], {{n, All}}];
+   sec[k_] := sec[k] = FockSector[sp, "N" -> k[[1]], "Sz" -> k[[2]]];
+   keys = Select[Flatten[keysOf /@ If[nOpt === All, Range[0, m], Flatten[{nOpt}]], 1], sec[#]["Dimension"] > 0 &];
+   block[k_] := block[k] = With[{s = sec[k]}, With[{b = If[isMatrix, SectorBlock[H, s], H[s]]},
+      If[MatrixQ[b] && Dimensions[b] == {s["Dimension"], s["Dimension"]}, b, Message[LehmannGreen::block, s["Constraints"]]; Throw[$Failed, fwFail]]]];
+   exact = ! AllTrue[keys, MatrixQ[block[#], NumericQ] &];
+   Flatten[Table[Prepend[#, k[[1]]] & /@ levelEnergies[block[k], exact, assum, tol], {k, keys}], 1]];
+Options[PartitionFunction] = {"Assumptions" :> $Assumptions, "Tolerance" -> 10^-9, "N" -> All, "UseSz" -> Automatic};
+Options[GrandPotential] = Options[PartitionFunction];
+PartitionFunction[H_, sp_FockSpace, temp_, opts : OptionsPattern[]] := PartitionFunction[H, sp, temp, 0, opts];
+PartitionFunction[H_, sp_FockSpace, temp_, mu : Except[_Rule | _RuleDelayed], opts : OptionsPattern[]] :=
+  If[PossibleZeroQ[temp], Message[PartitionFunction::temp]; $Failed,
+   Total[#[[3]] Exp[-(#[[2]] - mu #[[1]])/temp] & /@ thermalLevels[PartitionFunction, H, sp, {opts}]]];
+GrandPotential[H_, sp_FockSpace, temp_, opts : OptionsPattern[]] := GrandPotential[H, sp, temp, 0, opts];
+GrandPotential[H_, sp_FockSpace, temp_, mu : Except[_Rule | _RuleDelayed], opts : OptionsPattern[]] :=
+  Module[{lv = thermalLevels[GrandPotential, H, sp, {opts}], x},
+   x = #[[2]] - mu #[[1]] & /@ lv;
+   Which[
+    (* numbers: the lowest level taken out of the sum, so that a low temperature does not overflow *)
+    VectorQ[x, NumericQ] && NumericQ[temp],
+    With[{ref = Min[x]}, If[PossibleZeroQ[temp], ref, ref - temp Log[Quiet[Total[lv[[All, 3]] Exp[-(x - ref)/temp]], General::munfl]]]],
+    PossibleZeroQ[temp], Message[PartitionFunction::temp]; $Failed,
+    True, -temp Log[Total[lv[[All, 3]] Exp[-x/temp]]]]];
+PartitionFunction::temp = "At zero temperature the partition function is not defined; with numbers, GrandPotential gives the ground-state value of H - \[Mu] N.";
+LehmannGreen::ground = "The ground state of a Hamiltonian with symbols depends on their values: give \"Assumptions\" that rank its levels (as t > 0 && U > 0), or a temperature.";
+LehmannGreen::temp = "The temperature `1` is neither zero, nor a positive number, nor a symbol.";
 LehmannGreen::dims = "H has dimensions `1`; the space has dimension `2`.";
 LehmannGreen::spin = "\"UseSz\" -> True needs exactly two spins.";
 LehmannGreen::block = "H does not give a numerical square matrix on the sector `1`.";
@@ -417,7 +571,7 @@ GreenMatrix[g_Association, z_] := Total[MapThread[#2/(z - #1) &, {g["Poles"], g[
    unevaluated. *)
 General::args = "Invalid arguments in `1`.";
 FockSpace[args___] /; ! MatchQ[{args}, {_Association} | {_List, OptionsPattern[]}] := (Message[FockSpace::args, {args}]; $Failed);
-$fockPublic = {ModeIndex, OccupationBasis, BasisState, StateToKet, FockMatrix, FockExpectation, SpinSquared, ParticleHoleOperator, TimeReversal, SectorBlock, LowestStates, LehmannGreen, GreenMatrix};
+$fockPublic = {ModeIndex, OccupationBasis, BasisState, StateToKet, FockMatrix, FockExpectation, SpinSquared, ParticleHoleOperator, TimeReversal, SectorBlock, LowestStates, LehmannGreen, GreenMatrix, PartitionFunction, GrandPotential};
 Scan[Function[f,
    f[args___] := (Message[f::args, HoldForm[f[args]]]; $Failed);
    DownValues[f] = Prepend[DownValues[f], HoldPattern[f[args___]] :> Block[{$fwInside = True}, Catch[f[args], fwFail]] /; ! TrueQ[$fwInside]]],

@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- `LehmannGreen` at a finite temperature and with symbols: `"Temperature" -> T` (a number or a symbol) weighs every state
+  of the Fock space with $e^{-(E-\mu N)/T}/Z$, and a Hamiltonian with symbols is diagonalised exactly, sector by sector
+  (small clusters), so that the Green's function comes out in closed form; at $T=0$ with symbols the ground level is the
+  lowest for every value allowed by `"Assumptions"`. The Hamiltonian can be an expression of FermiWick (no `FockMatrix`
+  needed); `"ChemicalPotential" -> μ` uses $H-\mu N$; the result has the keys `"Temperature"` and, at $T>0$,
+  `"GrandPotential"`. With numbers at $T=0$ nothing changes.
+- New: `PartitionFunction[H, space, T, μ]`, the grand-canonical $Z=\mathrm{Tr}\,e^{-(H-\mu N)/T}$ over the whole Fock space
+  (exact with symbols: differentiate $-T\log Z$ for the entropy, the particle number, the compressibility, the specific
+  heat), and `GrandPotential[H, space, T, μ]`, $-T\log Z$ without overflow at low temperature; `"N"` restricts the
+  particle numbers (one number: the canonical ensemble).
 - Wiki: the workflow that publishes `wiki/` compares the pages by content; a page changed without changing its size
   (the version in the installation line and in the footer) was skipped, and the wiki still showed 0.3.0.
 
