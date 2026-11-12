@@ -44,11 +44,13 @@ the hats marking the operators left out: the result has the expectation value an
 The modes of a `FockSpace` are numbered site by site, then orbital, with the spin fastest (↑ before ↓). The basis
 states are the occupation vectors, mode 1 the most significant bit, and the ladder operators are the Jordan–Wigner
 matrices $c_m=Z\otimes\cdots\otimes Z\otimes\sigma^-\otimes1\otimes\cdots$, with $Z$ on the modes before $m$.
-`LehmannGreen` gives
+`LehmannGreen` gives the Lehmann sum over the whole Fock space,
 
-$$G_{ab}(z)=\langle c_a\thinspace (z-H+E_0)^{-1}\thinspace c^\dagger_b\rangle+\langle c^\dagger_b\thinspace (z+H-E_0)^{-1}\thinspace c_a\rangle,$$
+$$G_{ab}(z)=\sum_{nm}(w_n+w_m)\thinspace \frac{\langle n|c_a|m\rangle\langle m|c^\dagger_b|n\rangle}{z-E_m+E_n},$$
 
-averaged over a degenerate ground multiplet.
+with $w_n=e^{-(E_n-\mu N_n)/T}/Z$ at a temperature $T$, and at $T=0$ the average over a degenerate ground multiplet,
+$G_{ab}(z)=\langle c_a\thinspace (z-H+E_0)^{-1}\thinspace c^\dagger_b\rangle+\langle c^\dagger_b\thinspace (z+H-E_0)^{-1}\thinspace c_a\rangle$.
+`PartitionFunction` is $Z=\mathrm{Tr}\thinspace e^{-(H-\mu N)/T}$ and `GrandPotential` is $\Omega=-T\log Z$.
 
 ## Gutzwiller
 

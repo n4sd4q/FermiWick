@@ -12,6 +12,12 @@
   (exact with symbols: differentiate $-T\log Z$ for the entropy, the particle number, the compressibility, the specific
   heat), and `GrandPotential[H, space, T, μ]`, $-T\log Z$ without overflow at low temperature; `"N"` restricts the
   particle numbers (one number: the canonical ensemble).
+- Documents: the Hubbard dimer is written everywhere with the interaction in the form symmetric about half filling,
+  $\frac U2\sum_i(n_i-1)^2$ (`U/2 Sum[(nTotOp[i] - 1)^2, {i, 2}]`), so that half filling is $\mu=0$; its thermodynamics
+  comes from `PartitionFunction` (the particle number, the compressibility, the free energy, the entropy) and its
+  Green's function from `LehmannGreen`, at zero temperature in closed form and at a temperature with the four poles
+  that the excited states add, in the showcase, the wiki, the manual, the guided tour and the video.
+- Video: the In[n] of a cell whose first line goes on after a binary operator is counted once.
 - Wiki: the workflow that publishes `wiki/` compares the pages by content; a page changed without changing its size
   (the version in the installation line and in the footer) was skipped, and the wiki still showed 0.3.0.
 

@@ -1,0 +1,1 @@
+N[Round[10^4 {GrandPotential[dimer, space, 1/2], GrandPotential[dimer, space, 1/100], GrandPotential[dimer, space, 0]}]/10^4]

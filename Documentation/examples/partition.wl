@@ -1,0 +1,1 @@
+Z = PartitionFunction[atom, FockSpace[{1}], T, μ]

@@ -1,0 +1,1 @@
+FullSimplify[T D[Log[Z], μ] /. μ -> 0]

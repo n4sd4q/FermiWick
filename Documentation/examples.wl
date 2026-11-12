@@ -178,16 +178,33 @@ StateToKet[sec, singlet]
 Eigenvalues[Normal[SpinSquared[sec]]]
 
 (* ::Example:: lowest text *)
-dimer = -Sum[cDag[1, s] ** c[2, s] + cDag[2, s] ** c[1, s], {s, $Spins}] + 4 (DOp[1] + DOp[2]);
+dimer = -Sum[PlusHC[cDag[1, s] ** c[2, s]], {s, $Spins}] + 2 Sum[(nTotOp[i] - 1)^2, {i, 2}];
 N[Round[10^4 First[LowestStates[FockMatrix[dimer, sec], 2]]]/10^4]
 
 (* ::Example:: lehmann text *)
 space = FockSpace[{1, 2}];
-g = LehmannGreen[FockMatrix[dimer, space], space, {c[1, "\[UpArrow]"]}, "N" -> 2];
+g = LehmannGreen[dimer, space, {c[1, "\[UpArrow]"]}];
 {N[Round[10^4 g["GroundEnergy"]]/10^4], g["Degeneracy"], Max[Abs[Total[g["Residues"]] - IdentityMatrix[1]]] < 10^-12}
 
 (* ::Example:: greenmatrix text *)
 N[Round[10^4 GreenMatrix[g, 0.5 I]]/10^4]
+
+(* ::Example:: lehmannthermal text *)
+gT = LehmannGreen[dimer, space, {c[1, "\[UpArrow]"]}, "Temperature" -> 1/2];
+{N[Round[10^4 gT["GrandPotential"]]/10^4], Length[gT["Poles"]], Max[Abs[Total[gT["Residues"]] - IdentityMatrix[1]]] < 10^-12}
+
+(* ::Example:: lehmannatom *)
+atom = U/2 (nTotOp[1] - 1)^2;
+FullSimplify[GreenMatrix[LehmannGreen[atom, FockSpace[{1}], {c[1, "\[UpArrow]"]}, "Temperature" -> T], z][[1, 1]]]
+
+(* ::Example:: partition *)
+Z = PartitionFunction[atom, FockSpace[{1}], T, \[Mu]]
+
+(* ::Example:: partitionnumber *)
+FullSimplify[T D[Log[Z], \[Mu]] /. \[Mu] -> 0]
+
+(* ::Example:: grandpotential text *)
+N[Round[10^4 {GrandPotential[dimer, space, 1/2], GrandPotential[dimer, space, 1/100], GrandPotential[dimer, space, 0]}]/10^4]
 
 (* ::Example:: particlehole text *)
 With[{ph = ParticleHoleOperator[space]}, Max[Abs[ph . FockMatrix[c[1, "\[UpArrow]"], space] . Transpose[ph] - FockMatrix[cDag[1, "\[UpArrow]"], space]]]]

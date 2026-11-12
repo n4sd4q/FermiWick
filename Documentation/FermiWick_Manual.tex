@@ -300,17 +300,40 @@ $S^+$ and $S^z$: faster than the matrix of $\sum_{ij}\mathbf S_i\cdot\mathbf S_j
 Hermitian matrix: dense up to dimension \texttt{\$FockDenseLimit} (3000), Arnoldi above, from several starting vectors
 when $k>1$, so that degenerate multiplets are complete.}
 \example{lowest}
-\fnentry{LehmannGreen, GreenMatrix}{\fn{LehmannGreen[H, space, modes]} is the single-particle Green's function at zero
-temperature, $G_{ab}(z)=\langle c_a(z-H+E_0)^{-1}c^\dagger_b\rangle+\langle c^\dagger_b(z+H-E_0)^{-1}c_a\rangle$, of a Hamiltonian that
-conserves $N$ (a matrix on the whole space, or a function sector $\to$ matrix), for the modes given (ladder operators or
-indices), averaged over the degenerate ground multiplet: an association with \texttt{"GroundEnergy"},
-\texttt{"GroundSectors"}, \texttt{"Degeneracy"}, \texttt{"Poles"} and \texttt{"Residues"}. Options: \texttt{"N"} (the
-particle numbers where the ground state is sought, \texttt{All}), \texttt{"UseSz"} (sectors of $S^z$ when $H$ conserves it,
-\texttt{Automatic}), \texttt{"Tolerance"} ($10^{-9}$, the width of the ground multiplet), \texttt{"ResidueCutoff"}
-($10^{-12}$). The residues add up to the identity (the last entry below). \fn{GreenMatrix[g, z]} evaluates it at a
-complex frequency.}
+\fnentry{LehmannGreen, GreenMatrix}{\fn{LehmannGreen[H, space, modes]} is the single-particle Green's function on the whole
+Fock space, in the Lehmann representation,
+$G_{ab}(z)=\sum_{nm}(w_n+w_m)\,\langle n|c_a|m\rangle\langle m|c^\dagger_b|n\rangle/(z-E_m+E_n)$, for the modes given (ladder
+operators or indices). $H$ conserves $N$: an expression of the package, a matrix on the whole space, or a function
+sector $\to$ matrix. The result is an association with \texttt{"Poles"}, \texttt{"Residues"}, \texttt{"Modes"},
+\texttt{"Temperature"} and, when they are defined, \texttt{"GroundEnergy"}, \texttt{"GroundSectors"}, \texttt{"Degeneracy"},
+\texttt{"GrandPotential"}; \fn{GreenMatrix[g, z]} evaluates it at a complex frequency. At zero temperature (the default) the
+weights average over the degenerate ground multiplet,
+$G_{ab}(z)=\langle c_a(z-H+E_0)^{-1}c^\dagger_b\rangle+\langle c^\dagger_b(z+H-E_0)^{-1}c_a\rangle$; the residues add up to the identity
+(the last entry below):}
 \example{lehmann}
 \example{greenmatrix}
+\fncont{\texttt{"Temperature" -> T}, a number or a symbol, weighs every state with $e^{-(E_n-\mu N_n)/T}/Z$, and
+\texttt{"ChemicalPotential" -> \textbackslash[Mu]} uses $H-\mu N$. At a temperature the transitions between excited states
+add poles; the grand potential, the number of poles and the sum rule of the residues:}
+\example{lehmannthermal}
+\fncont{With symbols in $H$ every sector is diagonalised exactly (small clusters) and the result is in closed form. At
+zero temperature the ground level must be the lowest for every value of the symbols that \texttt{"Assumptions"} allows.
+The Hubbard atom at half filling, whose Green's function does not depend on the temperature:}
+\example{lehmannatom}
+\fncont{Other options: \texttt{"N"} (the particle numbers that carry weight, \texttt{All}), \texttt{"UseSz"} (sectors of $S^z$
+when $H$ conserves it, \texttt{Automatic}), \texttt{"Tolerance"} ($10^{-9}$: energies closer than this are one level),
+\texttt{"ResidueCutoff"} ($10^{-12}$).}
+\fnentry{PartitionFunction, GrandPotential}{\fn{PartitionFunction[H, space, T, \textbackslash[Mu]]} is the grand-canonical
+partition function $Z=\mathrm{Tr}\,e^{-(H-\mu N)/T}$ over the whole Fock space ($\mu=0$ when it is left out), for $H$ as in
+\fn{LehmannGreen}. With symbols in $H$, $T$ or $\mu$ it is exact, a sum of exponentials over the levels, to be
+differentiated: the grand potential $\Omega=-T\log Z$, the entropy $-\partial\Omega/\partial T$, the particle number
+$-\partial\Omega/\partial\mu$, the compressibility, the specific heat. Options \texttt{"N"} (one number: the canonical ensemble),
+\texttt{"UseSz"}, \texttt{"Assumptions"}, \texttt{"Tolerance"}. The Hubbard atom, and its particle number at $\mu=0$:}
+\example{partition}
+\example{partitionnumber}
+\fncont{\fn{GrandPotential[H, space, T, \textbackslash[Mu]]} is $-T\log Z$; with numbers it is computed from the lowest level,
+without overflow at a low temperature, and at $T=0$ it is the lowest value of $H-\mu N$:}
+\example{grandpotential}
 \fnentry{ParticleHoleOperator, TimeReversal}{\fn{ParticleHoleOperator[space, first, last]} is the unitary $P$ with
 $Pc_\alpha P^{-1}=c^\dagger_\alpha$ for the modes \texttt{first..last} (all by default): $\sigma^x$ on each of them times
 $e^{-i\pi\sum_\alpha(\alpha-1)n_\alpha}$. \fn{TimeReversal[space]} gives \texttt{<|"U" -> U, "Apply" -> f, "Inverse" -> finv|>}

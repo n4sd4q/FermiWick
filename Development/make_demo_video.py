@@ -165,8 +165,8 @@ CARDS = [
      [("readme", 2), ("showcase", "decompose"), ("showcase", "spinlength"), ("showcase", "commutator")], 1.8),
     ("Exact diagonalisation", "the Hubbard dimer as on paper: its spectrum and its ground state",
      [("showcase", "fockspace"), ("showcase", "focksector"), ("readme", 3), ("showcase", "dimerground")], 2.2),
-    ("Finite temperature and Green's functions", "the free energy of the dimer, and its Green's function",
-     [("showcase", "dimerfree"), ("showcase", "dimergreen")], 2.2),
+    ("Finite temperature and Green's functions", "the free energy of the dimer; its Green's function, and the poles a temperature adds",
+     [("showcase", "dimerfree"), ("showcase", "dimergreen"), ("showcase", "dimergreenT")], 2.4),
     ("Wick's theorem in the state you assume", "the energy; the chirality with and without time reversal",
      [("readme", 4), ("readme", 5), ("manual", "symmetries")], 2.0),
     ("Mean field of any order", "the Hubbard term in a magnetic state, the chirality with pairing",
@@ -465,7 +465,8 @@ def expressions(code):
     n = depth = 0
     for line in flat.split("\n"):
         depth += sum(line.count(b) for b in "[({") - sum(line.count(b) for b in "])}")
-        if depth == 0 and line.strip():
+        # a line that ends with a binary operator goes on in the next one
+        if depth == 0 and line.strip() and not re.search(r"(?:[-+*/^=,~|<>:]|&&)$", line.strip()):
             n += 1
     return n
 

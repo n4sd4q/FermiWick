@@ -71,7 +71,7 @@ are complex, other symbols are taken as real (the option `"Complex" -> {...}` li
 adds the "+ h.c.", and `HermitianOperatorQ` checks a Hamiltonian:
 
 ```mathematica
-hubbard = -t Sum[PlusHC[cDag[1, s] ** c[2, s]], {s, $Spins}] + U (DOp[1] + DOp[2]);
+hubbard = -t Sum[PlusHC[cDag[1, s] ** c[2, s]], {s, $Spins}] + U/2 Sum[(nTotOp[i] - 1)^2, {i, 2}];
 HermitianOperatorQ[hubbard]
 ```
 

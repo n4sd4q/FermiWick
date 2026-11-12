@@ -246,8 +246,7 @@ sector = FockSector[space, "N" -> 2, "Sz" -> 0];
 OccupationBasis[sector]
 
 (* ::Example:: dimerspectrum *)
-H = -t Sum[PlusHC[cDag[1, s] ** c[2, s]], {s, $Spins}] +
-  U Sum[nOp[i, SpinUp] ** nOp[i, SpinDown], {i, 2}];
+H = -t Sum[PlusHC[cDag[1, s] ** c[2, s]], {s, $Spins}] + U/2 Sum[(nTotOp[i] - 1)^2, {i, 2}];
 Eigenvalues[Normal[FockMatrix[H, sector]]]
 
 (* ::Example:: dimerground *)
@@ -255,23 +254,31 @@ Eigenvalues[Normal[FockMatrix[H, sector]]]
 ground = Normalize[vecs[[First[Ordering[N[vals /. {t -> 1, U -> 1}], 1]]]]];
 FullSimplify[StateToKet[sector, ground], t > 0 && U > 0]
 
+(* ::Example:: dimerpartition *)
+Z = PartitionFunction[H, space, T, \[Mu]]
+
+(* ::Example:: dimerfilling *)
+\[CapitalOmega] = -T Log[Z];
+FullSimplify[{-D[\[CapitalOmega], \[Mu]], -D[\[CapitalOmega], {\[Mu], 2}]} /. \[Mu] -> 0, T > 0]
+
 (* ::Example:: dimerfree *)
-h = H - U/2 Sum[nTotOp[i], {i, 2}];
-levels = Eigenvalues[Normal[FockMatrix[h, space]]];
-F = FullSimplify[-T Log[Total[Exp[-levels/T]]], T > 0]
+F = FullSimplify[-T Log[PartitionFunction[H, space, T]], T > 0]
 
 (* ::Example:: dimerentropy *)
 S = -D[F, T];
 {Limit[S /. U -> 4 t, T -> 0, Assumptions -> t > 0], Limit[S, T -> Infinity]}
 
 (* ::Example:: dimergreen *)
-e0 = ground . Normal[FockMatrix[h, sector]] . ground;
-part[op_, to_, sign_] := Module[{e, v, w},
-  {e, v} = Eigensystem[Normal[FockMatrix[h, to]]];
-  w = Normal[FockMatrix[op, {sector, to}]] . ground;
-  Sum[(Normalize[v[[n]]] . w)^2/(z - sign (e[[n]] - e0)), {n, Length[e]}]];
-FullSimplify[part[cDag[1, "\[UpArrow]"], FockSector[space, "N" -> 3, "Sz" -> 1/2], 1] +
-  part[c[1, "\[UpArrow]"], FockSector[space, "N" -> 1, "Sz" -> -1/2], -1], t > 0 && U > 0]
+g = LehmannGreen[H, space, {c[1, "\[UpArrow]"]}];
+FullSimplify[GreenMatrix[g, z][[1, 1]], t > 0 && U > 0]
+
+(* ::Example:: dimergreenT *)
+gT = LehmannGreen[H, space, {c[1, "\[UpArrow]"]}, "Temperature" -> T];
+Complement[gT["Poles"], g["Poles"]]
+
+(* ::Example:: dimerweight *)
+weights = AssociationThread[gT["Poles"], gT["Residues"][[All, 1, 1]]];
+FullSimplify[weights[t + U/2], T > 0]
 
 (* ::Example:: ring8 text *)
 nb[i_] := Mod[i - 1, 8] + 1;
@@ -282,9 +289,9 @@ N[Round[10^4 {First[e]/8, FockExpectation[DOp[1], First[v], half],
     FockExpectation[SdotS[1, 2], First[v], half]}]/10^4]
 
 (* ::Example:: lehmann text *)
-dimer = FockMatrix[-hop + 4 (DOp[1] + DOp[2]), space];
-g = LehmannGreen[dimer, space, {c[1, "\[UpArrow]"], c[2, "\[UpArrow]"]}, "N" -> 2];
-N[Round[10^4 Sort[g["Poles"]]]/10^4]
+ring4 = -Sum[PlusHC[cDag[i, s] ** c[Mod[i, 4] + 1, s]], {i, 4}, {s, $Spins}] + 2 Sum[(nTotOp[i] - 1)^2, {i, 4}];
+g4 = LehmannGreen[ring4, FockSpace[Range[4]], {c[1, "\[UpArrow]"]}, "Temperature" -> 1/2];
+{N[Round[10^4 g4["GrandPotential"]]/10^4], Length[g4["Poles"]], N[Round[10^4 Im[GreenMatrix[g4, I Pi/2][[1, 1]]]]/10^4]}
 
 (* ::Example:: wickexact text *)
 six = FockSector[FockSpace[Range[8]], "N" -> 6, "Sz" -> 0];

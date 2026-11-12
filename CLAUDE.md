@@ -58,6 +58,10 @@ which is not versioned.
   `<math-renderer>` must contain the formula as written. Pictures need a background that reads on light and dark pages.
 - The README links the PDFs on GitHub Pages (`https://n4sd4q.github.io/FermiWick/Showcase/...pdf`), so that they open in
   the browser, not on GitHub's page of the file (as FunctionalDiagrams); `make_site.py` makes those links relative.
+- In the documents (README, showcase, manual, tour, wiki, video) the Hubbard dimer is always written with the interaction
+  in the form symmetric about half filling, `U/2 Sum[(nTotOp[i] - 1)^2, {i, 2}]`, so that half filling is `μ = 0`.
+- The video numbers its cells as a notebook does: `In[n]:=` is the number of the first expression of a cell, `Out[n]=`
+  that of the one that gives the output; look at the labels on the frames after changing a cell.
 
 ## Releases
 - Semantic versioning (as FunctionalDiagrams). The version is the same in `FermiWick/PacletInfo.wl`, `$FermiWickVersion`,

@@ -1,3 +1,1 @@
-h = H - U/2 Sum[nTotOp[i], {i, 2}];
-levels = Eigenvalues[Normal[FockMatrix[h, space]]];
-F = FullSimplify[-T Log[Total[Exp[-levels/T]]], T > 0]
+F = FullSimplify[-T Log[PartitionFunction[H, space, T]], T > 0]

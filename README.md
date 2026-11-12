@@ -12,7 +12,7 @@
 <p align="center">
   <a href="https://github.com/n4sd4q/FermiWick/releases/latest"><img src="https://img.shields.io/github/v/release/n4sd4q/FermiWick?label=release&color=8A2880" alt="latest release"></a>
   <img src="https://img.shields.io/badge/Mathematica-13.0%2B-8A2880" alt="Mathematica 13.0 or later">
-  <a href="Tests"><img src="https://img.shields.io/badge/tests-95%20passed-2E7D32" alt="95 tests passed"></a>
+  <a href="Tests"><img src="https://img.shields.io/badge/tests-101%20passed-2E7D32" alt="101 tests passed"></a>
   <img src="https://img.shields.io/badge/license-GPL--3.0--or--later-8A2880" alt="GNU GPL v3 or later">
 </p>
 
@@ -86,7 +86,8 @@ matrix, and every symbolic result can be checked exactly.
 
 **Matrices** (``FermiWick`Fock` ``)
 - `FockSpace`, `FockSector`, `ModeIndex`, `FockMatrix`, `FockExpectation`, `OccupationBasis`, `BasisState`, `StateToKet`
-- `LowestStates`, `LehmannGreen`, `GreenMatrix`, `SpinSquared`, `ParticleHoleOperator`, `TimeReversal`, `SectorBlock`
+- `LowestStates`, `LehmannGreen`, `GreenMatrix` (zero or finite temperature, numbers or symbols), `PartitionFunction`,
+  `GrandPotential`, `SpinSquared`, `ParticleHoleOperator`, `TimeReversal`, `SectorBlock`
 - `ClearFockCache`, `$FockFullLimit`, `$FockDenseLimit`
 
 </details>
@@ -119,11 +120,11 @@ ToSpinChargeBasis[1/2 Sum[cDag[i, s] ** c[i, r] ** cDag[j, r] ** c[j, s], {s, $S
 
 $$\mathbf S_{i}\cdot\mathbf S_{j}+\frac{1}{4} n_{i}n_{j}$$
 
-**A model, solved exactly.** The Hubbard dimer, written as on paper, is a matrix on the sector of two electrons with
-$S^z=0$; its spectrum:
+**A model, solved exactly.** The Hubbard dimer, written as on paper (the interaction in the form symmetric about half
+filling, $\frac U2\sum_i(n_i-1)^2$), is a matrix on the sector of two electrons with $S^z=0$; its spectrum:
 
 ```mathematica
-H = -t Sum[PlusHC[cDag[1, s] ** c[2, s]], {s, $Spins}] + U Sum[nOp[i, SpinUp] ** nOp[i, SpinDown], {i, 2}];
+H = -t Sum[PlusHC[cDag[1, s] ** c[2, s]], {s, $Spins}] + U/2 Sum[(nTotOp[i] - 1)^2, {i, 2}];
 Eigenvalues[Normal[FockMatrix[H, FockSector[FockSpace[{1, 2}], "N" -> 2, "Sz" -> 0]]]]
 ```
 
@@ -230,7 +231,7 @@ Every output printed in the documents is computed by the code shown before it.
 
 ## Checks
 
-The tests (`math -script Tests/RunTests.wls`, 95 tests) check the algebra and the states, and the symbolic engine
+The tests (`math -script Tests/RunTests.wls`, 101 tests) check the algebra and the states, and the symbolic engine
 against the matrices: `WickVEV` and `MeanField` give the exact values in random Gibbs states of quadratic Hamiltonians
 with pairing, and the matrices agree with the Jordan–Wigner construction and with exact solutions of Hubbard clusters.
 `sh Development/check_docs.sh` runs the code of the showcase, the manual, the guided tour, the README and the wiki again,

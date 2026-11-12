@@ -28,9 +28,9 @@ toText[s_String] := s;
 toText[e_] := StringReplace[ToString[e /. FermiWick`GaussianState[a_Association] :> stateShown[Lookup[a, "Description", "..."]], InputForm,
      PageWidth -> 110], "DocsRunner`stateShown" | "stateShown" -> "GaussianState"];
 shown[code_] := StringReplace[code, Thread[("\\[" <> # <> "]" & /@ {"UpArrow", "DownArrow", "CapitalDelta", "Theta", "Nu", "Eta", "Chi",
-       "CenterDot", "Rho", "Kappa", "CurlyPhi", "CapitalPhi", "Sigma"}) ->
+       "CenterDot", "Rho", "Kappa", "CurlyPhi", "CapitalPhi", "Sigma", "Mu", "CapitalOmega"}) ->
     {"\[UpArrow]", "\[DownArrow]", "\[CapitalDelta]", "\[Theta]", "\[Nu]", "\[Eta]", "\[Chi]", "\[CenterDot]", "\[Rho]", "\[Kappa]",
-     "\[CurlyPhi]", "\[CapitalPhi]", "\[Sigma]"}]];
+     "\[CurlyPhi]", "\[CapitalPhi]", "\[Sigma]", "\[Mu]", "\[CapitalOmega]"}]];
 
 text = Import[src, "Text"];
 blocks = StringCases[text, RegularExpression["\\(\\* ::Example:: (\\w+)( text| tex)? \\*\\)\\n([\\s\\S]*?)(?=\\(\\* ::Example::|\\z)"] :>

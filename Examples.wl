@@ -79,11 +79,10 @@ ToSpinChargeBasis[OperatorCommutator[SdotS[1, 2], SdotS[2, 3]]]
 (*4. A model, as on paper*)
 
 (* ::Text:: *)
-(*The Hubbard model on a ring of L sites: hopping t between neighbours, plus its Hermitian conjugate, and the repulsion U on every site. The dimer, two sites joined once, is written apart.*)
+(*The Hubbard model on a ring of L sites: hopping t between neighbours, plus its Hermitian conjugate, and the repulsion U on every site, written (U/2)(n - 1)^2, the form symmetric about half filling. The dimer, two sites joined once, is written apart.*)
 
-hubbard[L_] := -t Sum[PlusHC[cDag[i, s] ** c[Mod[i, L] + 1, s]], {i, L}, {s, $Spins}] +
-   U Sum[nOp[i, SpinUp] ** nOp[i, SpinDown], {i, L}];
-dimer = -t Sum[PlusHC[cDag[1, s] ** c[2, s]], {s, $Spins}] + U Sum[nOp[i, SpinUp] ** nOp[i, SpinDown], {i, 2}];
+hubbard[L_] := -t Sum[PlusHC[cDag[i, s] ** c[Mod[i, L] + 1, s]], {i, L}, {s, $Spins}] + U/2 Sum[(nTotOp[i] - 1)^2, {i, L}];
+dimer = -t Sum[PlusHC[cDag[1, s] ** c[2, s]], {s, $Spins}] + U/2 Sum[(nTotOp[i] - 1)^2, {i, 2}];
 
 HermitianOperatorQ[hubbard[4]]
 (* True *)
@@ -97,6 +96,21 @@ HermitianOperatorQ[hubbard[4]]
 dimerSector = FockSector[FockSpace[{1, 2}], "N" -> 2, "Sz" -> 0];
 Eigenvalues[Normal[FockMatrix[dimer, dimerSector]]]
 (* 0, U and (U -+ Sqrt[U^2 + 16 t^2])/2 *)
+
+(* ::Text:: *)
+(*At a finite temperature everything follows from the grand-canonical partition function, the trace of Exp[-(H - mu N)/T] over the whole Fock space, sixteen states here: its logarithm is the free energy, at half filling for mu = 0, and derivatives give the entropy, the particle number, the compressibility.*)
+
+F = FullSimplify[-T Log[PartitionFunction[dimer, FockSpace[{1, 2}], T]], T > 0]
+(* -T Log[2 Exp[-U/(2 T)] (4 Cosh[t/T] + 3 Cosh[U/(2 T)] + Cosh[Sqrt[16 t^2 + U^2]/(2 T)])] *)
+
+Limit[-D[F, T], T -> Infinity]
+(* Log[16]: at a high temperature the sixteen states are equally likely *)
+
+(* ::Text:: *)
+(*The single-particle Green's function, as a sum over the same levels (the Lehmann representation), in closed form at zero temperature: its four poles are the energies of adding and of removing an electron. With "Temperature" -> T the excited states contribute too.*)
+
+FullSimplify[GreenMatrix[LehmannGreen[dimer, FockSpace[{1, 2}], {c[1, SpinUp]}], z][[1, 1]], t > 0 && U > 0]
+(* -4 z (36 t^2 + U^2 - 4 z^2)/((12 t^2 + U^2)^2 - 8 z^2 (20 t^2 + U^2) + 16 z^4) *)
 
 (* ::Text:: *)
 (*A ring of ten sites at half filling, with U = 4t: a sector of 63 504 states, solved in about a second.*)
