@@ -63,6 +63,10 @@ which is not versioned.
 - The video numbers its cells as a notebook does: `In[n]:=` is the number of the first expression of a cell, `Out[n]=`
   that of the one that gives the output; look at the labels on the frames after changing a cell.
 
+- An output shown both in the showcase and in the video (two different sessions) must not depend on `FullSimplify`'s
+  caches, which give different forms after different computations: use `Simplify`, `Factor` or `Together` there.
+- Ideas and things to do: `Development/TODO.md`.
+
 ## Releases
 - Semantic versioning (as FunctionalDiagrams). The version is the same in `FermiWick/PacletInfo.wl`, `$FermiWickVersion`,
   `CITATION.cff` (with `date-released`), the install line of the README and of the manual (the URL of the paclet), the
